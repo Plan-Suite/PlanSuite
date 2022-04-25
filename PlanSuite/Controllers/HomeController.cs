@@ -52,6 +52,7 @@ namespace PlanSuite.Controllers
             project.OwnerId = Guid.Parse(_userManager.GetUserId(claimsPrincipal));
             dbContext.Projects.Add(project);
             dbContext.SaveChanges();
+            Console.WriteLine($"Account {_userManager.GetUserId(claimsPrincipal)} successfully created {project.Id}");
 
             return RedirectToAction(nameof(Index));
         }
@@ -71,9 +72,40 @@ namespace PlanSuite.Controllers
                 Console.WriteLine($"No project with id {editProject.Id} found");
                 return RedirectToAction(nameof(Index));
             }
+
+            Console.WriteLine($"Account {_userManager.GetUserId(claimsPrincipal)} successfully modified {project.Id}");
             project.Name = editProject.Name;
             project.Description = editProject.Description;
             project.DueDate = editProject.DueDate;
+            dbContext.SaveChanges();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public IActionResult Delete(HomeViewModel.DeleteProjectModel deleteProject)
+        {
+            if (!_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            ClaimsPrincipal claimsPrincipal = HttpContext.User as ClaimsPrincipal;
+            var project = dbContext.Projects.FirstOrDefault(p => p.Id == deleteProject.Id);
+            if (project == null)
+            {
+                Console.WriteLine($"No project with id {deleteProject.Id} found");
+                return RedirectToAction(nameof(Index));
+            }
+
+            if(project.OwnerId != Guid.Parse(_userManager.GetUserId(claimsPrincipal)))
+            {
+                Console.WriteLine($"WARNING: Account {_userManager.GetUserId(claimsPrincipal)} tried to delete {project.Id} without correct permissions");
+                return RedirectToAction(nameof(Index));
+            }
+
+            Console.WriteLine($"Account {_userManager.GetUserId(claimsPrincipal)} successfully deleted {project.Id}");
+            dbContext.Projects.Remove(project);
             dbContext.SaveChanges();
 
             return RedirectToAction(nameof(Index));

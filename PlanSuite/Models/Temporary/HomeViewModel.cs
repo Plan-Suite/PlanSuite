@@ -8,6 +8,7 @@ namespace PlanSuite.Models.Temporary
         public CreateProjectModel CreateProject { get; set; } = new CreateProjectModel();
         public List<Project> Projects { get; set; } = new List<Project>();
         public EditProjectModel EditProject { get; set; } = new EditProjectModel();
+        public DeleteProjectModel DeleteProject { get; set; } = new DeleteProjectModel();
 
         public class CreateProjectModel
         {
@@ -24,6 +25,12 @@ namespace PlanSuite.Models.Temporary
             public string Description { get; set; }
             [BindProperty]
             public DateTime? DueDate { get; set; }
+        }
+
+        public class DeleteProjectModel
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
         }
     }
 }

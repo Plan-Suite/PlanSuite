@@ -96,6 +96,34 @@
           </div>
         </div>
 
+        @* Delete Existing Project *@
+        <div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-labelledby="deleteProjectLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="deleteProjectLabel"><strong>Delete Project:</strong> Project Name Here</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+                <form method="post" asp-controller="Home" asp-action="Delete">
+                    @Html.HiddenFor(model => model.DeleteProject.Id)
+                    @Html.HiddenFor(model => model.DeleteProject.Name)
+                    <div class="modal-body">
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.DeleteProject.Name, new { htmlAttributes = new { @class = "form-control", id = "confirmDeleteProjName", onkeyup="onDeleteInput()" } })
+                            @Html.LabelFor(model => model.DeleteProject.Name, "Enter the project name in order to be able to delete it", new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.ValidationMessageFor(model => model.DeleteProject.Name, "", new { @class = "text-danger" })
+                            <br>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-danger" id="deleteButton" disabled>Delete Project</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+          </div>
+        </div>
+
         @if(count > 0)
         {
             foreach(var item in Model.Projects)
@@ -106,8 +134,8 @@
                         <h6 class="card-subtitle m-1 mb-2 text-muted"><strong>Created Date:</strong> @FormatDate(item.CreatedDate)<br /><strong>Due Date:</strong> @FormatDate(item.DueDate)</h6>
                         <p class="card-text m-1">@item.Description</p>
                         <a href="#" class="btn btn-primary m-1 mb-1">View Project</a>
-                        @*<a href="#" class="btn btn-secondary m-1 mb-1" onclick="onEditProject">Edit Project</a>*@
                         <button type="button" class="btn btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" onclick="passButtonInfo('@item.Id', '@item.Name', '@item.Description', '@item.DueDate?.ToUniversalTime()')">Edit Project</button>
+                        <button type="button" class="btn btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" onclick="passDeleteButtonInfo('@item.Id', '@item.Name')">Delete Project</button>
                     </div>
                 </div>
             }
@@ -130,5 +158,26 @@ function passButtonInfo(dbId, name, desc, date)
     document.getElementById('editProjDesc').value = desc;
     document.getElementById('editProjDate').value = date; // i have no fking clue how to get this working :(
     document.getElementById('EditProject_Id').value = dbId;
+}
+
+function passDeleteButtonInfo(dbId, name)
+{
+    document.getElementById('deleteProjectLabel').innerHTML = `<strong>Delete:</strong> ${name}`;
+    document.getElementById('DeleteProject_Name').value = name;
+    document.getElementById('DeleteProject_Id').value = dbId;
+}
+
+function onDeleteInput()
+{
+    const button = document.getElementById('deleteButton');
+    const projName = document.getElementById('DeleteProject_Name').value;
+    if(document.getElementById('confirmDeleteProjName').value == projName)
+    {
+        button.disabled = false;
+    }
+    else
+    {
+        button.disabled = true;
+    }
 }
 </script>
