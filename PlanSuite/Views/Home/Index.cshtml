@@ -1,8 +1,134 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Identity
+@using System.Text.Json
+@using PlanSuite.Models.Persistent
+@inject SignInManager<IdentityUser> SignInManager
+@model PlanSuite.Models.Temporary.HomeViewModel
+@{
     ViewData["Title"] = "Home Page";
+    int count = Model.Projects.Count;
+    List<Project> projects = new List<Project>();
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+@functions{
+    string FormatDate(DateTime? value) => value.HasValue ? value.Value.ToString("dd/MMM/yyyy") : "N/A";
+}
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <div class="text-center">
+        <h1 class="display-4">Your Projects</h1>
+        @* Button trigger modal *@
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal">Create New Project</button>
+
+        @* Create New Project *@
+        <div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="createProjectLabel">Create New Project</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+                <form method="post" asp-controller="Home" asp-action="Create">
+                    <div class="modal-body">
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.CreateProject.Name, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.LabelFor(model => model.CreateProject.Name, new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.ValidationMessageFor(model => model.CreateProject.Name, "", new { @class = "text-danger" })
+                            <br>
+                        </div>
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.CreateProject.Description, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.LabelFor(model => model.CreateProject.Description, new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.ValidationMessageFor(model => model.CreateProject.Description, "", new { @class = "text-danger" })
+                            <br>
+                        </div>
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.CreateProject.DueDate, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.LabelFor(model => model.CreateProject.DueDate, new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.ValidationMessageFor(model => model.CreateProject.DueDate, "", new { @class = "text-danger" })
+                            <br>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Create Project</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+          </div>
+        </div>
+
+        @* Edit Existing Project *@
+        <div class="modal fade" id="editProjectModal" tabindex="-1" aria-labelledby="editProjectLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editProjectLabel"><strong>Edit Project:</strong> Project Name Here</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+              </div>
+                <form method="post" asp-controller="Home" asp-action="Create">
+                    <div class="modal-body">
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.CreateProject.Name, new { htmlAttributes = new { @class = "form-control", id = "editProjName" } })
+                            @Html.LabelFor(model => model.CreateProject.Name, new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.ValidationMessageFor(model => model.CreateProject.Name, "", new { @class = "text-danger" })
+                            <br>
+                        </div>
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.CreateProject.Description, new { htmlAttributes = new { @class = "form-control", id = "editProjDesc" } })
+                            @Html.LabelFor(model => model.CreateProject.Description, new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.ValidationMessageFor(model => model.CreateProject.Description, "", new { @class = "text-danger" })
+                            <br>
+                        </div>
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.CreateProject.DueDate, new { htmlAttributes = new { @class = "form-control", id = "editProjDate" } })
+                            @Html.LabelFor(model => model.CreateProject.DueDate, new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.ValidationMessageFor(model => model.CreateProject.DueDate, "", new { @class = "text-danger" })
+                            <br>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+          </div>
+        </div>
+
+        @if(count > 0)
+        {
+            foreach(var item in Model.Projects)
+            {
+                projects.Add(item);
+                <div class="card p-1" style="width: 18rem;">
+                    <div>
+                        <h5 class="card-title m-1">@item.Name</h5>
+                        <h6 class="card-subtitle m-1 mb-2 text-muted"><strong>Created Date:</strong> @FormatDate(item.CreatedDate)<br /><strong>Due Date:</strong> @FormatDate(item.DueDate)</h6>
+                        <p class="card-text m-1">@item.Description</p>
+                        <a href="#" class="btn btn-primary m-1 mb-1">View Project</a>
+                        @*<a href="#" class="btn btn-secondary m-1 mb-1" onclick="onEditProject">Edit Project</a>*@
+                        <button type="button" class="btn btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" onclick="passButtonInfo('@item.Id', '@item.Name', '@item.Description', '@item.DueDate')">Edit Project</button>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No projects</p>
+        }
+    </div>
+}
+else
+{
+    <p>show marketing shit here</p>
+}
+<script>
+function passButtonInfo(dbId, name, desc, date)
+{
+    document.getElementById('editProjectLabel').innerHTML = `<strong>Edit:</strong> ${jsonData.Name}`;
+    document.getElementById('editProjName').innerHTML = jsonData.Name;
+    document.getElementById('editProjDesc').innerHTML = jsonData.Description;
+    document.getElementById('editProjDate').innerHTML = jsonData.DueDate;
+}
+</script>

@@ -1,4 +1,4 @@
-namespace PlanSuite.Models
+namespace PlanSuite.Models.Temporary
 {
     public class ErrorViewModel
     {
