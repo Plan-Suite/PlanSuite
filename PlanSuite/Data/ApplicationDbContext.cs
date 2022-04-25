@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace PlanSuite.Data
 {
-    public class ApplicationDbContext : IdentityDbContext
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
         public DbSet<Project> Projects { get; set; }
 

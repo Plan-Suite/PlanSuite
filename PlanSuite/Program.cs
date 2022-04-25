@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PlanSuite.Data;
 using PlanSuite.Models;
+using PlanSuite.Models.Persistent;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<IdentityUser>((options) => 
+builder.Services.AddDefaultIdentity<ApplicationUser>((options) => 
 {
     options.SignIn.RequireConfirmedAccount = true;
     options.Password.RequireNonAlphanumeric = false;

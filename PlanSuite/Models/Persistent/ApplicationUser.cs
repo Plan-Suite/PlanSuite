@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using PlanSuite.Enums;
 
 namespace PlanSuite.Models.Persistent
 {
-    public class ApplicationUser : IdentityUser<int>
+    public class ApplicationUser : IdentityUser
     {
-
+        public PaymentTier PaymentTier { get; set; }
     }
 }
