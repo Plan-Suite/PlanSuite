@@ -6,7 +6,6 @@
 @{
     ViewData["Title"] = "Home Page";
     int count = Model.Projects.Count;
-    List<Project> projects = new List<Project>();
 }
 
 @functions{
@@ -66,24 +65,25 @@
                 <h5 class="modal-title" id="editProjectLabel"><strong>Edit Project:</strong> Project Name Here</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
-                <form method="post" asp-controller="Home" asp-action="Create">
+                <form method="post" asp-controller="Home" asp-action="Edit">
+                    @Html.HiddenFor(model => model.EditProject.Id)
                     <div class="modal-body">
                         <div class="form-floating">
-                            @Html.EditorFor(model => model.CreateProject.Name, new { htmlAttributes = new { @class = "form-control", id = "editProjName" } })
-                            @Html.LabelFor(model => model.CreateProject.Name, new { htmlAttributes = new { @class = "form-label" } })
-                            @Html.ValidationMessageFor(model => model.CreateProject.Name, "", new { @class = "text-danger" })
+                            @Html.EditorFor(model => model.EditProject.Name, new { htmlAttributes = new { @class = "form-control", id = "editProjName" } })
+                            @Html.LabelFor(model => model.EditProject.Name, new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.ValidationMessageFor(model => model.EditProject.Name, "", new { @class = "text-danger" })
                             <br>
                         </div>
                         <div class="form-floating">
-                            @Html.EditorFor(model => model.CreateProject.Description, new { htmlAttributes = new { @class = "form-control", id = "editProjDesc" } })
-                            @Html.LabelFor(model => model.CreateProject.Description, new { htmlAttributes = new { @class = "form-label" } })
-                            @Html.ValidationMessageFor(model => model.CreateProject.Description, "", new { @class = "text-danger" })
+                            @Html.EditorFor(model => model.EditProject.Description, new { htmlAttributes = new { @class = "form-control", id = "editProjDesc" } })
+                            @Html.LabelFor(model => model.EditProject.Description, new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.ValidationMessageFor(model => model.EditProject.Description, "", new { @class = "text-danger" })
                             <br>
                         </div>
                         <div class="form-floating">
-                            @Html.EditorFor(model => model.CreateProject.DueDate, new { htmlAttributes = new { @class = "form-control", id = "editProjDate" } })
-                            @Html.LabelFor(model => model.CreateProject.DueDate, new { htmlAttributes = new { @class = "form-label" } })
-                            @Html.ValidationMessageFor(model => model.CreateProject.DueDate, "", new { @class = "text-danger" })
+                            @Html.EditorFor(model => model.EditProject.DueDate, new { htmlAttributes = new { @class = "form-control", id = "editProjDate" } })
+                            @Html.LabelFor(model => model.EditProject.DueDate, new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.ValidationMessageFor(model => model.EditProject.DueDate, "", new { @class = "text-danger" })
                             <br>
                         </div>
                         <div class="modal-footer">
@@ -100,7 +100,6 @@
         {
             foreach(var item in Model.Projects)
             {
-                projects.Add(item);
                 <div class="card p-1" style="width: 18rem;">
                     <div>
                         <h5 class="card-title m-1">@item.Name</h5>
@@ -108,7 +107,7 @@
                         <p class="card-text m-1">@item.Description</p>
                         <a href="#" class="btn btn-primary m-1 mb-1">View Project</a>
                         @*<a href="#" class="btn btn-secondary m-1 mb-1" onclick="onEditProject">Edit Project</a>*@
-                        <button type="button" class="btn btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" onclick="passButtonInfo('@item.Id', '@item.Name', '@item.Description', '@item.DueDate')">Edit Project</button>
+                        <button type="button" class="btn btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" onclick="passButtonInfo('@item.Id', '@item.Name', '@item.Description', '@item.DueDate?.ToUniversalTime()')">Edit Project</button>
                     </div>
                 </div>
             }
@@ -126,9 +125,10 @@ else
 <script>
 function passButtonInfo(dbId, name, desc, date)
 {
-    document.getElementById('editProjectLabel').innerHTML = `<strong>Edit:</strong> ${jsonData.Name}`;
-    document.getElementById('editProjName').innerHTML = jsonData.Name;
-    document.getElementById('editProjDesc').innerHTML = jsonData.Description;
-    document.getElementById('editProjDate').innerHTML = jsonData.DueDate;
+    document.getElementById('editProjectLabel').innerHTML = `<strong>Edit:</strong> ${name}`;
+    document.getElementById('editProjName').value = name;
+    document.getElementById('editProjDesc').value = desc;
+    document.getElementById('editProjDate').value = date; // i have no fking clue how to get this working :(
+    document.getElementById('EditProject_Id').value = dbId;
 }
 </script>

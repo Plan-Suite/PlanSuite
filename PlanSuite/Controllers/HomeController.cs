@@ -56,6 +56,29 @@ namespace PlanSuite.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        public IActionResult Edit(HomeViewModel.EditProjectModel editProject)
+        {
+            if (!_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            ClaimsPrincipal claimsPrincipal = HttpContext.User as ClaimsPrincipal;
+            var project = dbContext.Projects.FirstOrDefault(p => p.Id == editProject.Id);
+            if(project == null)
+            {
+                Console.WriteLine($"No project with id {editProject.Id} found");
+                return RedirectToAction(nameof(Index));
+            }
+            project.Name = editProject.Name;
+            project.Description = editProject.Description;
+            project.DueDate = editProject.DueDate;
+            dbContext.SaveChanges();
+
+            return RedirectToAction(nameof(Index));
+        }
+
         public IActionResult Privacy()
         {
             return View();
