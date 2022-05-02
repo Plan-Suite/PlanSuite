@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlanSuite.Data;
 
@@ -10,9 +11,10 @@ using PlanSuite.Data;
 namespace PlanSuite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220426161954_Columns")]
+    partial class Columns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -230,9 +232,8 @@ namespace PlanSuite.Migrations
                         .HasColumnType("int")
                         .HasColumnName("project_id");
 
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("longtext")
+                    b.Property<int>("Title")
+                        .HasColumnType("int")
                         .HasColumnName("title");
 
                     b.HasKey("Id");

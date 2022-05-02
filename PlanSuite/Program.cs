@@ -1,12 +1,14 @@
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PlanSuite.Data;
-using PlanSuite.Models;
 using PlanSuite.Models.Persistent;
+using PlanSuite.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddScoped<ProjectService>();
+
+// Add database connection
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     //options.UseSqlServer(connectionString));
