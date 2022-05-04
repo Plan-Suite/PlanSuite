@@ -9,6 +9,7 @@ namespace PlanSuite.Data
     {
         public DbSet<Project> Projects { get; set; }
         public DbSet<Column> Columns { get; set; }
+        public DbSet<Card> Cards { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

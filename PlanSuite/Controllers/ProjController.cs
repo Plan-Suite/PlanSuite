@@ -18,6 +18,7 @@ namespace PlanSuite.Controllers
         [HttpPost("movecard")]
         public IActionResult MoveCard([FromForm] MoveCardModel model)
         {
+            Console.WriteLine($"MoveCard: {model.CardId} {model.ColumnId}");
             m_ProjectService.MoveCard(model);
 
             return Ok(new

@@ -55,6 +55,16 @@ namespace PlanSuite.Controllers
                 viewModel.Columns = columns;
             }
 
+            foreach(var column in columns)
+            {
+                var cards = dbContext.Cards.Where(c => c.ColumnId == column.Id).ToList();
+                if (cards != null && cards.Count > 0)
+                {
+                    viewModel.Cards = cards;
+                }
+            }
+
+
             return View(viewModel);
         }
 
