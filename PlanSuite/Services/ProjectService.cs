@@ -34,5 +34,15 @@ namespace PlanSuite.Services
                 m_Database.SaveChanges();
             }
         }
+
+        public void EditCardName(EditCardNameModel model)
+        {
+            var card = m_Database.Cards.Where(card => card.Id == model.CardId).FirstOrDefault();
+            if (card != null)
+            {
+                card.CardName = model.Name;
+                m_Database.SaveChanges();
+            }
+        }
     }
 }

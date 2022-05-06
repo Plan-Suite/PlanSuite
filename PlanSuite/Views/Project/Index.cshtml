@@ -69,10 +69,6 @@ function removeEditForm()
     $("#viewCardText").removeClass( "d-none" );
 
     var text = $("#viewCardEditTextEditor").val();
-    if(isBlank(text))
-    {
-        text = "@defaultCardDesc";
-    }
 
     $("#viewCardText").text(text);
 
@@ -88,6 +84,36 @@ function removeEditForm()
     });
 }
 
+function removeEditLabel()
+{
+    var dbId = $('#viewCardId').val();
+    const name = "#viewCardEditLabel";
+    $("#viewCardEditLabelEditor").off();
+    $(name).addClass( "d-none" );
+    $("#viewCardLabel").removeClass( "d-none" );
+
+    var text = $("#viewCardEditLabelEditor").val();
+    if(isBlank(text))
+    {
+        text = "Card Name";
+    }
+
+    var desc = $("#viewCardText").text();
+    $("#viewCardLabel").text(text);
+    $(`#viewCardName_${dbId}`).text(text);
+    $(`#viewCardName_${dbId}`).attr("onclick",`viewCardButton('${dbId}', '${desc}', '${text}')`);
+
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        url: "/api/Project/editcardname",
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
+        },
+        data: JSON.stringify({ cardId: dbId, name: text }),
+    });
+}
 </script>
 
 <h1 class="text-center">@Model.Project.Name</h1>
@@ -136,20 +162,22 @@ function removeEditForm()
     <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
-        <h5 class="modal-title" id="viewCardLabel">Card Name</h5>
+        <input type="hidden" id="viewCardId" value="0"/>
+        <h5 class="modal-title" id="viewCardLabel" onclick="editName()">Card Name</h5>
+        <div class="d-none" id="viewCardEditLabel">
+            <div class="form-floating">
+                <input class="form-control text-box single-line" id="viewCardEditLabelEditor" type="text" value=""/>
+                <label class="form-label">Card Name</label>
+            </div>
+        </div>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
             <div class="modal-body">
                 <p class="text-muted" id="viewCardText" onclick="editDescription()">@defaultCardDesc</p>
                 <div class="d-none" id="viewCardEditText">
                     <div class="form-floating">
-                        <input type="hidden" id="viewCardId" value="0"/>
                         <input class="form-control text-box single-line" id="viewCardEditTextEditor" type="text" value=""/>
                         <label class="form-label">Description</label>
-                        @*@Html.HiddenFor(model => model.ViewCard.CardId)
-                        @Html.EditorFor(model => model.ViewCard.Description, new { htmlAttributes = new { @class = "form-control", id = "viewCardEditTextEditor" } })
-                        @Html.LabelFor(model => model.ViewCard.Description, new { htmlAttributes = new { @class = "form-label" } })
-                        @Html.ValidationMessageFor(model => model.ViewCard.Description, "", new { @class = "text-danger" })*@
                     </div>
                 </div>
                 <br>
@@ -185,7 +213,7 @@ function removeEditForm()
                                 <div class="card draggable" id="@card.Id">
                                     <div class="card-body">
                                         <div class="d-grid gap-2">
-                                            <a class="btn btn-light btn-outline-dark" href="#" data-bs-toggle="modal" data-bs-target="#viewCardModal" onclick="viewCardButton('@card.Id', '@card.CardDescription', '@card.CardName')">@card.CardName</a>
+                                            <a class="btn btn-light btn-outline-dark" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal" onclick="viewCardButton('@card.Id', '@card.CardDescription', '@card.CardName')">@card.CardName</a>
                                         </div>
                                     </div>
                                 </div>
@@ -234,6 +262,19 @@ function removeEditForm()
 </div>
 
 <script>
+function editName()
+{
+    var dbid = $('#viewCardId').val();
+    var currentName = $('#viewCardLabel').text();
+    console.log(currentName);
+    $('#viewCardLabel').addClass("d-none");
+    $('#viewCardEditLabel').removeClass("d-none");
+
+    $('#viewCardEditLabelEditor').val(currentName);
+    $('#viewCardEditLabelEditor').focus();
+    $('#viewCardEditLabelEditor').on("focusout", removeEditLabel);
+}
+
 function editDescription()
 {
     var dbid = $('#viewCardId').val();
@@ -246,7 +287,7 @@ function editDescription()
 
 function viewCardButton(dbId, desc, name)
 {
-    $('#viewCardLabel').val(name);
+    $('#viewCardLabel').text(name);
     if(isBlank(desc))
     {
         desc = "@defaultCardDesc";
