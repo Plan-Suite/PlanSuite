@@ -4,6 +4,7 @@
     int projectId = Model.Project.Id;
     int columnCount = Model.Columns.Count;
     int cardCount = Model.Cards.Count;
+    string defaultCardDesc = "Click here to add a description.";
 }
 
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
@@ -61,19 +62,19 @@ function removeCard()
 
 function removeEditForm()
 {
-    var dbId = $('#ViewCard_CardId').val();
+    var dbId = $('#viewCardId').val();
     const name = "#viewCardEditText";
-    $(name).off();
+    $("#viewCardEditTextEditor").off();
     $(name).addClass( "d-none" );
     $("#viewCardText").removeClass( "d-none" );
 
     var text = $("#viewCardEditTextEditor").val();
     if(isBlank(text))
     {
-        text = "Click here to add a description.";
+        text = "@defaultCardDesc";
     }
-    var json = JSON.stringify({ cardId: dbId, description: text });
-    console.log(json);
+
+    $("#viewCardText").text(text);
 
     $.ajax({
         type: "POST",
@@ -83,7 +84,7 @@ function removeEditForm()
         beforeSend: function (request) {
             request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
         },
-        data: json,
+        data: JSON.stringify({ cardId: dbId, description: text }),
     });
 }
 
@@ -139,15 +140,18 @@ function removeEditForm()
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
             <div class="modal-body">
-                <p class="text-muted" id="viewCardText" onclick="editDescription()">Click here to add a description.</p>
-                <form class="d-none" id="viewCardEditText" method="post" asp-controller="Project" asp-action="ViewCard">
+                <p class="text-muted" id="viewCardText" onclick="editDescription()">@defaultCardDesc</p>
+                <div class="d-none" id="viewCardEditText">
                     <div class="form-floating">
-                        @Html.HiddenFor(model => model.ViewCard.CardId)
+                        <input type="hidden" id="viewCardId" value="0"/>
+                        <input class="form-control text-box single-line" id="viewCardEditTextEditor" type="text" value=""/>
+                        <label class="form-label">Description</label>
+                        @*@Html.HiddenFor(model => model.ViewCard.CardId)
                         @Html.EditorFor(model => model.ViewCard.Description, new { htmlAttributes = new { @class = "form-control", id = "viewCardEditTextEditor" } })
                         @Html.LabelFor(model => model.ViewCard.Description, new { htmlAttributes = new { @class = "form-label" } })
-                        @Html.ValidationMessageFor(model => model.ViewCard.Description, "", new { @class = "text-danger" })
+                        @Html.ValidationMessageFor(model => model.ViewCard.Description, "", new { @class = "text-danger" })*@
                     </div>
-                </form>
+                </div>
                 <br>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -232,7 +236,7 @@ function removeEditForm()
 <script>
 function editDescription()
 {
-    var dbid = $('#ViewCard_CardId').val();
+    var dbid = $('#viewCardId').val();
     $('#viewCardText').addClass("d-none");
     $('#viewCardEditText').removeClass("d-none");
 
@@ -243,8 +247,12 @@ function editDescription()
 function viewCardButton(dbId, desc, name)
 {
     $('#viewCardLabel').val(name);
-    $('#viewCardText').val(desc);
-    $('#ViewCard_CardId').val(dbId);
+    if(isBlank(desc))
+    {
+        desc = "@defaultCardDesc";
+    }
+    $('#viewCardText').text(desc);
+    $('#viewCardId').val(dbId);
 }
 
 function addNewCard(id)

@@ -27,5 +27,18 @@ namespace PlanSuite.Controllers.Api
             });
 
         }
+
+        [HttpPost("editcarddesc")]
+        public IActionResult EditCardDesc([FromBody] EditCardDescModel model)
+        {
+            Console.WriteLine($"EditCardDescModel: {model.CardId} {model.Description}");
+            m_ProjectService.EditCardDesc(model);
+
+            return Ok(new
+            {
+                Modified = true
+            });
+
+        }
     }
 }
