@@ -2,15 +2,15 @@
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
 
-namespace PlanSuite.Controllers
+namespace PlanSuite.Controllers.Api
 {
-    [Route("api/[controller]")]
+    [Route("api/[Controller]")]
     [ApiController]
-    public class ProjController : ControllerBase
+    public class ProjectController : ControllerBase
     {
         private readonly ProjectService m_ProjectService;
 
-        public ProjController(ProjectService projectService)
+        public ProjectController(ProjectService projectService)
         {
             m_ProjectService = projectService;
         }

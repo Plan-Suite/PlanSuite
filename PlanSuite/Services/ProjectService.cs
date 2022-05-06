@@ -1,5 +1,8 @@
 ﻿using PlanSuite.Data;
+using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace PlanSuite.Services
 {
@@ -14,7 +17,12 @@ namespace PlanSuite.Services
 
         public void MoveCard(MoveCardModel model)
         {
-            throw new NotImplementedException();
+            var card = m_Database.Cards.Where(card => card.Id == model.CardId).FirstOrDefault();
+            if(card != null)
+            {
+                card.ColumnId = model.ColumnId;
+                m_Database.SaveChanges();
+            }
         }
     }
 }

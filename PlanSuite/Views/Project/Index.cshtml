@@ -1,6 +1,7 @@
 ﻿@model PlanSuite.Models.Temporary.ProjectViewModel
 @{
     ViewData["Title"] = Model.Project.Name;
+    int projectId = Model.Project.Id;
     int columnCount = Model.Columns.Count;
     int cardCount = Model.Cards.Count;
 }
@@ -21,12 +22,16 @@
 
 
 <script>
+function isBlank(str){
+    return (!!!str || /^\s*$/.test(str));
+}
+
 $(function () {
     $(".draggable").draggable({
         revert: "invalid"
     });
 
-    $('.column').droppable({
+    $('.column-droppable').droppable({
         accept: '.draggable',
         drop: function (event, ui) {
             var dropped = ui.draggable;
@@ -46,6 +51,41 @@ $(function () {
         }
     });
 });
+
+function removeCard()
+{
+    const name = "#createCardDiv";
+    $(name).off();
+    $(name).addClass( "d-none" );
+}
+
+function removeEditForm()
+{
+    var dbId = $('#ViewCard_CardId').val();
+    const name = "#viewCardEditText";
+    $(name).off();
+    $(name).addClass( "d-none" );
+    $("#viewCardText").removeClass( "d-none" );
+
+    var text = $("#viewCardEditTextEditor").val();
+    if(isBlank(text))
+    {
+        text = "Click here to add a description.";
+    }
+    var json = JSON.stringify({ cardId: dbId, description: text });
+    console.log(json);
+
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        url: "/api/Project/editcarddesc",
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
+        },
+        data: json,
+    });
+}
 
 </script>
 
@@ -90,6 +130,33 @@ $(function () {
     </div>
 </div>
 
+@* View Card *@
+<div class="modal fade" id="viewCardModal" tabindex="-1" aria-labelledby="viewCardLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="viewCardLabel">Card Name</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <div class="modal-body">
+                <p class="text-muted" id="viewCardText" onclick="editDescription()">Click here to add a description.</p>
+                <form class="d-none" id="viewCardEditText" method="post" asp-controller="Project" asp-action="ViewCard">
+                    <div class="form-floating">
+                        @Html.HiddenFor(model => model.ViewCard.CardId)
+                        @Html.EditorFor(model => model.ViewCard.Description, new { htmlAttributes = new { @class = "form-control", id = "viewCardEditTextEditor" } })
+                        @Html.LabelFor(model => model.ViewCard.Description, new { htmlAttributes = new { @class = "form-label" } })
+                        @Html.ValidationMessageFor(model => model.ViewCard.Description, "", new { @class = "text-danger" })
+                    </div>
+                </form>
+                <br>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+    </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col col-sm-10">
         <button type="button" class="btn btn-success float-start" data-bs-toggle="modal" data-bs-target="#addColumnModal" onclick="addColumnBtn('@Model.Project.Id')">Add Column</button>
@@ -104,6 +171,7 @@ $(function () {
             <div class="col m4">
                 <h3 style="text-align:center;"><button class="btn btn-light" type="button"> <i class="fas fa-arrow-left"></i> </button> @item.Title <button class="btn btn-light" type="button">@Html.Encode("->")</button></h3>
                 <div class="column" style="min-height: 600px;" id="@item.Id">
+                    <div class="column-droppable" style="min-height: 300px;">
                     @if(columnCount > 0)
                     {
                         foreach(var card in Model.Cards)
@@ -113,13 +181,14 @@ $(function () {
                                 <div class="card draggable" id="@card.Id">
                                     <div class="card-body">
                                         <div class="d-grid gap-2">
-                                            <a class="btn btn-light btn-outline-dark" href="#">@card.CardName</a>
+                                            <a class="btn btn-light btn-outline-dark" href="#" data-bs-toggle="modal" data-bs-target="#viewCardModal" onclick="viewCardButton('@card.Id', '@card.CardDescription', '@card.CardName')">@card.CardName</a>
                                         </div>
                                     </div>
                                 </div>
                             }
                         }
                     }
+                    </div>
                     <div class="card">
                         <div class="card-body">
                             <div class="d-grid gap-2">
@@ -127,27 +196,9 @@ $(function () {
                             </div>
                         </div>
                     </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="d-grid gap-2">
-                                <div class="btn btn-outline-dark">
-                                    <form>
-                                        <div class="row">
-                                            <div class="col-sm-10">
-                                                <input type="text" class="form-control form-control-sm" id="cardNameField" placeholder="Card Name">
-                                            </div>
-                                            <div class="col-sm-2">
-                                                <button type="submit" class="btn btn-primary btn-sm">Submit</button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
-        }        
+        }
     }
     else
     {
@@ -155,22 +206,61 @@ $(function () {
             <p class="text-muted text-center m-1">No columns on this project, select <a class="link-primary" href="#" data-bs-toggle="modal" data-bs-target="#addColumnModal">Add Column</a> to add one.</p>
         </div>
     }
+
+    <div class="card d-none" id="createCardDiv">
+        <div class="card-body">
+            <div class="d-grid gap-2">
+                <div class="btn btn-outline-dark">
+                    <form method="post" asp-controller="Project" asp-action="addcard">
+                        @Html.HiddenFor(model => model.AddCard.ColumnId)
+                        @Html.HiddenFor(model => model.AddCard.ProjectId)
+                        <div class="row">
+                            <div class="col-sm-10">
+                                @Html.EditorFor(model => model.AddCard.Name, new { htmlAttributes = new { @class = "form-control form-control-sm", id = "cardNameField", placeholder = "Card Name" } })
+                            </div>
+                            <div class="col-sm-2">
+                                <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
+function editDescription()
+{
+    var dbid = $('#ViewCard_CardId').val();
+    $('#viewCardText').addClass("d-none");
+    $('#viewCardEditText').removeClass("d-none");
+
+    $('#viewCardEditTextEditor').focus();
+    $('#viewCardEditTextEditor').on("focusout", removeEditForm);
+}
+
+function viewCardButton(dbId, desc, name)
+{
+    $('#viewCardLabel').val(name);
+    $('#viewCardText').val(desc);
+    $('#ViewCard_CardId').val(dbId);
+}
+
 function addNewCard(id)
 {
-    $(`#${id}`).prepend('<div class="card">\
-                        <div class="card-body">\
-                            <div class="d-grid gap-2">\
-                                <div class="btn btn-outline-dark">\
-                                    <form>\
-                                        <input type="text" class="form-control" id="cardNameField" placeholder="Card Name">\
-                                    </form>\
-                                </div>\
-                            </div>\
-                        </div>\
-                    </div>');
+    const name = "#createCardDiv";
+
+    removeCard();
+
+    $(name).detach().appendTo(`#${id}`);
+    $(name).removeClass("d-none");
+
+    $('#AddCard_ColumnId').val(id);
+    $('#AddCard_ProjectId').val('@Model.Project.Id');
+    $('#cardNameField').focus();
+
+    $('#createCardDiv').on("focusout", removeCard);
 }
 
 function addColumnBtn(dbId)

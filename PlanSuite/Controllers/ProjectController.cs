@@ -53,18 +53,15 @@ namespace PlanSuite.Controllers
             if(columns != null && columns.Count > 0)
             {
                 viewModel.Columns = columns;
-            }
-
-            foreach(var column in columns)
-            {
-                var cards = dbContext.Cards.Where(c => c.ColumnId == column.Id).ToList();
-                if (cards != null && cards.Count > 0)
+                foreach(var column in columns)
                 {
-                    viewModel.Cards = cards;
+                    var cards = dbContext.Cards.Where(c => c.ColumnId == column.Id).ToList();
+                    if (cards != null && cards.Count > 0)
+                    {
+                        viewModel.Cards = cards;
+                    }
                 }
             }
-
-
             return View(viewModel);
         }
 
@@ -75,8 +72,6 @@ namespace PlanSuite.Controllers
             {
                 return RedirectToAction(nameof(Index), "Home");
             }
-
-            Console.WriteLine(JsonSerializer.Serialize(addColumn));
 
             ClaimsPrincipal claimsPrincipal = HttpContext.User as ClaimsPrincipal;
             var project = dbContext.Projects.FirstOrDefault(p => p.Id == addColumn.ProjectId);
@@ -102,6 +97,36 @@ namespace PlanSuite.Controllers
             dbContext.SaveChanges();
 
             return RedirectToAction(nameof(Index), "Project", new { id = project.Id });
+        }
+
+        [HttpPost("addcard")]
+        public IActionResult AddCard(AddCardModel addCard)
+        {
+            if (!_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction(nameof(Index), "Home");
+            }
+
+            Console.WriteLine(JsonSerializer.Serialize(addCard));
+
+            ClaimsPrincipal claimsPrincipal = HttpContext.User as ClaimsPrincipal;
+            var column = dbContext.Columns.FirstOrDefault(p => p.Id == addCard.ColumnId);
+            if (column == null)
+            {
+                Console.WriteLine($"No column with id {addCard.ColumnId} found");
+                return RedirectToAction(nameof(Index), "Home");
+            }
+
+            Console.WriteLine($"Account {_userManager.GetUserId(claimsPrincipal)} successfully added a card to column {column.Id}");
+
+            var card = new Card();
+            card.ColumnId = addCard.ColumnId;
+            card.CardName = addCard.Name;
+            dbContext.Cards.Add(card);
+
+            dbContext.SaveChanges();
+
+            return RedirectToAction(nameof(Index), "Project", new { id = column.ProjectId });
         }
     }
 }

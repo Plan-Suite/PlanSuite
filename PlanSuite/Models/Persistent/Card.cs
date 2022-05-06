@@ -17,6 +17,6 @@ namespace PlanSuite.Models.Persistent
         public string CardName { get; set; }
 
         [Column("card_description")]
-        public string CardDescription { get; set; }
+        public string? CardDescription { get; set; }
     }
 }
