@@ -32,7 +32,7 @@ $(function () {
         revert: "invalid"
     });
 
-    $('.column-droppable').droppable({
+    $('.column').droppable({
         accept: '.draggable',
         drop: function (event, ui) {
             var dropped = ui.draggable;
@@ -198,13 +198,13 @@ function removeEditLabel()
 <div class="row">
     @if(columnCount > 0)
     {
+        <script>console.log("@columnCount")</script>
         foreach(var item in Model.Columns)
         {
             <div class="col m4">
                 <h3 style="text-align:center;"><button class="btn btn-light" type="button"> <i class="fas fa-arrow-left"></i> </button> @item.Title <button class="btn btn-light" type="button">@Html.Encode("->")</button></h3>
                 <div class="column" style="min-height: 600px;" id="@item.Id">
-                    <div class="column-droppable" style="min-height: 300px;">
-                    @if(columnCount > 0)
+                    @if(cardCount > 0)
                     {
                         foreach(var card in Model.Cards)
                         {
@@ -220,7 +220,6 @@ function removeEditLabel()
                             }
                         }
                     }
-                    </div>
                     <div class="card">
                         <div class="card-body">
                             <div class="d-grid gap-2">
