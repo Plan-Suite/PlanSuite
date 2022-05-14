@@ -58,7 +58,7 @@ namespace PlanSuite.Controllers
                     var cards = dbContext.Cards.Where(c => c.ColumnId == column.Id).ToList();
                     if (cards != null && cards.Count > 0)
                     {
-                        viewModel.Cards = cards;
+                        viewModel.Cards.AddRange(cards);
                     }
                 }
             }

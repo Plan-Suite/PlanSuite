@@ -198,26 +198,25 @@ function removeEditLabel()
 <div class="row">
     @if(columnCount > 0)
     {
-        <script>console.log("@columnCount")</script>
+        <script>console.log("Columns: @columnCount")</script>
         foreach(var item in Model.Columns)
         {
             <div class="col m4">
                 <h3 style="text-align:center;"><button class="btn btn-light" type="button"> <i class="fas fa-arrow-left"></i> </button> @item.Title <button class="btn btn-light" type="button">@Html.Encode("->")</button></h3>
                 <div class="column" style="min-height: 600px;" id="@item.Id">
-                    @if(cardCount > 0)
+                    <script>console.log("Cards: @cardCount")</script>
+                    @foreach(var card in Model.Cards)
                     {
-                        foreach(var card in Model.Cards)
+                        <span class="d-none">@card.ColumnId<text>==</text>@item.Id @(card.ColumnId == item.Id)</span>
+                        if(card.ColumnId == item.Id)
                         {
-                            if(card.ColumnId == item.Id)
-                            {
-                                <div class="card draggable" id="@card.Id">
-                                    <div class="card-body">
-                                        <div class="d-grid gap-2">
-                                            <a class="btn btn-light btn-outline-dark" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal" onclick="viewCardButton('@card.Id', '@card.CardDescription', '@card.CardName')">@card.CardName</a>
-                                        </div>
+                            <div class="card draggable" id="@card.Id">
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        <a class="btn btn-light btn-outline-dark" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal" onclick="viewCardButton('@card.Id', '@card.CardDescription', '@card.CardName')">@card.CardName</a>
                                     </div>
                                 </div>
-                            }
+                            </div>
                         }
                     }
                     <div class="card">
