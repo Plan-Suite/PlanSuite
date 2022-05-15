@@ -1,18 +1,32 @@
+/*
+    Colours:
+    #351431
+    #775253
+    #BDC696
+    #D1D3C4
+    #DFE0DC - Background
+*/
+
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    background-color: #DFE0DC;
+}
+
+.navagation-bar {
+    background-color: #775253;
 }
