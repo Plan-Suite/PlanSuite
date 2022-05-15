@@ -29,6 +29,7 @@ body {
 
 .navagation-bar {
     background-color: #3A5FDA;
+    color: #FFFFFF;
 }
 
 .ps-btn-primary {
@@ -36,20 +37,40 @@ body {
     color: #FFFFFF;
 }
 
+    .ps-btn-primary:hover {
+        background-color: #4D6FDD;
+        color: #FFFFFF;
+    }
+
 .ps-btn-secondary {
     background-color: #2E3532;
     color: #FFFFFF;
 }
+
+    .ps-btn-secondary:hover {
+        background-color: #424946;
+        color: #FFFFFF;
+    }
 
 .ps-btn-success {
     background-color: #00A896;
     color: #FFFFFF;
 }
 
+    .ps-btn-success:hover {
+        background-color: #19B0A0;
+        color: #FFFFFF;
+    }
+
 .ps-btn-danger {
     background-color: #E71D36;
     color: #FFFFFF;
 }
+
+    .ps-btn-danger:hover {
+        background-color: #EE6072;
+        color: #FFFFFF;
+    }
 
 .ps-link {
     color: #E5E5E5;

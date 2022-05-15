@@ -103,6 +103,11 @@ namespace PlanSuite.Areas.Identity.Pages.Account
             [Display(Name = "Confirm password")]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+
+            [Required]
+            [Display(Name = "I Agree to the Terms & Conditions and also agree to the Privacy Policy.")]
+            [Range(typeof(bool), "true", "true", ErrorMessage = "You must agree to the end user license agreement to continue.")]
+            public bool EndUserLicenseAgreement { get; set; }
         }
 
 
