@@ -17,7 +17,7 @@
     <div class="text-center">
         <h1 class="display-4">Your Projects</h1>
         @* Button trigger modal *@
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal">Create New Project</button>
+        <button type="button" class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal">Create New Project</button>
 
         @* Create New Project *@
         <div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectLabel" aria-hidden="true">
@@ -48,8 +48,8 @@
                             <br>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Create Project</button>
+                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn ps-btn-primary">Create Project</button>
                         </div>
                     </div>
                 </form>
@@ -87,8 +87,8 @@
                             <br>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn ps-btn-primary">Save Changes</button>
                         </div>
                     </div>
                 </form>
@@ -115,8 +115,8 @@
                             <br>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-danger" id="deleteButton" disabled>Delete Project</button>
+                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn ps-btn-danger" id="deleteButton" disabled>Delete Project</button>
                         </div>
                     </div>
                 </form>
@@ -133,9 +133,9 @@
                         <h5 class="card-title m-1">@item.Name</h5>
                         <h6 class="card-subtitle m-1 mb-2 text-muted"><strong>Created Date:</strong> @FormatDate(item.CreatedDate)<br /><strong>Due Date:</strong> @FormatDate(item.DueDate)</h6>
                         <p class="card-text m-1">@item.Description</p>
-                        <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-primary m-1 mb-1">View Project</a>
-                        <button type="button" class="btn btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" onclick="passButtonInfo('@item.Id', '@item.Name', '@item.Description', '@item.DueDate?.ToUniversalTime()')">Edit Project</button>
-                        <button type="button" class="btn btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" onclick="passDeleteButtonInfo('@item.Id', '@item.Name')">Delete Project</button>
+                        <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn ps-btn-primary m-1 mb-1">View Project</a>
+                        <button type="button" class="btn ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" onclick="passButtonInfo('@item.Id', '@item.Name', '@item.Description', '@item.DueDate?.ToUniversalTime()')">Edit Project</button>
+                        <button type="button" class="btn ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" onclick="passDeleteButtonInfo('@item.Id', '@item.Name')">Delete Project</button>
                     </div>
                 </div>
             }

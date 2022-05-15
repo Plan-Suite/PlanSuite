@@ -1,10 +1,10 @@
 /*
     Colours:
-    #351431
-    #775253
-    #BDC696
-    #D1D3C4
-    #DFE0DC - Background
+    #3A5FDA - Navbar & Primary
+    #00A896 - Success 
+    #E71D36 - Danger
+    #2E3532 - Text
+    #FFFFFF - Background
 */
 
 html {
@@ -24,9 +24,39 @@ html {
 
 body {
     margin-bottom: 60px;
-    background-color: #DFE0DC;
+    background-color: #FFFFFF;
 }
 
 .navagation-bar {
-    background-color: #775253;
+    background-color: #3A5FDA;
+}
+
+.ps-btn-primary {
+    background-color: #3A5FDA;
+    color: #FFFFFF;
+}
+
+.ps-btn-secondary {
+    background-color: #2E3532;
+    color: #FFFFFF;
+}
+
+.ps-btn-success {
+    background-color: #00A896;
+    color: #FFFFFF;
+}
+
+.ps-btn-danger {
+    background-color: #E71D36;
+    color: #FFFFFF;
+}
+
+.ps-link {
+    color: #E5E5E5;
+    text-decoration: none;
+}
+
+.ps-link:hover {
+    color: #CCCCCC;
+    text-decoration: underline;
 }

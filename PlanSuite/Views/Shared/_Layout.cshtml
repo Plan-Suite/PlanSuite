@@ -47,9 +47,9 @@
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="border-top footer ps-btn-primary text-light">
         <div class="container">
-            &copy; 2022 - @appName - Version @WebsiteVersion.Version - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 2022 - @appName - Version @WebsiteVersion.Version - <a class="ps-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     @await RenderSectionAsync("Scripts", required: false)

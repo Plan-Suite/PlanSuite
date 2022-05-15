@@ -148,8 +148,8 @@ function removeEditLabel()
                     <br>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save Column</button>
+                    <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn ps-btn-primary">Save Column</button>
                 </div>
             </div>
         </form>
@@ -182,7 +182,7 @@ function removeEditLabel()
                 </div>
                 <br>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
     </div>
@@ -191,7 +191,7 @@ function removeEditLabel()
 
 <div class="row">
     <div class="col col-sm-10">
-        <button type="button" class="btn btn-success float-start" data-bs-toggle="modal" data-bs-target="#addColumnModal" onclick="addColumnBtn('@Model.Project.Id')">Add Column</button>
+        <button type="button" class="btn ps-btn-success float-start" data-bs-toggle="modal" data-bs-target="#addColumnModal" onclick="addColumnBtn('@Model.Project.Id')">Add Column</button>
     </div>
 </div>
 
@@ -249,7 +249,7 @@ function removeEditLabel()
                                 @Html.EditorFor(model => model.AddCard.Name, new { htmlAttributes = new { @class = "form-control form-control-sm", id = "cardNameField", placeholder = "Card Name" } })
                             </div>
                             <div class="col-sm-2">
-                                <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+                                <button type="submit" class="btn ps-btn-primary btn-sm">Submit</button>
                             </div>
                         </div>
                     </form>
