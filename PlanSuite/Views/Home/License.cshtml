@@ -1,12 +1,13 @@
-﻿@{
+﻿@using PlanSuite.Utility
+@{
     ViewData["Title"] = "End User License Agreement";
-    var myCompany = "Plan Suite";
+    var myCompany = ApplicationInfo.APP_DEVELOPER;
 }
 <h1>End User License Agreement</h1>
 
 <p>This End-User License Agreement (EULA) is a legal agreement between you and Plan Suite.<br />
 <br />
-This EULA agreement governs your acquisition and use of our Plan Suite website ("Software") directly from @myCompany.<br />
+This EULA agreement governs your acquisition and use of our @ApplicationInfo.APP_NAME website ("Software") directly from @myCompany.<br />
 <br />
 Please read this EULA agreement carefully before completing the registration process and using the Plan Suite website.<br />
 It provides a license to use the Software and contains warranty information and liability disclaimers.<br />

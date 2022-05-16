@@ -3,8 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using PlanSuite.Data;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Services;
+using PlanSuite.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
+
+WebsiteVersion.Init(builder.Environment.EnvironmentName);
 
 // Add services to the container.
 builder.Services.AddScoped<ProjectService>();

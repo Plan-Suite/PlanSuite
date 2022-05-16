@@ -1,14 +1,11 @@
 ﻿@using PlanSuite.Utility
-@{
-    string appName = "Plan Suite";
-}
 @inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment hostingEnv
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - @appName</title>
+    <title>@ViewData["Title"] - @ApplicationInfo.APP_NAME</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/jquery-ui/jquery-ui.min.css">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -37,7 +34,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark navagation-bar">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">@appName</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">@ApplicationInfo.APP_NAME</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -61,7 +58,7 @@
 
     <footer class="border-top footer navagation-bar text-light">
         <div class="container text-center">
-            &copy; 2022 - @appName - Version @WebsiteVersion.Version - <a class="ps-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a> - <a class="ps-link" asp-area="" asp-controller="Home" asp-action="License">License</a>
+            &copy; 2022 - @ApplicationInfo.APP_DEVELOPER - Version @WebsiteVersion.Version - <a class="ps-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a> - <a class="ps-link" asp-area="" asp-controller="Home" asp-action="License">License</a>
         </div>
     </footer>
     @await RenderSectionAsync("Scripts", required: false)
