@@ -198,16 +198,13 @@ function removeEditLabel()
 <div class="row">
     @if(columnCount > 0)
     {
-        <script>console.log("Columns: @columnCount")</script>
         foreach(var item in Model.Columns)
         {
             <div class="col m4">
-                <h3 style="text-align:center;"><button class="btn btn-light" type="button"> <i class="fas fa-arrow-left"></i> </button> @item.Title <button class="btn btn-light" type="button">@Html.Encode("->")</button></h3>
+                <h3 style="text-align:center;"><button class="btn btn-light" type="button"> <i class="fas fa-arrow-left"></i> </button> <span onclick="onClickColumnTitle">@item.Title</span> <button class="btn btn-light" type="button">@Html.Encode("->")</button></h3>
                 <div class="column" style="min-height: 600px;" id="@item.Id">
-                    <script>console.log("Cards: @cardCount")</script>
                     @foreach(var card in Model.Cards)
                     {
-                        <span class="d-none">@card.ColumnId<text>==</text>@item.Id @(card.ColumnId == item.Id)</span>
                         if(card.ColumnId == item.Id)
                         {
                             <div class="card draggable" id="@card.Id">
@@ -260,6 +257,11 @@ function removeEditLabel()
 </div>
 
 <script>
+function onClickColumnTitle(dbId)
+{
+    
+}
+
 function editName()
 {
     var dbid = $('#viewCardId').val();

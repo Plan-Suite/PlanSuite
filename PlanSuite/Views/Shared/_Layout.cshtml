@@ -2,6 +2,7 @@
 @{
     string appName = "Plan Suite";
 }
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment hostingEnv
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,6 +18,18 @@
     <script src="~/lib/jquery-ui/jquery-ui.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @if(hostingEnv.EnvironmentName != "Development")
+    {
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BPF1G2C79K"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-BPF1G2C79K');
+    </script>
+    }
 </head>
 <body>
     <header>
@@ -32,9 +45,6 @@
                         <li class="nav-item">
                             <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
@@ -48,8 +58,8 @@
     </div>
 
     <footer class="border-top footer navagation-bar text-light">
-        <div class="container">
-            &copy; 2022 - @appName - Version @WebsiteVersion.Version - <a class="ps-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        <div class="container text-center">
+            &copy; 2022 - @appName - Version @WebsiteVersion.Version - <a class="ps-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a> - <a class="ps-link" asp-area="" asp-controller="Home" asp-action="License">License</a>
         </div>
     </footer>
     @await RenderSectionAsync("Scripts", required: false)
