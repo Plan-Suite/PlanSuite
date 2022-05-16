@@ -1,0 +1,26 @@
+﻿@using PlanSuite.Utility
+@using System.Web
+@model PlanSuite.Models.Temporary.ChangelogViewModel
+@{
+    ViewData["Title"] = "Changelog";
+    int logCount = Model.Changelogs.Count;
+}
+<h1>Changelog</h1>
+
+@if(logCount > 0)
+{
+    foreach(var changeLog in Model.Changelogs)
+    {
+        <hr />
+        <h3>Version @changeLog.VersionName</h3>
+        <br />
+        <h5>Additions</h5>
+        <p>@Html.Raw(Markdown.Parse(changeLog.Additions))</p>
+        <br />
+        <h5>Changes</h5>
+        <p>@Html.Raw(Markdown.Parse(changeLog.Changes))</p>
+        <br />
+        <h5>Fixes</h5>
+        <p>@Html.Raw(Markdown.Parse(changeLog.Fixes))</p>
+    }
+}

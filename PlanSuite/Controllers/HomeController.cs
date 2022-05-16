@@ -121,6 +121,13 @@ namespace PlanSuite.Controllers
             return View();
         }
 
+        public IActionResult Changelog()
+        {
+            ChangelogViewModel viewModel = new ChangelogViewModel();
+            viewModel.Changelogs = dbContext.ChangeLogs.ToList();
+            return View(viewModel);
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
