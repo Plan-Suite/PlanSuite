@@ -19,4 +19,16 @@ namespace PlanSuite.Models.Temporary
         [Required]
         public string Name { get; set; }
     }
+
+    public class GetCardMarkdownModel
+    {
+        [Required]
+        public int CardId { get; set; }
+    }
+
+    public class GetCardReturnJson
+    {
+        public string MarkdownContent { get; set; }
+        public string RawContent { get; set; }
+    }
 }

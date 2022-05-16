@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
+using System.Text.Json;
 
 namespace PlanSuite.Controllers.Api
 {
@@ -51,6 +52,15 @@ namespace PlanSuite.Controllers.Api
             {
                 Modified = true
             });
+
+        }
+
+        [HttpGet("getcardmd")]
+        public ActionResult<GetCardReturnJson> GetCardMarkdown(int cardId/*[FromBody] GetCardMarkdownModel model*/)
+        {
+            Console.WriteLine($"GetCardMarkdownModel: {cardId}");
+            GetCardReturnJson json = m_ProjectService.GetCardMarkdown(cardId);
+            return json;
 
         }
     }

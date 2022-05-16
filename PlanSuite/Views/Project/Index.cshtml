@@ -188,9 +188,8 @@ function removeEditLabel()
             <div class="modal-body">
                 <p class="text-muted" id="viewCardText" onclick="editDescription()">@defaultCardDesc</p>
                 <div class="d-none" id="viewCardEditText">
-                    <div class="form-floating">
-                        <input class="form-control text-box single-line" id="viewCardEditTextEditor" type="text" value=""/>
-                        <label class="form-label">Description</label>
+                    <div class="mb-3">
+                        <textarea class="form-control text-box single-line" id="viewCardEditTextEditor" rows="3" value=""></textarea>
                     </div>
                 </div>
                 <br>
@@ -198,7 +197,7 @@ function removeEditLabel()
                     <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
-    </div>
+        </div>
     </div>
 </div>
 
@@ -214,7 +213,7 @@ function removeEditLabel()
         foreach(var item in Model.Columns)
         {
             <div class="col m4">
-                <h3 style="text-align:center;"><button class="btn btn-light" type="button"> <i class="fas fa-arrow-left"></i> </button> <span onclick="onClickColumnTitle">@item.Title</span> <button class="btn btn-light" type="button">@Html.Encode("->")</button></h3>
+                <h3 style="text-align:center;"><button class="btn btn-light" type="button"> <i class="fas fa-arrow-left"></i> </button> @item.Title <button class="btn btn-light" type="button">@Html.Encode("->")</button></h3>
                 <div class="column" style="min-height: 600px;" id="@item.Id">
                     @foreach(var card in Model.Cards)
                     {
@@ -270,11 +269,6 @@ function removeEditLabel()
 </div>
 
 <script>
-function onClickColumnTitle(dbId)
-{
-    
-}
-
 function editName()
 {
     var dbid = $('#viewCardId').val();
@@ -296,17 +290,35 @@ function editDescription()
 
     $('#viewCardEditTextEditor').focus();
     $('#viewCardEditTextEditor').on("focusout", removeEditForm);
+    $('#viewCardEditTextEditor').keydown(function(event){ 
+    var id = event.key || event.which || event.keyCode || 0;   
+    if (id == 13) {
+        removeEditForm();
+    }
+});
 }
 
 function viewCardButton(dbId, desc, name)
 {
     $('#viewCardLabel').text(name);
-    if(isBlank(desc))
-    {
-        desc = "@defaultCardDesc";
-    }
-    $('#viewCardText').text(Markdown.Parse(@defaultCardDesc));
+    $('#viewCardText').text("Loading content...");
     $('#viewCardId').val(dbId);
+    $('#viewCardEditText').val(desc);
+
+    $.ajax({
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json",
+        url: `/api/Project/getcardmd?cardId=${dbId}`,
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
+        },
+        success: function(response) {
+            console.log(response)
+            $('#viewCardText').html(response.markdownContent);
+            $('#viewCardEditTextEditor').val(response.rawContent);
+        },
+    });
 }
 
 function addNewCard(id)
