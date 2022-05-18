@@ -103,7 +103,7 @@ function removeEditLabel()
     var desc = $("#viewCardText").text();
     $("#viewCardLabel").text(text);
     $(`#viewCardName_${dbId}`).text(text);
-    $(`#viewCardName_${dbId}`).attr("onclick",`viewCardButton('${dbId}', '${desc}', '${text}')`);
+    $(`#viewCardName_${dbId}`).attr("onclick",`viewCardButton('${dbId}')`);
 
     $.ajax({
         type: "POST",
@@ -222,7 +222,7 @@ function removeEditLabel()
                             <div class="card draggable" id="@card.Id">
                                 <div class="card-body">
                                     <div class="d-grid gap-2">
-                                        <a class="btn btn-light btn-outline-dark" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal" onclick="viewCardButton('@card.Id', '@card.CardDescription', '@card.CardName')">@card.CardName</a>
+                                        <a class="btn btn-light btn-outline-dark" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal" onclick="viewCardButton('@card.Id')">@card.CardName</a>
                                     </div>
                                 </div>
                             </div>
@@ -298,23 +298,21 @@ function editDescription()
 });
 }
 
-function viewCardButton(dbId, desc, name)
+function viewCardButton(dbId)
 {
-    $('#viewCardLabel').text(name);
-    $('#viewCardText').text("Loading content...");
     $('#viewCardId').val(dbId);
-    $('#viewCardEditText').val(desc);
 
     $.ajax({
         type: "GET",
         dataType: "json",
         contentType: "application/json",
-        url: `/api/Project/getcardmd?cardId=${dbId}`,
+        url: `/api/Project/getcard?cardId=${dbId}`,
         beforeSend: function (request) {
             request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
         },
         success: function(response) {
             console.log(response)
+            $('#viewCardLabel').text(response.name);
             $('#viewCardText').html(response.markdownContent);
             $('#viewCardEditTextEditor').val(response.rawContent);
         },

@@ -51,6 +51,11 @@ namespace PlanSuite.Services
             var card = m_Database.Cards.Where(card => card.Id == cardId).FirstOrDefault();
             if (card != null)
             {
+                string cardName = card.CardName;
+                if (string.IsNullOrEmpty(card.CardName))
+                {
+                    cardName = "Empty Card Name";
+                }
                 string cardDesc = card.CardDescription;
                 if (string.IsNullOrEmpty(card.CardDescription))
                 {
@@ -58,6 +63,7 @@ namespace PlanSuite.Services
                 }
                 GetCardReturnJson json = new GetCardReturnJson()
                 {
+                    Name = cardName,
                     MarkdownContent = Markdown.Parse(cardDesc).ReplaceLineEndings("<br/>"),
                     RawContent = cardDesc
                 };

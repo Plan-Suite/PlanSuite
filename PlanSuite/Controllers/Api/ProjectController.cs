@@ -55,10 +55,10 @@ namespace PlanSuite.Controllers.Api
 
         }
 
-        [HttpGet("getcardmd")]
+        [HttpGet("getcard")]
         public ActionResult<GetCardReturnJson> GetCardMarkdown(int cardId/*[FromBody] GetCardMarkdownModel model*/)
         {
-            Console.WriteLine($"GetCardMarkdownModel: {cardId}");
+            Console.WriteLine($"GetCardReturnJson: {cardId}");
             GetCardReturnJson json = m_ProjectService.GetCardMarkdown(cardId);
             return json;
 
