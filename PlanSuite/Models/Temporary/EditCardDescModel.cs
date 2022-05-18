@@ -28,6 +28,7 @@ namespace PlanSuite.Models.Temporary
 
     public class GetCardReturnJson
     {
+        public string Name { get; set; }
         public string MarkdownContent { get; set; }
         public string RawContent { get; set; }
     }
