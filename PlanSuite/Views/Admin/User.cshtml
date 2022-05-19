@@ -1,0 +1,211 @@
+﻿@model PlanSuite.Models.Temporary.AdminIndexViewModel
+@{
+    ViewData["Title"] = "User Management";
+}
+@* 
+**Manage User**
+* Change username
+* Reset Password
+* Change Email
+* Assign role
+* See audit logs
+*@
+
+<partial name="AdminHeader" />
+
+<div class="modal" id="userEditModel" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+            <input type="hidden" id="EditUserId" value=""/>
+            <div class="mb-3">
+                <label for="editUsername" class="form-label">Username</label>
+                <input type="text" class="form-control" id="editUsername" aria-describedby="editUsernameHelp">
+                <div id="editUsernameHelp" class="form-text">Make sure the username is correct.</div>
+            </div>
+            <div class="mb-3">
+                <label for="editEmail" class="form-label">Email</label>
+                <input type="email" class="form-control" id="editEmail" aria-describedby="editEmailHelp">
+                <div id="editEmailHelp" class="form-text">Make sure the email is correct.</div>
+            </div>
+            <div class="mb-3">
+                <label for="giveAdmin" class="form-label">Give Administrator</label><br />
+                <button type="button" class="btn ps-btn-secondary btn-sm" onclick="giveAdmin()">Give Administrator Powers</button>
+            </div>
+            @*<div class="mb-3">
+                <label for="passwordReset" class="form-label">Password Reset</label><br />
+                <button type="button" class="btn ps-btn-secondary btn-sm" onclick="sendPasswordReset()">Send Password Reset</button>
+            </div>*@
+            <div class="modal-footer">
+                <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn ps-btn-primary" data-bs-dismiss="modal" onclick="saveChanges()">Save changes</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+    <form>
+        <div id="usernameHelp" class="form-text">Input the user data into one of the below forms.</div>
+        <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" class="form-control" id="username" aria-describedby="usernameHelp">
+            <div id="usernameHelp" class="form-text">Make sure the username is correct.</div>
+        </div>
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="email" aria-describedby="emailHelp">
+            <div id="usernameHelp" class="form-text">Make sure the email is correct.</div>
+        </div>
+        <div class="d-none mb-3" id="emailUserError"><strong>ERROR:</strong> You must input either a username or email or both.</div>
+        <button type="button" class="btn btn-primary" onclick="onSearch()">Submit</button>
+    </form>
+
+    <div class="d-flex justify-content-center d-none" id="tableSpinner">
+        <div class="spinner-border ps-spinner" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+
+    <div id="userSearchTable" class="d-none">
+        <hr />
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th scope="col">Username</th>
+              <th scope="col">Email</th>
+              <th scope="col">Tier</th>
+              <th scope="col">Roles</th>
+              <th scope="col">Edit</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            
+          </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function saveChanges()
+{
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        url: "/api/Admin/SaveUserChanges", 
+        data: JSON.stringify({
+            id: $("#EditUserId").val(),
+            newName: $("#editUsername").val(),
+            newEmail: $("#editEmail").val(),
+        }),
+        success: function(result) {
+            console.log(result);
+            location.reload();
+        }
+    });
+}
+
+function onEdit(id)
+{
+    console.log(id);
+    $("#EditUserId").val(id);
+}
+
+function giveAdmin()
+{
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        url: "/api/Admin/GiveAdmin", 
+        data: JSON.stringify({
+            id: $("#EditUserId").val(),
+        }),
+        success: function(result) {
+            console.log(result);
+            location.reload();
+        }
+    });
+}
+
+function sendPasswordReset()
+{
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        url: "/api/Admin/SendPasswordReset", 
+        data: JSON.stringify({
+            id: $("#EditUserId").val(),
+        }),
+        success: function(result) {
+            console.log(result);
+            location.reload();
+        }
+    });
+}
+
+function onSearch()
+{
+    var username = $("#username").val();
+    console.log(username);
+    if(isBlank(username))
+    {
+        username = "null";
+    }
+
+    var email = $("#email").val();
+    console.log(email);
+    if(isBlank(email))
+    {
+        email = "null";
+    }
+
+    if(email == "null" && username == "null")
+    {
+        $("#emailUserError").removeClass("d-none");
+        return;
+    }
+
+    $("#tableSpinner").removeClass("d-none");
+    $("#tbody").empty();
+
+    const url = `/api/Admin/GetUser?username=${username}&email=${email}`;
+    console.log(url);
+
+    $.ajax({
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json",
+        url: url, 
+        success: function(result) {
+            console.log(result);
+            if(result.getUserModels != null)
+            {
+                result.getUserModels.forEach(function(element)
+                {
+                    var tr = `<tr>\
+                      <th scope="row">${element.username}</th>\
+                      <td>${element.email}</td>\
+                      <td>${intToTier(element.paymentTier)}</td>\
+                      <td>${arrayToString(element.roles)}</td>\
+                      <td><button class="btn ps-btn-primary" type="button" onclick="onEdit('${element.userId}')" data-bs-toggle="modal" data-bs-target="#userEditModel">Edit</button></td>\
+                    </tr>`;
+                    $("#tbody").prepend(tr);
+                });
+            }
+            $("#userSearchTable").removeClass("d-none");
+            $("#tableSpinner").addClass("d-none");
+        }
+    });
+}
+
+</script>

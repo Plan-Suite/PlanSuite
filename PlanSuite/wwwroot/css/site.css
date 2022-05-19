@@ -81,3 +81,67 @@ body {
     color: #CCCCCC;
     text-decoration: underline;
 }
+
+.ps-div {
+    border-radius: 10px;
+    margin: 1rem;
+    padding: 0.5rem;
+}
+
+.ps-div-users {
+    background-color: #00A896;
+}
+
+.ps-div-projects {
+    background-color: #3A5FDA;
+}
+
+.ps-div-cards {
+    background-color: #E71D36;
+}
+
+.ps-text-white {
+    color: #FFF;
+}
+
+.fs-4 {
+    font-size: calc(1.275rem + 0.3vw) !important;
+}
+
+.fs-6 {
+    font-size: 1rem !important;
+}
+
+.fw-semibold {
+    font-weight: 600 !important;
+}
+
+.fw-normal {
+    font-weight: 400 !important;
+}
+
+div {
+    display: block;
+}
+
+.icon {
+    display: inline-block;
+    color: inherit;
+    text-align: center;
+    vertical-align: -0.125rem;
+    fill: currentColor;
+}
+
+img, svg {
+    vertical-align: middle;
+}
+
+.icon:not(.icon-c-s):not(.icon-custom-size) {
+    width: 1rem;
+    height: 1rem;
+    font-size: 1rem;
+}
+
+.ps-spinner {
+    margin:1rem;
+}

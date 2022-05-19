@@ -4,6 +4,6 @@
     {
         Free,
         Plus,
-        Pro
+        Pro,
     };
 }

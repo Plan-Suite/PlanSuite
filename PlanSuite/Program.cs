@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using PlanSuite.Data;
 using PlanSuite.Models.Persistent;
@@ -11,6 +12,7 @@ WebsiteVersion.Init(builder.Environment.EnvironmentName);
 
 // Add services to the container.
 builder.Services.AddScoped<ProjectService>();
+builder.Services.AddScoped<AdminService>();
 
 // Add database connection
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -29,7 +31,8 @@ builder.Services.AddDefaultIdentity<ApplicationUser>((options) =>
     options.Password.RequiredLength = 1;
 #endif
 })
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+.AddRoles<IdentityRole>()
+.AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

@@ -1,0 +1,32 @@
+﻿@model PlanSuite.Models.Temporary.AdminIndexViewModel
+@{
+    string dashboardClass = "btn btn-link";
+    string userClass = "btn btn-link";
+    string projectClass = "btn btn-link";
+    string changelogClass = "btn btn-link";
+
+    if(Model.Section.Equals("Index", StringComparison.InvariantCultureIgnoreCase))
+    {
+        dashboardClass = "btn ps-btn-primary";
+    }
+    else if(Model.Section.Equals("User", StringComparison.InvariantCultureIgnoreCase))
+    {
+        userClass = "btn ps-btn-primary";
+    }
+    if(Model.Section.Equals("Project", StringComparison.InvariantCultureIgnoreCase))
+    {
+        projectClass = "btn ps-btn-primary";
+    }
+    if(Model.Section.Equals("Changelog", StringComparison.InvariantCultureIgnoreCase))
+    {
+        changelogClass = "btn ps-btn-primary";
+    }
+}
+<h1 class="text-center">Admin Control Panel</h1>
+
+<nav class="ps-nav">
+  <a class="@dashboardClass" asp-action="Index" asp-controller="Admin">Dashboard</a>
+  <a class="@userClass" asp-action="User" asp-controller="Admin">User Management</a>
+  @*<a class="@projectClass" asp-action="Project" asp-controller="Admin">Project Management</a>
+  <a class="@changelogClass" asp-action="Changelog" asp-controller="Admin">Changelog Management</a>*@
+</nav>
