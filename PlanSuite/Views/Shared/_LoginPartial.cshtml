@@ -9,10 +9,10 @@
 {
     @if(User.IsInRole(Constants.AdminRole))
     {
+    }
         <li class="nav-item">
             <a asp-controller="Admin" asp-action="Index" class="nav-link text-light">ACP</a>
         </li>
-    }
     <li class="nav-item">
         <a  class="nav-link text-light" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
     </li>
