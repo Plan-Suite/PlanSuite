@@ -68,4 +68,9 @@ app.MapControllerRoute(
 
 app.MapRazorPages();
 
+using (var scope = app.Services.CreateScope())
+{
+    await ApplicationDbInitialise.Initialize(scope.ServiceProvider);
+}
+
 app.Run();
