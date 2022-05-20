@@ -20,8 +20,6 @@ namespace PlanSuite.Data
             var environment = serviceProvider
                 .GetRequiredService<IWebHostEnvironment>();
 
-            Console.WriteLine($"environment: {environment.ContentRootPath}");
-
             IdentityResult result;
             bool roleExists = await roleManager.RoleExistsAsync(Constants.AdminRole);
             if (!roleExists)
@@ -34,7 +32,13 @@ namespace PlanSuite.Data
 
             // Create superuser account
             string rootPassword = PasswordReset.GenerateRandomString();
-            File.WriteAllText(Path.Combine(environment.ContentRootPath, "root"), rootPassword);
+
+            /*string rootPassFile = Path.Combine(environment.ContentRootPath, "root");
+            if (File.Exists(rootPassFile))
+            {
+                File.Delete(rootPassFile);
+            }
+            File.WriteAllText(rootPassFile, rootPassword);*/
 
             var root = await userManager.FindByNameAsync("root");
             if (root == null)
@@ -58,7 +62,7 @@ namespace PlanSuite.Data
                 var token = await userManager.GeneratePasswordResetTokenAsync(root);
                 await userManager.ResetPasswordAsync(root, token, rootPassword);
             }
-            Console.WriteLine($"Root in {Path.Combine(environment.ContentRootPath, "root")}");
+            Console.WriteLine($"Root in {rootPassword}");
         }
     }
 }
