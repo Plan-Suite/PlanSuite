@@ -17,9 +17,6 @@ namespace PlanSuite.Data
             var userManager = serviceProvider
                 .GetRequiredService<UserManager<ApplicationUser>>();
 
-            var environment = serviceProvider
-                .GetRequiredService<IWebHostEnvironment>();
-
             IdentityResult result;
             bool roleExists = await roleManager.RoleExistsAsync(Constants.AdminRole);
             if (!roleExists)
@@ -27,19 +24,10 @@ namespace PlanSuite.Data
                 var role = new IdentityRole();
                 role.Name = Constants.AdminRole;
                 await roleManager.CreateAsync(role);
-
             }
 
             // Create superuser account
             string rootPassword = PasswordReset.GenerateRandomString();
-
-            /*string rootPassFile = Path.Combine(environment.ContentRootPath, "root");
-            if (File.Exists(rootPassFile))
-            {
-                File.Delete(rootPassFile);
-            }
-            File.WriteAllText(rootPassFile, rootPassword);*/
-
             var root = await userManager.FindByNameAsync("root");
             if (root == null)
             {
