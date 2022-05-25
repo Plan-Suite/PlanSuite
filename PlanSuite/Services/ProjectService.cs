@@ -61,15 +61,41 @@ namespace PlanSuite.Services
                 {
                     cardDesc = "Click here to add a description.";
                 }
+
+                uint unixTime = 0;
+                if(card.CardDueDate != null)
+                {
+                    unixTime = (uint)new DateTimeOffset((DateTime)card.CardDueDate).ToUnixTimeSeconds();
+                    Console.WriteLine(unixTime);
+                }
+
                 GetCardReturnJson json = new GetCardReturnJson()
                 {
                     Name = cardName,
                     MarkdownContent = Markdown.Parse(cardDesc).ReplaceLineEndings("<br/>"),
-                    RawContent = cardDesc
+                    RawContent = cardDesc,
+                    UnixTimestamp = unixTime,
                 };
                 return json;
             }
             return null;
+        }
+
+        public void EditCardDueDate(EditCardDueDateModel model)
+        {
+            // Convert Unix Timestamp to DateTime
+            DateTime? dueDate = null;
+            if(model.Timestamp > 0)
+            {
+                dueDate = DateTimeOffset.FromUnixTimeSeconds(model.Timestamp).UtcDateTime;
+            }
+
+            var card = m_Database.Cards.Where(card => card.Id == model.CardId).FirstOrDefault();
+            if (card != null)
+            {
+                card.CardDueDate = dueDate;
+                m_Database.SaveChanges();
+            }
         }
     }
 }

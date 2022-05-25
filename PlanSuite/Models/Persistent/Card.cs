@@ -18,5 +18,8 @@ namespace PlanSuite.Models.Persistent
 
         [Column("card_description")]
         public string? CardDescription { get; set; }
+
+        [Column("card_due_date")]
+        public DateTime? CardDueDate { get; set; }
     }
 }

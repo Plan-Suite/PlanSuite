@@ -55,6 +55,19 @@ namespace PlanSuite.Controllers.Api
 
         }
 
+        [HttpPost("EditCardDueDate")]
+        public IActionResult EditCardDueDate([FromBody] EditCardDueDateModel model)
+        {
+            Console.WriteLine($"EditCardDueDateModel: {model.CardId} {model.Timestamp}");
+            m_ProjectService.EditCardDueDate(model);
+
+            return Ok(new
+            {
+                Modified = true
+            });
+
+        }
+
         [HttpGet("getcard")]
         public ActionResult<GetCardReturnJson> GetCardMarkdown(int cardId/*[FromBody] GetCardMarkdownModel model*/)
         {
