@@ -112,6 +112,46 @@ function removeEditLabel()
         data: JSON.stringify({ cardId: dbId, name: text }),
     });
 }
+
+function removeDateEditor()
+{
+    var input = $("#viewCardDueDateDateTime").val();
+    var dbId = $('#viewCardId').val();
+    $("#viewCardDueDateDateTime").off();
+    $("#viewCardDueDateEditor").addClass( "d-none" );
+    $("#viewCardDueDate").removeClass( "d-none" );
+
+    console.log(input);
+    var timestamp = 0;
+    var dateEntered;
+    if(isBlank(input))
+    {
+        dateEntered = 0;
+    }
+    else
+    {
+        dateEntered = new Date(input).getTime() / 1000;
+    }
+
+    var dateString = "None";
+    if(dateEntered > 0)
+    {
+        dateString = `${new Date(dateEntered).toDateString()}`;
+    }
+
+    $("#viewCardDueDate").text(`<strong>Due By:</strong> ${dateString}`);
+
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        url: "/api/Project/EditCardDueDate",
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
+        },
+        data: JSON.stringify({ cardId: dbId, timestamp: dateEntered }),
+    });
+}
 </script>
 
 @* Plan Suite Project Index Ads *@
@@ -182,7 +222,14 @@ function removeEditLabel()
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
             <div class="modal-body">
-                <p class="text-muted" id="viewCardText" onclick="editDescription()">@defaultCardDesc</p>
+                <small class="ps-modifiable text-muted" id="viewCardDueDate" onclick="onClickCardDueDate()">DUE_DATE_HERE</small>
+                <form id="viewCardDueDateEditor" class="d-none">
+                    <div class="input-group">
+                        <input type="date" id="viewCardDueDateDateTime" class="form-control"/>
+                    </div>
+                </form>
+                <hr />
+                <p class="ps-modifiable" id="viewCardText" onclick="editDescription()">@defaultCardDesc</p>
                 <div class="d-none" id="viewCardEditText">
                     <div class="mb-3">
                         <textarea class="form-control text-box single-line" id="viewCardEditTextEditor" rows="3" value=""></textarea>
@@ -207,7 +254,7 @@ function removeEditLabel()
     @if(columnCount > 0)
     {
         foreach(var item in Model.Columns)
-        {
+          {
             <div class="col m4">
                 <h3 style="text-align:center;"><button class="btn btn-light" type="button"> <i class="fas fa-arrow-left"></i> </button> @item.Title <button class="btn btn-light" type="button">@Html.Encode("->")</button></h3>
                 <div class="column" style="min-height: 600px;" id="@item.Id">
@@ -215,10 +262,16 @@ function removeEditLabel()
                     {
                         if(card.ColumnId == item.Id)
                         {
+                            string overdue = string.Empty;
+                            if(card.CardDueDate != null && card.CardDueDate < DateTime.Now)
+                            {
+                                overdue = "<span class=\"badge bg-danger\">Overdue</span>";
+                            }
+
                             <div class="card draggable" id="@card.Id">
                                 <div class="card-body">
                                     <div class="d-grid gap-2">
-                                        <a class="btn btn-light btn-outline-dark" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal" onclick="viewCardButton('@card.Id')">@card.CardName</a>
+                                        <a class="btn btn-light btn-outline-dark" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal" onclick="viewCardButton('@card.Id')">@card.CardName @Html.Raw(overdue)</a>
                                     </div>
                                 </div>
                             </div>
@@ -265,6 +318,15 @@ function removeEditLabel()
 </div>
 
 <script>
+function onClickCardDueDate()
+{
+    $('#viewCardDueDate').addClass("d-none");
+    $('#viewCardDueDateEditor').removeClass("d-none");
+
+    $('#viewCardDueDateDateTime').focus();
+    $('#viewCardDueDateDateTime').on("focusout", removeDateEditor); 
+}
+
 function editName()
 {
     var dbid = $('#viewCardId').val();
@@ -308,9 +370,18 @@ function viewCardButton(dbId)
         },
         success: function(response) {
             console.log(response)
+            var dateString = "None";
+            console.log(response.unixTimestamp);
+            if(response.unixTimestamp > 0)
+            {
+                // I have to multiply by 1000 for some reason here idk why
+                dateString = new Date(response.unixTimestamp * 1000).toDateString();
+            }
+
             $('#viewCardLabel').text(response.name);
             $('#viewCardText').html(response.markdownContent);
             $('#viewCardEditTextEditor').val(response.rawContent);
+            $('#viewCardDueDate').html(`<strong>Due By:</strong> ${dateString}`);
         },
     });
 }
