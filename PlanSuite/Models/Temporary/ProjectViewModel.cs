@@ -1,4 +1,5 @@
-﻿using PlanSuite.Models.Persistent;
+﻿using PlanSuite.Enums;
+using PlanSuite.Models.Persistent;
 
 namespace PlanSuite.Models.Temporary
 {
@@ -10,6 +11,8 @@ namespace PlanSuite.Models.Temporary
         public AddCardModel AddCard = new AddCardModel();
         public ViewCardModel ViewCard = new ViewCardModel();
         public List<Card> Cards = new List<Card>();
+        public Guid UserId;
+        public ProjectRole ProjectRole;
 
         public class AddColumnModel
         {
@@ -23,5 +26,11 @@ namespace PlanSuite.Models.Temporary
             public string Name { get; set; }
             public string Description { get; set; }
         }
+    }
+
+    public class LeaveProjectModel
+    {
+        public int ProjectId { get; set; }
+        public Guid UserId { get; set; }
     }
 }
