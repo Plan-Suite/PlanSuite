@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlanSuite.Data;
 
@@ -10,9 +11,10 @@ using PlanSuite.Data;
 namespace PlanSuite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220520143953_CardDueDate")]
+    partial class CardDueDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -333,34 +335,6 @@ namespace PlanSuite.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("projects");
-                });
-
-            modelBuilder.Entity("PlanSuite.Models.Persistent.ProjectAccess", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("AccessSince")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("access_since");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int")
-                        .HasColumnName("project_id");
-
-                    b.Property<int>("ProjectRole")
-                        .HasColumnType("int")
-                        .HasColumnName("project_role");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("projects_access");
                 });
 
             modelBuilder.Entity("PlanSuite.Models.Persistent.Sale", b =>

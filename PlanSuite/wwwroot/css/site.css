@@ -145,3 +145,7 @@ img, svg {
 .ps-spinner {
     margin:1rem;
 }
+
+.ps-modifiable:hover {
+    cursor: pointer;
+}

@@ -62,11 +62,20 @@ namespace PlanSuite.Services
                 {
                     cardDesc = "Click here to add a description.";
                 }
+
+                uint unixTime = 0;
+                if(card.CardDueDate != null)
+                {
+                    unixTime = (uint)new DateTimeOffset((DateTime)card.CardDueDate).ToUnixTimeSeconds();
+                    Console.WriteLine(unixTime);
+                }
+
                 GetCardReturnJson json = new GetCardReturnJson()
                 {
                     Name = cardName,
                     MarkdownContent = Markdown.Parse(cardDesc).ReplaceLineEndings("<br/>"),
-                    RawContent = cardDesc
+                    RawContent = cardDesc,
+                    UnixTimestamp = unixTime,
                 };
                 return json;
             }
