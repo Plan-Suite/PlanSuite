@@ -357,6 +357,15 @@ function onLeaveProject()
     });
 }
 
+function onClickCardDueDate()
+{
+    $('#viewCardDueDate').addClass("d-none");
+    $('#viewCardDueDateEditor').removeClass("d-none");
+
+    $('#viewCardDueDateDateTime').focus();
+    $('#viewCardDueDateDateTime').on("focusout", removeDateEditor); 
+}
+
 function editName()
 {
     var dbid = $('#viewCardId').val();

@@ -73,6 +73,24 @@ namespace PlanSuite.Services
             return null;
         }
 
+        public void EditCardDueDate(EditCardDueDateModel model)
+        {
+            // Convert Unix Timestamp to DateTime
+            DateTime? dueDate = null;
+            if (model.Timestamp > 0)
+            {
+                dueDate = DateTimeOffset.FromUnixTimeSeconds(model.Timestamp).UtcDateTime;
+            }
+
+            var card = m_Database.Cards.Where(card => card.Id == model.CardId).FirstOrDefault();
+            if (card != null)
+            {
+                card.CardDueDate = dueDate;
+                m_Database.SaveChanges();
+            }
+        }
+
+
         public void LeaveProject(LeaveProjectModel model)
         {
             var project = m_Database.Projects.Where(project => project.Id == model.ProjectId).FirstOrDefault();
