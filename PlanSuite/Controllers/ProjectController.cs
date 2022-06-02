@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PlanSuite.Data;
+using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
+using PlanSuite.Services;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -15,23 +17,24 @@ namespace PlanSuite.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly ProjectService m_ProjectService;
 
-        public ProjectController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public ProjectController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ProjectService projectService)
         {
             dbContext = context;
             _logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
+            m_ProjectService = projectService;
         }
 
-        public IActionResult Index(int id)
+        public async Task<IActionResult> Index(int id)
         {
             if (!_signInManager.IsSignedIn(User))
             {
                 return RedirectToAction(nameof(Index), "Home");
             }
 
-            ClaimsPrincipal claimsPrincipal = HttpContext.User as ClaimsPrincipal;
             var project = dbContext.Projects.FirstOrDefault(p => p.Id == id);
             if (project == null)
             {
@@ -39,15 +42,19 @@ namespace PlanSuite.Controllers
                 return RedirectToAction(nameof(Index), "Home");
             }
 
-            if (project.OwnerId != Guid.Parse(_userManager.GetUserId(claimsPrincipal)))
+            ApplicationUser appUser = await _userManager.GetUserAsync(User);
+            var role = m_ProjectService.GetUserProjectAccess(appUser, project);
+            if (role == ProjectRole.None)
             {
-                Console.WriteLine($"WARNING: Account {_userManager.GetUserId(claimsPrincipal)} tried to access {project.Id} without correct permissions");
+                Console.WriteLine($"WARNING: Account {_userManager.GetUserId(User)} tried to access {project.Id} without correct permissions");
                 return RedirectToAction(nameof(Index), "Home");
             }
 
-            Console.WriteLine($"Account {_userManager.GetUserId(claimsPrincipal)} successfully accessed {project.Id}");
+            Console.WriteLine($"Account {_userManager.GetUserId(User)} successfully accessed {project.Id} as {role}");
             ProjectViewModel viewModel = new ProjectViewModel();
             viewModel.Project = project;
+            viewModel.UserId = Guid.Parse(appUser.Id);
+            viewModel.ProjectRole = role;
 
             var columns = dbContext.Columns.Where(c => c.ProjectId == project.Id).ToList();
             if(columns != null && columns.Count > 0)
@@ -66,14 +73,13 @@ namespace PlanSuite.Controllers
         }
 
         [HttpPost]
-        public IActionResult AddColumn(ProjectViewModel.AddColumnModel addColumn)
+        public async Task<IActionResult> AddColumn(ProjectViewModel.AddColumnModel addColumn)
         {
             if (!_signInManager.IsSignedIn(User))
             {
                 return RedirectToAction(nameof(Index), "Home");
             }
 
-            ClaimsPrincipal claimsPrincipal = HttpContext.User as ClaimsPrincipal;
             var project = dbContext.Projects.FirstOrDefault(p => p.Id == addColumn.ProjectId);
             if (project == null)
             {
@@ -81,13 +87,15 @@ namespace PlanSuite.Controllers
                 return RedirectToAction(nameof(Index), "Home");
             }
 
-            if (project.OwnerId != Guid.Parse(_userManager.GetUserId(claimsPrincipal)))
+            ApplicationUser appUser = await _userManager.GetUserAsync(User);
+            var role = m_ProjectService.GetUserProjectAccess(appUser, project);
+            if (role == ProjectRole.None)
             {
-                Console.WriteLine($"WARNING: Account {_userManager.GetUserId(claimsPrincipal)} tried to access {project.Id} without correct permissions");
+                Console.WriteLine($"WARNING: Account {_userManager.GetUserId(User)} tried to access {project.Id} without correct permissions");
                 return RedirectToAction(nameof(Index), "Home");
             }
 
-            Console.WriteLine($"Account {_userManager.GetUserId(claimsPrincipal)} successfully added a column to {project.Id}");
+            Console.WriteLine($"Account {_userManager.GetUserId(User)} successfully added a column to {project.Id}");
 
             var column = new Column();
             column.ProjectId = addColumn.ProjectId;
@@ -109,7 +117,6 @@ namespace PlanSuite.Controllers
 
             Console.WriteLine(JsonSerializer.Serialize(addCard));
 
-            ClaimsPrincipal claimsPrincipal = HttpContext.User as ClaimsPrincipal;
             var column = dbContext.Columns.FirstOrDefault(p => p.Id == addCard.ColumnId);
             if (column == null)
             {
@@ -117,7 +124,7 @@ namespace PlanSuite.Controllers
                 return RedirectToAction(nameof(Index), "Home");
             }
 
-            Console.WriteLine($"Account {_userManager.GetUserId(claimsPrincipal)} successfully added a card to column {column.Id}");
+            Console.WriteLine($"Account {_userManager.GetUserId(User)} successfully added a card to column {column.Id}");
 
             var card = new Card();
             card.ColumnId = addCard.ColumnId;

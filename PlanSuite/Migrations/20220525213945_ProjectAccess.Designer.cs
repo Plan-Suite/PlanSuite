@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlanSuite.Data;
 
@@ -10,9 +11,10 @@ using PlanSuite.Data;
 namespace PlanSuite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220525213945_ProjectAccess")]
+    partial class ProjectAccess
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -229,10 +231,6 @@ namespace PlanSuite.Migrations
                     b.Property<string>("CardDescription")
                         .HasColumnType("longtext")
                         .HasColumnName("card_description");
-
-                    b.Property<DateTime?>("CardDueDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("card_due_date");
 
                     b.Property<string>("CardName")
                         .IsRequired()

@@ -28,8 +28,22 @@ namespace PlanSuite.Controllers
             HomeViewModel viewModel = new HomeViewModel();
             if (_signInManager.IsSignedIn(User))
             {
-                ClaimsPrincipal claimsPrincipal = HttpContext.User as ClaimsPrincipal;
-                viewModel.Projects = dbContext.Projects.Where(p => p.OwnerId == Guid.Parse(_userManager.GetUserId(claimsPrincipal))).ToList();
+                viewModel.OwnedProjects = new List<Project>();
+
+                // Get projects where user is owner
+                var ownedProjects = dbContext.Projects.Where(p => p.OwnerId == Guid.Parse(_userManager.GetUserId(User))).ToList();
+                viewModel.OwnedProjects.AddRange(ownedProjects);
+
+                // Get projects where user is member
+                var projectAccesses = dbContext.ProjectsAccess.Where(access => access.UserId == Guid.Parse(_userManager.GetUserId(User))).ToList();
+                foreach(var access in projectAccesses)
+                {
+                    var project = dbContext.Projects.Where(project => project.Id == access.ProjectId && access.ProjectRole >= Enums.ProjectRole.User).FirstOrDefault();
+                    if(project != null)
+                    {
+                        viewModel.MemberProjects.Add(project);
+                    }
+                }
             }
             return View(viewModel);
         }
@@ -70,6 +84,12 @@ namespace PlanSuite.Controllers
             if(project == null)
             {
                 Console.WriteLine($"No project with id {editProject.Id} found");
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (project.OwnerId != Guid.Parse(_userManager.GetUserId(claimsPrincipal)))
+            {
+                Console.WriteLine($"WARNING: Account {_userManager.GetUserId(claimsPrincipal)} tried to modify {project.Id} without correct permissions");
                 return RedirectToAction(nameof(Index));
             }
 

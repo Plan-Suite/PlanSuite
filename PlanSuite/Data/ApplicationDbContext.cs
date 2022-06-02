@@ -12,6 +12,7 @@ namespace PlanSuite.Data
         public DbSet<Card> Cards { get; set; }
         public DbSet<ChangeLog> ChangeLogs { get; set; }
         public DbSet<Sale> Sales { get; set; }
+        public DbSet<ProjectAccess> ProjectsAccess { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
