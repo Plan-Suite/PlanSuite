@@ -33,4 +33,11 @@ namespace PlanSuite.Models.Temporary
         public int ProjectId { get; set; }
         public Guid UserId { get; set; }
     }
+
+    public class AddMemberModel
+    {
+        public int ProjectId { get; set; }
+        public Guid UserId { get; set; }
+        public string Name { get; set; }
+    }
 }

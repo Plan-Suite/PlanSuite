@@ -82,6 +82,19 @@ namespace PlanSuite.Controllers.Api
 
         }
 
+        [HttpPost("addmember")]
+        public IActionResult AddMember([FromBody] AddMemberModel model)
+        {
+            Console.WriteLine($"LeaveProjectModel: {model.ProjectId} {model.Name}");
+            var result = m_ProjectService.AddMember(model);
+
+            return Ok(new
+            {
+                Response = result
+            });
+
+        }
+
         [HttpGet("getcard")]
         public ActionResult<GetCardReturnJson> GetCardMarkdown(int cardId)
         {

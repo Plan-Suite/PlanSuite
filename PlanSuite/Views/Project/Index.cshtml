@@ -1,4 +1,5 @@
-﻿@using PlanSuite.Utility
+﻿@using PlanSuite.Enums
+@using PlanSuite.Utility
 @using System.Web
 @model PlanSuite.Models.Temporary.ProjectViewModel
 @{
@@ -167,6 +168,8 @@ function removeDateEditor()
 
 <h1 class="text-center">@Model.Project.Name</h1>
 <hr />
+<div class="alert alert-success d-none" id="addUserSuccess" role="alert">Sucessfully added new user to project.</div>
+<div class="alert alert-danger d-none" id="addUserFail" role="alert">Failed to add user to project.</div>
 <h4 class="text-muted">@Model.Project.Description</h4>
 <p class="text-muted"><strong>Project Created:</strong> @Model.Project.CreatedDate<br /><strong>Project Due Date:</strong>
     @if(Model.Project.DueDate != null)
@@ -254,26 +257,6 @@ function removeDateEditor()
         </div>
             <div class="modal-body">
                 <ol class="list-group list-group-numbered" id="memberList">
-                    @*<li class="list-group-item d-flex justify-content-between align-items-start">
-                        <div class="ms-2 me-auto">
-                            <div class="fw-auto">John Doe <span class="badge ps-div-projects rounded-pill">Owner</span></div>
-                            Lorem ipsum sit doler amet
-                        </div>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-start">
-                        <div class="ms-2 me-auto">
-                            <div class="fw-auto">Jane Doe <span class="badge ps-div-users rounded-pill">Admin</span></div>
-                            Hello! I am using Plan Suite.
-                        </div>
-                        <button type="button" class="btn ps-btn-danger btn-sm">Remove</button>
-                    </li>
-                    <li class="list-group-item d-flex justify-content-between align-items-start">
-                        <div class="ms-2 me-auto">
-                            <div class="fw-auto">Regular User</div>
-                            I am just a regular user, dont mind me.
-                        </div>
-                        <button type="button" class="btn ps-btn-danger btn-sm">Remove</button>
-                    </li>*@
                 </ol>
                 <br>
                 <div class="modal-footer">
@@ -284,7 +267,7 @@ function removeDateEditor()
     </div>
 </div>
 
-@* Project Members *@
+@* Leave Project *@
 <div class="modal fade" id="leaveProjectModal" tabindex="-1" aria-labelledby="leaveProjectLabel" aria-hidden="true">
     <div class="modal-dialog">
     <div class="modal-content">
@@ -304,6 +287,31 @@ function removeDateEditor()
     </div>
 </div>
 
+@* Add Member *@
+<div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="leaveProjectLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="projectMembersLabel">Add Member</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form>
+            <div class="modal-body">
+                    <div class="form-group">
+                        <label class="m-1" for="addMemberInput">Enter Username:</label>
+                        <input type="text" id="addMemberInput" class="form-control" placeholder="Username"/>
+                    </div>
+                <br>
+                <div class="modal-footer">
+                    <button type="button" class="btn ps-btn-primary" data-bs-dismiss="modal" onclick="onAddMember()">Add Member</button>
+                    <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div> 
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="row">
     <div class="col col-sm-10">
         <button type="button" class="btn m-1 ps-btn-success float-start" data-bs-toggle="modal" data-bs-target="#addColumnModal" onclick="addColumnBtn('@Model.Project.Id')">Add Column</button>
@@ -312,11 +320,15 @@ function removeDateEditor()
             <button id="btnGroupDrop1" type="button" class="btn m-1 ps-btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">More</button>
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#projectMembersModal" onclick="viewProjectMembers()">See Members</a></li>
+                @if(Model.ProjectRole >= PlanSuite.Enums.ProjectRole.Admin)
+                {
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addMemberModal">Add Member</a></li>
+                }
                 @if(Model.ProjectRole != PlanSuite.Enums.ProjectRole.Owner)
                 {
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#leaveProjectModal" >Leave Project</a></li>
-                    @*<button type="button" class="btn m-1 ps-btn-danger float-start" data-bs-toggle="modal" data-bs-target="#leaveProjectModal">Leave Project</button>*@
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#leaveProjectModal">Leave Project</a></li>
                 }
             </ul>
         </div>
@@ -331,7 +343,7 @@ function removeDateEditor()
         foreach(var item in Model.Columns)
           {
             <div class="col m4">
-                <h3 style="text-align:center;"><button class="btn btn-light" type="button"> <i class="fas fa-arrow-left"></i> </button> @item.Title <button class="btn btn-light" type="button">@Html.Encode("->")</button></h3>
+                <h3 style="text-align:center;">@*<button class="btn btn-light" type="button"> <i class="fas fa-arrow-left"></i> </button>*@ @item.Title @*<button class="btn btn-light" type="button">@Html.Encode("->")</button>*@</h3>
                 <div class="column" style="min-height: 600px;" id="@item.Id">
                     @foreach(var card in Model.Cards)
                     {
@@ -393,6 +405,51 @@ function removeDateEditor()
 </div>
 
 <script>
+function onAddMember()
+{
+    var input = $("#addMemberInput").val();
+    console.log(input);
+
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        url: `/api/Project/addmember`,
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
+        },
+        data: JSON.stringify({ projectId: @Model.Project.Id, userId: '@Model.UserId', name: `${input}` }),
+        success: function(response) {
+            console.log(response);
+            if(response.response != @((int)AddMemberResponse.Success))
+            {
+                var div = $("#addUserFail");
+                div.removeClass("d-none");
+                if(response.response == @((int)AddMemberResponse.AlreadyHasAccess))
+                {
+                    div.html("Member already has access to this project.");
+                }
+                else if(response.response == @((int)AddMemberResponse.IncorrectRoles))
+                {
+                    div.html("You do not have the correct permissions to add users.");
+                }
+                else if(response.response == @((int)AddMemberResponse.NoUser))
+                {
+                    div.html("No such user exists.");
+                }
+                else
+                {
+                    div.html("Failed due to server error.");
+                }
+            }
+            else
+            {
+                $("#addUserSuccess").removeClass("d-none");
+            }
+        },
+    });
+}
+
 function onLeaveProject()
 {
     $.ajax({
@@ -480,6 +537,7 @@ function viewCardButton(dbId)
 
 function viewProjectMembers()
 {
+    $("#memberList").empty();
     $.ajax({
         type: "GET",
         dataType: "json",
@@ -494,7 +552,7 @@ function viewProjectMembers()
             $("#memberList").append(`<li class=\"list-group-item d-flex justify-content-between align-items-start\">\
                         <div class=\"ms-2 me-auto\">\
                             <div class=\"fw-auto\">${response.cardOwner} <span class=\"badge ps-div-projects rounded-pill\">Owner</span></div>\
-                            Lorem ipsum sit doler amet\
+                            Project Owner\
                         </div>\
                     </li>`);
 
@@ -506,7 +564,7 @@ function viewProjectMembers()
                     $("#memberList").append(`<li class=\"list-group-item d-flex justify-content-between align-items-start\">\
                             <div class=\"ms-2 me-auto\">\
                                 <div class=\"fw-auto\">${admin} <span class=\"badge ps-div-users rounded-pill\">Admin</span></div>\
-                                Lorem ipsum sit doler amet\
+                                Project Admin\
                             </div>\
                         </li>`);
                 });
@@ -520,7 +578,7 @@ function viewProjectMembers()
                     $("#memberList").append(`<li class=\"list-group-item d-flex justify-content-between align-items-start\">\
                             <div class=\"ms-2 me-auto\">\
                                 <div class=\"fw-auto\">${member}</div>\
-                                Lorem ipsum sit doler amet\
+                                Project Member\
                             </div>\
                         </li>`);
                 });

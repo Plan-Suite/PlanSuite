@@ -82,6 +82,44 @@ namespace PlanSuite.Services
             return null;
         }
 
+        public AddMemberResponse AddMember(AddMemberModel model)
+        {
+            var project = m_Database.Projects.Where(project => project.Id == model.ProjectId).FirstOrDefault();
+            if (project == null)
+            {
+                return AddMemberResponse.ServerError;
+            }
+
+            var role = GetUserProjectAccess(model.UserId, project);
+            if (role < ProjectRole.Admin)
+            {
+                return AddMemberResponse.IncorrectRoles;
+            }
+
+            var user = m_Database.Users.Where(user => user.UserName.Equals(model.Name)).FirstOrDefault();
+            if (user == null)
+            {
+                return AddMemberResponse.NoUser;
+            }
+
+            var guid = Guid.Parse(user.Id);
+            var access = m_Database.ProjectsAccess.Where(access => access.UserId == guid).FirstOrDefault();
+            if (access != null)
+            {
+                return AddMemberResponse.AlreadyHasAccess;
+            }
+
+            access = new ProjectAccess();
+            access.ProjectId = model.ProjectId;
+            access.ProjectRole = ProjectRole.User;
+            access.UserId = guid;
+
+            Console.WriteLine($"SECURITY: User {model.UserId} added {user.UserName} to project {model.ProjectId}");
+            m_Database.ProjectsAccess.Add(access);
+            m_Database.SaveChanges();
+            return AddMemberResponse.Success;
+        }
+
         public void EditCardDueDate(EditCardDueDateModel model)
         {
             // Convert Unix Timestamp to DateTime
@@ -181,17 +219,29 @@ namespace PlanSuite.Services
                 return ProjectRole.None;
             }
 
+            var guid = Guid.Parse(applicationUser.Id);
+            return GetUserProjectAccess(guid, project);
+        }
+
+        public ProjectRole GetUserProjectAccess(Guid userId, Project project)
+        {
+            // If user or project is null, return false.
+            if (project == null)
+            {
+                return ProjectRole.None;
+            }
+
             // If the user is also the project owner, return true always
-            if(project.OwnerId == Guid.Parse(applicationUser.Id))
+            if (project.OwnerId == userId)
             {
                 return ProjectRole.Owner;
             }
 
             // Get the users project access
-            var projectAccess = m_Database.ProjectsAccess.Where(access => 
-                access.UserId == Guid.Parse(applicationUser.Id) && 
+            var projectAccess = m_Database.ProjectsAccess.Where(access =>
+                access.UserId == userId &&
                 access.ProjectId == project.Id).FirstOrDefault();
-            if(projectAccess == null)
+            if (projectAccess == null)
             {
                 return ProjectRole.None;
             }
