@@ -55,11 +55,60 @@ namespace PlanSuite.Controllers.Api
 
         }
 
+        [HttpPost("EditCardDueDate")]
+        public IActionResult EditCardDueDate([FromBody] EditCardDueDateModel model)
+        {
+            Console.WriteLine($"EditCardDueDateModel: {model.CardId} {model.Timestamp}");
+            m_ProjectService.EditCardDueDate(model);
+
+            return Ok(new
+            {
+                Modified = true
+            });
+
+        }
+
+
+        [HttpPost("leaveproject")]
+        public IActionResult LeaveProject([FromBody] LeaveProjectModel model)
+        {
+            Console.WriteLine($"LeaveProjectModel: {model.ProjectId} {model.UserId}");
+            m_ProjectService.LeaveProject(model);
+
+            return Ok(new
+            {
+                Left = true
+            });
+
+        }
+
+        [HttpPost("addmember")]
+        public IActionResult AddMember([FromBody] AddMemberModel model)
+        {
+            Console.WriteLine($"LeaveProjectModel: {model.ProjectId} {model.Name}");
+            var result = m_ProjectService.AddMember(model);
+
+            return Ok(new
+            {
+                Response = result
+            });
+
+        }
+
         [HttpGet("getcard")]
-        public ActionResult<GetCardReturnJson> GetCardMarkdown(int cardId/*[FromBody] GetCardMarkdownModel model*/)
+        public ActionResult<GetCardReturnJson> GetCardMarkdown(int cardId)
         {
             Console.WriteLine($"GetCardReturnJson: {cardId}");
             GetCardReturnJson json = m_ProjectService.GetCardMarkdown(cardId);
+            return json;
+
+        }
+
+        [HttpGet("getprojectmembers")]
+        public ActionResult<GetProjectMembers> GetProjectMembers(int projectId)
+        {
+            Console.WriteLine($"GetProjectMembers: {projectId}");
+            GetProjectMembers json = m_ProjectService.GetProjectMembers(projectId);
             return json;
 
         }

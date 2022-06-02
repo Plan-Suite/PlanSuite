@@ -6,7 +6,8 @@ namespace PlanSuite.Models.Temporary
     public class HomeViewModel
     {
         public CreateProjectModel CreateProject { get; set; } = new CreateProjectModel();
-        public List<Project> Projects { get; set; } = new List<Project>();
+        public List<Project> OwnedProjects { get; set; } = new List<Project>();
+        public List<Project> MemberProjects { get; set; } = new List<Project>();
         public EditProjectModel EditProject { get; set; } = new EditProjectModel();
         public DeleteProjectModel DeleteProject { get; set; } = new DeleteProjectModel();
 

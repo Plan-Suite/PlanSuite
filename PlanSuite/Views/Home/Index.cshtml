@@ -5,7 +5,7 @@
 @model PlanSuite.Models.Temporary.HomeViewModel
 @{
     ViewData["Title"] = "Home Page";
-    int count = Model.Projects.Count;
+    int count = Model.OwnedProjects.Count;
 }
 
 @functions{
@@ -134,26 +134,46 @@
           </div>
         </div>
 
+        <div class="container">
         @if(count > 0)
         {
-            foreach(var item in Model.Projects)
+            <div class="row">
+            @foreach(var item in Model.OwnedProjects)
             {
-                <div class="card p-1" style="width: 18rem;">
-                    <div>
-                        <h5 class="card-title m-1">@item.Name</h5>
-                        <h6 class="card-subtitle m-1 mb-2 text-muted"><strong>Created Date:</strong> @FormatDate(item.CreatedDate)<br /><strong>Due Date:</strong> @FormatDate(item.DueDate)</h6>
-                        <p class="card-text m-1">@item.Description</p>
-                        <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn ps-btn-primary m-1 mb-1">View Project</a>
-                        <button type="button" class="btn ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" onclick="passButtonInfo('@item.Id', '@item.Name', '@item.Description', '@item.DueDate?.ToUniversalTime()')">Edit Project</button>
-                        <button type="button" class="btn ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" onclick="passDeleteButtonInfo('@item.Id', '@item.Name')">Delete Project</button>
+                <div class="col-sm-6">
+                    @*style="width: 18rem; height:12rem;"*@
+                    <div class="card p-1 mt-2" style="height:12rem;">
+                        <div>
+                            <h5 class="card-title m-1">@item.Name</h5>
+                            <h6 class="card-subtitle m-1 mb-2 text-muted"><strong>Created Date:</strong> @FormatDate(item.CreatedDate)<br /><strong>Due Date:</strong> @FormatDate(item.DueDate)</h6>
+                            <p class="card-text m-1">@item.Description</p>
+                            <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">View Project</a>
+                            <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" onclick="passButtonInfo('@item.Id', '@item.Name', '@item.Description', '@item.DueDate?.ToUniversalTime()')">Edit Project</button>
+                            <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" onclick="passDeleteButtonInfo('@item.Id', '@item.Name')">Delete Project</button>
+                        </div>
                     </div>
                 </div>
             }
+            @foreach(var item in Model.MemberProjects)
+            {
+                <div class="col-sm-6">
+                    <div class="card p-1 mt-2" style="height:12rem;">
+                        <div>
+                            <h5 class="card-title m-1">@item.Name</h5>
+                            <h6 class="card-subtitle m-1 mb-2 text-muted"><strong>Created Date:</strong> @FormatDate(item.CreatedDate)<br /><strong>Due Date:</strong> @FormatDate(item.DueDate)</h6>
+                            <p class="card-text m-1">@item.Description</p>
+                            <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">View Project</a>
+                        </div>
+                    </div>
+                </div>
+            }
+            </div>
         }
         else
         {
             <p>No projects</p>
         }
+        </div>
     </div>
 }
 else
