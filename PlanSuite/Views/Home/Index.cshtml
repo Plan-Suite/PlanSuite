@@ -1,11 +1,18 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using System.Text.Json
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Microsoft.Extensions.Localization
 @using PlanSuite.Models.Persistent
+@using PlanSuite.Services
+@using System.Security.Claims
+@inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
 @model PlanSuite.Models.Temporary.HomeViewModel
 @{
     ViewData["Title"] = "Home Page";
     int count = Model.OwnedProjects.Count;
+
+    ApplicationUser user = await UserManager.GetUserAsync(User);
 }
 
 @functions{
@@ -25,16 +32,16 @@
          (adsbygoogle = window.adsbygoogle || []).push({});
     </script>*@
     <div class="text-center">
-        <h1 class="display-4">Your Projects</h1>
+        <h1 class="display-4">@Model.Localisation.Get(user, "YOUR_PROJECTS")</h1>
         @* Button trigger modal *@
-        <button type="button" class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal">Create New Project</button>
+        <button type="button" class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal">@Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</button>
 
         @* Create New Project *@
         <div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectLabel" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="createProjectLabel">Create New Project</h5>
+                <h5 class="modal-title" id="createProjectLabel">@Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
                 <form method="post" asp-controller="Home" asp-action="Create">
@@ -58,8 +65,8 @@
                             <br>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn ps-btn-primary">Create Project</button>
+                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
+                            <button type="submit" class="btn ps-btn-primary">@Model.Localisation.Get(user, "CREATE_PROJECT")</button>
                         </div>
                     </div>
                 </form>
@@ -72,7 +79,7 @@
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="editProjectLabel"><strong>Edit Project:</strong> Project Name Here</h5>
+                <h5 class="modal-title" id="editProjectLabel">EDIT_PROJECT</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
                 <form method="post" asp-controller="Home" asp-action="Edit">
@@ -97,8 +104,8 @@
                             <br>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn ps-btn-primary">Save Changes</button>
+                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
+                            <button type="submit" class="btn ps-btn-primary">@Model.Localisation.Get(user, "SAVE_CHANGES")</button>
                         </div>
                     </div>
                 </form>
@@ -111,7 +118,7 @@
           <div class="modal-dialog">
             <div class="modal-content">
               <div class="modal-header">
-                <h5 class="modal-title" id="deleteProjectLabel"><strong>Delete Project:</strong> Project Name Here</h5>
+                <h5 class="modal-title" id="deleteProjectLabel">DELETE_PROJECT</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
                 <form method="post" asp-controller="Home" asp-action="Delete">
@@ -125,8 +132,8 @@
                             <br>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn ps-btn-danger" id="deleteButton" disabled>Delete Project</button>
+                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
+                            <button type="submit" class="btn ps-btn-danger" id="deleteButton" disabled>@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
                         </div>
                     </div>
                 </form>
@@ -141,15 +148,14 @@
             @foreach(var item in Model.OwnedProjects)
             {
                 <div class="col-sm-6">
-                    @*style="width: 18rem; height:12rem;"*@
                     <div class="card p-1 mt-2" style="height:12rem;">
                         <div>
                             <h5 class="card-title m-1">@item.Name</h5>
-                            <h6 class="card-subtitle m-1 mb-2 text-muted"><strong>Created Date:</strong> @FormatDate(item.CreatedDate)<br /><strong>Due Date:</strong> @FormatDate(item.DueDate)</h6>
+                            <h6 class="card-subtitle m-1 mb-2 text-muted">@Html.Raw(string.Format(Model.Localisation.Get(user, "PROJECT_SUB_TITLE"), FormatDate(item.CreatedDate), FormatDate(item.DueDate)))</h6>
                             <p class="card-text m-1">@item.Description</p>
-                            <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">View Project</a>
-                            <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" onclick="passButtonInfo('@item.Id', '@item.Name', '@item.Description', '@item.DueDate?.ToUniversalTime()')">Edit Project</button>
-                            <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" onclick="passDeleteButtonInfo('@item.Id', '@item.Name')">Delete Project</button>
+                            <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">@Model.Localisation.Get(user, "VIEW_PROJECT")</a>
+                            <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" onclick="passButtonInfo('@item.Id', '@item.Name', '@item.Description', '@item.DueDate?.ToUniversalTime()')">@Model.Localisation.Get(user, "EDIT_PROJECT")</button>
+                            <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" onclick="passDeleteButtonInfo('@item.Id', '@item.Name')">@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
                         </div>
                     </div>
                 </div>
@@ -160,9 +166,9 @@
                     <div class="card p-1 mt-2" style="height:12rem;">
                         <div>
                             <h5 class="card-title m-1">@item.Name</h5>
-                            <h6 class="card-subtitle m-1 mb-2 text-muted"><strong>Created Date:</strong> @FormatDate(item.CreatedDate)<br /><strong>Due Date:</strong> @FormatDate(item.DueDate)</h6>
+                            <h6 class="card-subtitle m-1 mb-2 text-muted">@Html.Raw(string.Format(Model.Localisation.Get(user, "PROJECT_SUB_TITLE"), FormatDate(item.CreatedDate), FormatDate(item.DueDate)))</h6>
                             <p class="card-text m-1">@item.Description</p>
-                            <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">View Project</a>
+                            <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">@Model.Localisation.Get(user, "VIEW_PROJECT")</a>
                         </div>
                     </div>
                 </div>
@@ -171,14 +177,14 @@
         }
         else
         {
-            <p>No projects</p>
+            <p>@Model.Localisation.Get(user, "NO_PROJECTS")</p>
         }
         </div>
     </div>
 }
 else
 {
-    <h1 class="text-center">Plan better, stay focused</h1>
+    <h1 class="text-center">@Model.Localisation.Get(user, "LANDING_HEADER")</h1>
 }
 <script>
 function passButtonInfo(dbId, name, desc, date)

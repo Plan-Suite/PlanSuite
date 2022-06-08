@@ -18,7 +18,7 @@
         /// Increment this when we add/change major features, UI overhauls or major backend changes
         /// If this gets incremented, then we reset minor and patch to 0
         /// </summary>
-        public const int VERSION_MAJOR = 1;
+        public const int VERSION_MAJOR = 0;
 
         /// <summary>
         /// Increment this when we add/change minor features, incremental UI changes or backend changes

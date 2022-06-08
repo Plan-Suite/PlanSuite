@@ -1,9 +1,14 @@
-﻿@using PlanSuite.Utility
+﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Models.Persistent
+@using PlanSuite.Models.Temporary
+@using PlanSuite.Utility
 @using System.Web
-@model PlanSuite.Models.Temporary.ChangelogViewModel
+@inject UserManager<ApplicationUser> UserManager
+@model ChangelogViewModel
 @{
     ViewData["Title"] = "Changelog";
     int logCount = Model.Changelogs.Count;
+    ApplicationUser user = await UserManager.GetUserAsync(User);
 }
 <h1>Changelog</h1>
 
@@ -12,15 +17,15 @@
     foreach(var changeLog in Model.Changelogs)
     {
         <hr />
-        <h3>Version @changeLog.VersionName</h3>
+        <h3>@string.Format(Model.Localisation.Get(user, "VERSION"), changeLog.VersionName)</h3>
         <br />
-        <h5>Additions</h5>
+        <h5>@Model.Localisation.Get(user, "ADDITIONS")</h5>
         <p>@Html.Raw(Markdown.Parse(changeLog.Additions))</p>
         <br />
-        <h5>Changes</h5>
+        <h5>@Model.Localisation.Get(user, "CHANGES")</h5>
         <p>@Html.Raw(Markdown.Parse(changeLog.Changes))</p>
         <br />
-        <h5>Fixes</h5>
+        <h5>@Model.Localisation.Get(user, "FIXES")</h5>
         <p>@Html.Raw(Markdown.Parse(changeLog.Fixes))</p>
     }
 }
