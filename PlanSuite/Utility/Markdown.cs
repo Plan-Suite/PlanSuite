@@ -1,4 +1,7 @@
-﻿namespace PlanSuite.Utility
+﻿using Markdig;
+using System.Text.RegularExpressions;
+
+namespace PlanSuite.Utility
 {
     public static class Markdown
     {
@@ -9,7 +12,11 @@
         /// <returns>Markdown string parsed as HTML</returns>
         public static string Parse(string markdown)
         {
-            string parsedMd = Markdig.Markdown.ToHtml(markdown);
+            var pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
+            string parsedMd = Markdig.Markdown.ToHtml(markdown, pipeline);
+
+            parsedMd = Regex.Replace(parsedMd, "<\\/?p[^>]*>", string.Empty);
+
             Console.WriteLine(parsedMd);
             return parsedMd;
         }

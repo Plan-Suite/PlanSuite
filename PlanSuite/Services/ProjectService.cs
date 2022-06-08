@@ -73,7 +73,7 @@ namespace PlanSuite.Services
                 GetCardReturnJson json = new GetCardReturnJson()
                 {
                     Name = cardName,
-                    MarkdownContent = Markdown.Parse(cardDesc).ReplaceLineEndings("<br/>"),
+                    MarkdownContent = Markdown.Parse(cardDesc),
                     RawContent = cardDesc,
                     UnixTimestamp = unixTime,
                 };
