@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using PlanSuite.Data;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
+using PlanSuite.Services;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -14,6 +15,7 @@ namespace PlanSuite.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly LocalisationService m_Localisation;
 
         public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
         {
@@ -21,11 +23,13 @@ namespace PlanSuite.Controllers
             _logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
+            m_Localisation = LocalisationService.Instance;
         }
 
         public IActionResult Index()
         {
             HomeViewModel viewModel = new HomeViewModel();
+            viewModel.Localisation = m_Localisation;
             if (_signInManager.IsSignedIn(User))
             {
                 viewModel.OwnedProjects = new List<Project>();

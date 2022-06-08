@@ -2,7 +2,7 @@
 
 namespace PlanSuite.Models.Temporary
 {
-    public class ChangelogViewModel
+    public class ChangelogViewModel : BaseViewModel
     {
         public List<ChangeLog> Changelogs { get; set; }
     }

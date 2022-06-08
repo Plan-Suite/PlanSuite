@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using PlanSuite.Data;
 using PlanSuite.Models.Persistent;
@@ -72,5 +73,7 @@ using (var scope = app.Services.CreateScope())
 {
     await ApplicationDbInitialise.Initialize(scope.ServiceProvider);
 }
+
+new LocalisationService();
 
 app.Run();
