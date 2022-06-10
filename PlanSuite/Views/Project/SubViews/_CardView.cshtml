@@ -1,0 +1,82 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Models.Persistent
+@inject UserManager<ApplicationUser> UserManager
+@model PlanSuite.Models.Temporary.ProjectViewModel
+@{
+    int projectId = Model.Project.Id;
+    int columnCount = Model.Columns.Count;
+    int cardCount = Model.Cards.Count;
+    ApplicationUser user = await UserManager.GetUserAsync(User);
+}
+@if(columnCount > 0)
+{
+    foreach(var item in Model.Columns)
+    {
+        <div class="col m4">
+            <h3 style="text-align:center;">@item.Title</h3>
+            <div class="column" style="min-height: 600px;" id="@item.Id">
+                <div class="card mb-1">
+                    @*<div class="card-body">*@
+                        <div class="d-grid gap-2">
+                            <a class="btn ps-btn-white" style="text-align:left;" href="#" onclick="addNewCard('@item.Id')">@Html.Raw(Model.Localisation.Get(user, "ADD_NEW_CARD"))</a>
+                        </div>
+                    @*</div>*@
+                </div>
+                @foreach(var card in Model.Cards)
+                {
+                    if(card.ColumnId == item.Id)
+                    {
+                        string overdue = string.Empty;
+                        if(card.CardDueDate != null && card.CardDueDate < DateTime.Now)
+                        {
+                            overdue = $"<span class=\"badge bg-danger\">{Model.Localisation.Get(user, "OVERDUE")}</span>";
+                        }
+                        string priority = string.Empty;
+                        if(card.CardPriority > PlanSuite.Enums.Priority.None)
+                        {
+                            switch(card.CardPriority)
+                            {
+                                case PlanSuite.Enums.Priority.Low:
+                                    priority += "<span class=\"badge bg-success\">";
+                                    priority += Model.Localisation.Get(user, "LOW_PRIORITY");
+                                    priority += "</span>";
+                                    break;
+                                case PlanSuite.Enums.Priority.Medium:
+                                    priority += "<span class=\"badge bg-warning\">";
+                                    priority += Model.Localisation.Get(user, "MED_PRIORITY");
+                                    priority += "</span>";
+                                    break;
+                                case PlanSuite.Enums.Priority.High:
+                                    priority += "<span class=\"badge bg-danger\">";
+                                    priority += Model.Localisation.Get(user, "HIGH_PRIORITY");
+                                    priority += "</span>";
+                                    break;
+                            }
+                        }
+
+                        if(!string.IsNullOrEmpty(priority) || !string.IsNullOrEmpty(overdue))
+                        {
+                            priority += "<br/>";
+                        }
+
+                        string cardName = card.CardName.ReplaceLineEndings("");
+                        <div class="card mb-1 draggable" id="@card.Id">
+                            @*<div class="card-body">*@
+                                <div class="d-grid gap-2" style="height:60px;">
+                                    <a class="btn ps-btn-white" style="text-align:left;" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal" onclick="viewCardButton('@card.Id')">
+                                        @Html.Raw(overdue) @Html.Raw(priority) @cardName</a>
+                                </div>
+                            @*</div>*@
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="col m4">
+        <p class="text-muted text-center m-1">No columns on this project, select <a class="link-primary" href="#" data-bs-toggle="modal" data-bs-target="#addColumnModal">Add Column</a> to add one.</p>
+    </div>
+}

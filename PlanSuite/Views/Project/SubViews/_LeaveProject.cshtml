@@ -1,0 +1,47 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Models.Persistent
+@inject UserManager<ApplicationUser> UserManager
+@model PlanSuite.Models.Temporary.ProjectViewModel
+@{
+    int projectId = Model.Project.Id;
+    int columnCount = Model.Columns.Count;
+    int cardCount = Model.Cards.Count;
+    ApplicationUser user = await UserManager.GetUserAsync(User);
+}
+<div class="modal fade" id="leaveProjectModal" tabindex="-1" aria-labelledby="leaveProjectLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="projectMembersLabel">@Model.Localisation.Get(user, "LEAVE_PROJ")</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <div class="modal-body">
+                <p>@Model.Localisation.Get(user, "LEAVE_PROJ_CONFIRM")</p>
+                <br>
+                <div class="modal-footer">
+                    <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CANCEL")</button>
+                    <button type="button" class="btn ps-btn-danger" data-bs-dismiss="modal" onclick="onLeaveProject()">@Model.Localisation.Get(user, "LEAVE_PROJ")</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function onLeaveProject()
+{
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        url: `/api/Project/leaveproject`,
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
+        },
+        data: JSON.stringify({ projectId: @Model.Project.Id, userId: '@Model.UserId' }),
+        success: function(response) {
+            window.location.replace("/Home");
+        },
+    });
+}
+</script>

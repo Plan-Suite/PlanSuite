@@ -1,20 +1,21 @@
-﻿using PlanSuite.Data;
+﻿using Microsoft.AspNetCore.Identity;
+using PlanSuite.Data;
 using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Utility;
-using System.Security.Claims;
-using System.Text.Json;
 
 namespace PlanSuite.Services
 {
     public class ProjectService
     {
         private readonly ApplicationDbContext m_Database;
+        private readonly UserManager<ApplicationUser> m_UserManager;
 
-        public ProjectService(ApplicationDbContext dbContext)
+        public ProjectService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager)
         {
             m_Database = dbContext;
+            m_UserManager = userManager;
         }
 
         public void MoveCard(MoveCardModel model)
@@ -47,11 +48,17 @@ namespace PlanSuite.Services
             }
         }
 
-        public GetCardReturnJson GetCardMarkdown(int cardId/*GetCardMarkdownModel model*/)
+        public async Task<GetCardReturnJson> GetCardMarkdown(int cardId)
         {
             var card = m_Database.Cards.Where(card => card.Id == cardId).FirstOrDefault();
             if (card != null)
             {
+                var column = m_Database.Columns.Where(c => c.Id == card.ColumnId).FirstOrDefault();
+                if(column == null)
+                {
+                    return null;
+                }
+
                 string cardName = card.CardName;
                 if (string.IsNullOrEmpty(card.CardName))
                 {
@@ -63,6 +70,15 @@ namespace PlanSuite.Services
                     cardDesc = "Click here to add a description.";
                 }
 
+                string assignee = "NOBODY";
+                string assigneeId = "0";
+                ApplicationUser user = await m_UserManager.FindByIdAsync(card.CardAssignee.ToString());
+                if (user != null)
+                {
+                    assignee = user.UserName;
+                    assigneeId = user.Id;
+                }
+
                 uint unixTime = 0;
                 if(card.CardDueDate != null)
                 {
@@ -70,16 +86,73 @@ namespace PlanSuite.Services
                     Console.WriteLine(unixTime);
                 }
 
+                // get project members
+                int projId = column.ProjectId;
+                Dictionary<Guid, string> members = new Dictionary<Guid, string>();
+                var project = m_Database.Projects.Where(p => p.Id == projId).FirstOrDefault();
+                if (project == null)
+                {
+                    return null;
+                }
+
+                var owner = GetProjectOwner(project);
+                if (owner != null)
+                {
+                    members.Add(Guid.Parse(owner.Id), owner.UserName);
+                }
+
+                var projMembers = GetProjectUsers(projId);
+                foreach(var member in projMembers)
+                {
+                    if(!members.ContainsKey(member.Key))
+                    {
+                        members.Add(member.Key, member.Value);
+                    }
+                }
+
+                // return
                 GetCardReturnJson json = new GetCardReturnJson()
                 {
                     Name = cardName,
                     MarkdownContent = Markdown.Parse(cardDesc),
                     RawContent = cardDesc,
                     UnixTimestamp = unixTime,
+                    AssigneeName = assignee,
+                    AssigneeId = assigneeId,
+                    Priority = card.CardPriority,
+                    Members = members
                 };
                 return json;
             }
             return null;
+        }
+
+        private ApplicationUser? GetProjectOwner(Project project)
+        {
+            var owner = m_Database.Users.Where(u => u.Id == project.OwnerId.ToString()).FirstOrDefault();
+            if (owner == null)
+            {
+                return null;
+            }
+            return owner;
+        }
+
+        private Dictionary<Guid, string> GetProjectUsers(int projId)
+        {
+            var members = new Dictionary<Guid, string>();
+            var projAccess = m_Database.ProjectsAccess.Where(a => a.ProjectId == projId).ToList();
+            if (projAccess != null && projAccess.Count > 0)
+            {
+                foreach (var access in projAccess)
+                {
+                    var projMember = m_Database.Users.Where(u => u.Id == access.UserId.ToString()).FirstOrDefault();
+                    if (projMember != null)
+                    {
+                        members.Add(Guid.Parse(projMember.Id), projMember.UserName);
+                    }
+                }
+            }
+            return members;
         }
 
         public AddMemberResponse AddMember(AddMemberModel model)
@@ -133,6 +206,8 @@ namespace PlanSuite.Services
             if (card != null)
             {
                 card.CardDueDate = dueDate;
+                card.CardPriority = (Priority)model.Priority;
+                card.CardAssignee = Guid.Parse(model.AssigneeId);
                 m_Database.SaveChanges();
             }
         }

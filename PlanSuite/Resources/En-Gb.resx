@@ -120,11 +120,32 @@
   <data name="ADDITIONS" xml:space="preserve">
     <value>Additions</value>
   </data>
+  <data name="ADD_MEMBER" xml:space="preserve">
+    <value>Add Member</value>
+  </data>
+  <data name="ADD_MEMBER_ENTER_USERNAME" xml:space="preserve">
+    <value>Enter Username:</value>
+  </data>
+  <data name="ADD_NEW_CARD" xml:space="preserve">
+    <value>&lt;i class="bi bi-plus-circle"&gt;&lt;/i&gt; Add New Card</value>
+  </data>
+  <data name="ADD_USER_ALREADY_HAS_ACCESS" xml:space="preserve">
+    <value>Member already has access to this project.</value>
+  </data>
   <data name="ADD_USER_FAIL" xml:space="preserve">
     <value>Failed to add user to project.</value>
   </data>
+  <data name="ADD_USER_INCORRECT_ROLES" xml:space="preserve">
+    <value>You do not have the correct permissions to add users.</value>
+  </data>
+  <data name="ADD_USER_NO_USER" xml:space="preserve">
+    <value>No such user exists.</value>
+  </data>
   <data name="ADD_USER_SUCCESS" xml:space="preserve">
     <value>Sucessfully added new user to project.</value>
+  </data>
+  <data name="CANCEL" xml:space="preserve">
+    <value>Cancel</value>
   </data>
   <data name="CHANGES" xml:space="preserve">
     <value>Changes</value>
@@ -140,6 +161,9 @@
   </data>
   <data name="CREATE_PROJECT" xml:space="preserve">
     <value>Create Project</value>
+  </data>
+  <data name="DEFAULT_CARD_DESC" xml:space="preserve">
+    <value>Click here to add a description.</value>
   </data>
   <data name="DELETE_LBL" xml:space="preserve">
     <value>Delete:</value>
@@ -162,8 +186,17 @@
   <data name="EDIT_PROJECT_LBL" xml:space="preserve">
     <value>Edit Project:</value>
   </data>
+  <data name="FAIL_SERVER" xml:space="preserve">
+    <value>Failed due to server error.</value>
+  </data>
   <data name="FIXES" xml:space="preserve">
     <value>Fixes</value>
+  </data>
+  <data name="HIGH" xml:space="preserve">
+    <value>High</value>
+  </data>
+  <data name="HIGH_PRIORITY" xml:space="preserve">
+    <value>High Priority</value>
   </data>
   <data name="HOME_INDEX" xml:space="preserve">
     <value>Home Page</value>
@@ -171,23 +204,62 @@
   <data name="LANDING_HEADER" xml:space="preserve">
     <value>Plan batter, stay focused</value>
   </data>
+  <data name="LEAVE_PROJ" xml:space="preserve">
+    <value>Leave Project</value>
+  </data>
+  <data name="LEAVE_PROJ_CONFIRM" xml:space="preserve">
+    <value>Are you sure you want to leave the project?</value>
+  </data>
+  <data name="LOW" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="LOW_PRIORITY" xml:space="preserve">
+    <value>Low Priority</value>
+  </data>
+  <data name="MEDIUM" xml:space="preserve">
+    <value>Medium</value>
+  </data>
+  <data name="MED_PRIORITY" xml:space="preserve">
+    <value>Medium Priority</value>
+  </data>
+  <data name="NOBODY" xml:space="preserve">
+    <value>Nobody</value>
+  </data>
+  <data name="NONE" xml:space="preserve">
+    <value>None</value>
+  </data>
   <data name="NOT_AVAILABLE" xml:space="preserve">
     <value>N/A</value>
   </data>
   <data name="NO_PROJECTS" xml:space="preserve">
     <value>No Projects</value>
   </data>
+  <data name="OVERDUE" xml:space="preserve">
+    <value>Overdue</value>
+  </data>
   <data name="PROJECT_INFO" xml:space="preserve">
     <value>&lt;strong&gt;Project Created:&lt;/strong&gt; {0}&lt;br /&gt;&lt;strong&gt;Project Due Date:&lt;/strong&gt; {1}</value>
   </data>
   <data name="PROJECT_SUB_TITLE" xml:space="preserve">
-    <value>&lt;strong&gt;Created Date:&lt;/strong&gt; {0}&lt;br/&gt;&lt;strong&gt;Due Date:&lt;/strong&gt;{1}</value>
+    <value>&lt;strong&gt;Created Date:&lt;/strong&gt; {0}&lt;br/&gt;&lt;strong&gt;Due Date:&lt;/strong&gt; {1}</value>
   </data>
   <data name="SAVE_CHANGES" xml:space="preserve">
     <value>Save Changes</value>
   </data>
+  <data name="USERNAME" xml:space="preserve">
+    <value>Username</value>
+  </data>
   <data name="VERSION" xml:space="preserve">
     <value>Version {0}</value>
+  </data>
+  <data name="VIEW_CARD_ASSIGNEE" xml:space="preserve">
+    <value>Assignee:</value>
+  </data>
+  <data name="VIEW_CARD_DUE_DATE" xml:space="preserve">
+    <value>Due By:</value>
+  </data>
+  <data name="VIEW_CARD_PRIORITY" xml:space="preserve">
+    <value>Priority:</value>
   </data>
   <data name="VIEW_PROJECT" xml:space="preserve">
     <value>View Project</value>

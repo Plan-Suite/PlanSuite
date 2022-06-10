@@ -29,7 +29,6 @@ namespace PlanSuite.Controllers
         public IActionResult Index()
         {
             HomeViewModel viewModel = new HomeViewModel();
-            viewModel.Localisation = m_Localisation;
             if (_signInManager.IsSignedIn(User))
             {
                 viewModel.OwnedProjects = new List<Project>();

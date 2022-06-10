@@ -55,10 +55,10 @@ namespace PlanSuite.Controllers.Api
 
         }
 
-        [HttpPost("EditCardDueDate")]
+        [HttpPost("EditCard")]
         public IActionResult EditCardDueDate([FromBody] EditCardDueDateModel model)
         {
-            Console.WriteLine($"EditCardDueDateModel: {model.CardId} {model.Timestamp}");
+            Console.WriteLine($"EditCardDueDateModel: {model.CardId} {model.Timestamp} {model.Priority} {model.AssigneeId}");
             m_ProjectService.EditCardDueDate(model);
 
             return Ok(new
@@ -67,7 +67,6 @@ namespace PlanSuite.Controllers.Api
             });
 
         }
-
 
         [HttpPost("leaveproject")]
         public IActionResult LeaveProject([FromBody] LeaveProjectModel model)
@@ -96,10 +95,10 @@ namespace PlanSuite.Controllers.Api
         }
 
         [HttpGet("getcard")]
-        public ActionResult<GetCardReturnJson> GetCardMarkdown(int cardId)
+        public async Task<ActionResult<GetCardReturnJson>> GetCardMarkdown(int cardId)
         {
             Console.WriteLine($"GetCardReturnJson: {cardId}");
-            GetCardReturnJson json = m_ProjectService.GetCardMarkdown(cardId);
+            GetCardReturnJson json = await m_ProjectService.GetCardMarkdown(cardId);
             return json;
 
         }

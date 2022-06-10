@@ -72,6 +72,17 @@ body {
         color: #FFFFFF;
     }
 
+.ps-btn-white {
+    background-color: #FFFFFF;
+    border-color: #2E3532;
+    color: #2E3532;
+}
+
+.ps-btn-white:hover {
+    color: #FFFFFF;
+    background-color: #2E3532;
+}
+
 .ps-link {
     color: #E5E5E5;
     text-decoration: none;

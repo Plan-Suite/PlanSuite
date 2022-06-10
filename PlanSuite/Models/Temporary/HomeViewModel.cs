@@ -1,14 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PlanSuite.Models.Persistent;
-using PlanSuite.Services;
 
 namespace PlanSuite.Models.Temporary
 {
-    public class BaseViewModel
-    {
-        public LocalisationService Localisation { get; set; } = LocalisationService.Instance;
-    }
-
     public class HomeViewModel : BaseViewModel
     {
         public CreateProjectModel CreateProject { get; set; } = new CreateProjectModel();

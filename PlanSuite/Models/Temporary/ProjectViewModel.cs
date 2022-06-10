@@ -3,7 +3,7 @@ using PlanSuite.Models.Persistent;
 
 namespace PlanSuite.Models.Temporary
 {
-    public partial class ProjectViewModel
+    public class ProjectViewModel : BaseViewModel
     {
         public Project Project;
         public List<Column> Columns = new List<Column>();

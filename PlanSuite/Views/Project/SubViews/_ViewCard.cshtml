@@ -1,0 +1,177 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Enums
+@using PlanSuite.Models.Persistent
+@inject UserManager<ApplicationUser> UserManager
+@model PlanSuite.Models.Temporary.ProjectViewModel
+@{
+    int projectId = Model.Project.Id;
+    int columnCount = Model.Columns.Count;
+    int cardCount = Model.Cards.Count;
+    ApplicationUser user = await UserManager.GetUserAsync(User);
+}
+<div class="modal fade" id="viewCardModal" tabindex="-1" aria-labelledby="viewCardLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <input type="hidden" id="viewCardId" value="0"/>
+            <h5 class="modal-title" id="viewCardLabel" onclick="editName()">Card Name</h5>
+            <div class="d-none" id="viewCardEditLabel">
+                <div class="form-floating">
+                    <input class="form-control text-box single-line" id="viewCardEditLabelEditor" type="text" value=""/>
+                    <label class="form-label">Card Name</label>
+                </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="viewCardContent">
+                    <div class="mt-0">
+                        <small class="text-muted" id="viewCardDueDate">
+                            DUE_DATE_HERE
+                        </small><br />
+                        <small class="text-muted" id="viewCardPriority">
+                            CARD_PRIORITY
+                        </small><br />
+                        <small class="text-muted" id="viewCardAssignee">
+                            CARD_ASSIGNEE
+                        </small>
+                    </div>
+                    <hr />
+                    <p class="ps-modifiable" id="viewCardText" onclick="editDescription()">@Model.Localisation.Get(user,"DEFAULT_CARD_DESC")</p>
+                    <div class="d-none" id="viewCardEditText">
+                        <div class="mb-3">
+                            <textarea class="form-control text-box single-line" id="viewCardEditTextEditor" rows="3" value=""></textarea>
+                        </div>
+                    </div>
+                </div>
+                <form class="d-none" id="editCardContentForm">
+                    <div class="row mb-3">
+                        <legend class="col-form-label-sm">Assignee</legend>
+                        <div class="col-sm-10">
+                            <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="assignee"></select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <legend class="col-form-label-sm">Due Date</legend>
+                        <div class="col-sm-10">
+                            <input type="date" id="viewCardDueDateDateTime" class="form-control"/>
+                        </div>
+                    </div>
+                    <fieldset class="row mb-3">
+                        <legend class="col-form-label-sm col-sm-2 pt-0">Priority</legend>
+                        <div class="col-sm-10">
+                            <div class="form-check-sm">
+                                <input class="form-check-input" type="radio" name="priority" id="noPriority" value="@((int)Priority.None)" checked>
+                                <label class="form-check-label" for="noPriority">None</label>
+                            </div>
+                            <div class="form-check-sm">
+                                <input class="form-check-input" type="radio" name="priority" id="lowPriority" value="@((int)Priority.Low)">
+                                <label class="form-check-label" for="lowPriority">Low</label>
+                            </div>
+                            <div class="form-check-sm">
+                                <input class="form-check-input" type="radio" name="priority" id="medPriority" value="@((int)Priority.Medium)">
+                                <label class="form-check-label" for="medPriority">Medium</label>
+                            </div>
+                            <div class="form-check-sm">
+                                <input class="form-check-input" type="radio" name="priority" id="highPriority" value="@((int)Priority.High)">
+                                <label class="form-check-label" for="highPriority">High</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <button type="button" class="btn ps-btn-primary" onclick="onEditCardSaveContent()">Save Content</button>
+                </form>
+                <br>
+                <div class="modal-footer">
+                    <button type="button" class="btn ps-btn-info btn-outline-dark" onclick="onEditCard()">Edit Card</button>
+                    <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+function onEditCard()
+{
+    var cardId = $("#viewCardId").val();
+    $("#editCardContentForm").removeClass("d-none");
+    $("#viewCardContent").addClass("d-none");
+
+    const url = `/api/Project/getcard?cardId=${cardId}`;
+
+    $.ajax({
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json",
+        url: url, 
+        success: function(response) {
+
+            // Due Date
+            var date = "";
+            if(response.unixTimestamp > 0)
+            {
+                // I have to multiply by 1000 for some reason here idk why
+                dateString = new Date(response.unixTimestamp * 1000).toDateString();
+            }
+
+            $("#viewCardDueDateDateTime").val(date);
+
+            // get assignee
+            $("#assignee").empty();
+            $("#assignee").append("<option value=\"0\">Unassigned</option>");
+
+            Object.entries(response.members).forEach(([k,v]) => {
+                $("#assignee").append(`<option value="${k}">${v}</option>`);
+            });
+
+            // set assignee
+            var guid = "0";
+            if(!isBlank(response.assigneeId))
+            {
+                guid = response.assigneeId;
+            }
+
+            $("#assignee").val(guid).change();
+        }
+    });
+}
+
+function onEditCardSaveContent()
+{
+    var dbId = $('#viewCardId').val();
+    $("#editCardContentForm").addClass("d-none");
+    $("#viewCardContent").removeClass("d-none");
+    var dateEntered = getCardDueDate();
+    var radioValue = $("input[name='priority']:checked").val();
+    var assigneeId = $("#assignee").val();
+    console.log(`assigneeId: ${assigneeId}`);
+
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        url: "/api/Project/EditCard",
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
+        },
+        data: JSON.stringify({ cardId: dbId, timestamp: dateEntered, priority: radioValue, assigneeId: assigneeId }),
+        success: function(response) {
+            viewCardButton(dbId);
+        },
+    });
+}
+
+function getCardDueDate()
+{
+    var input = $("#viewCardDueDateDateTime").val();
+    var dbId = $('#viewCardId').val();
+
+    console.log(`getCardDueDate: ${input}`);
+    var timestamp = 0;
+    var dateEntered = 0;
+    if(!isBlank(input))
+    {
+        dateEntered = new Date(input).getTime() / 1000;
+    }
+    return dateEntered;
+}
+</script>

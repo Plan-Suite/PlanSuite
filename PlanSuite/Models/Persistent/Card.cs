@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PlanSuite.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PlanSuite.Models.Persistent
@@ -21,5 +22,11 @@ namespace PlanSuite.Models.Persistent
 
         [Column("card_due_date")]
         public DateTime? CardDueDate { get; set; }
+
+        [Column("card_priority")]
+        public Priority CardPriority { get; set; }
+
+        [Column("card_assignee")]
+        public Guid CardAssignee { get; set; }
     }
 }

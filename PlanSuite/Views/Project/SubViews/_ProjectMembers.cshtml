@@ -1,0 +1,82 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Models.Persistent
+@inject UserManager<ApplicationUser> UserManager
+@model PlanSuite.Models.Temporary.ProjectViewModel
+@{
+    int projectId = Model.Project.Id;
+    int columnCount = Model.Columns.Count;
+    int cardCount = Model.Cards.Count;
+    ApplicationUser user = await UserManager.GetUserAsync(User);
+}
+<div class="modal fade" id="projectMembersModal" tabindex="-1" aria-labelledby="projectMembersLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="projectMembersLabel">Project Members</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <div class="modal-body">
+                <ol class="list-group list-group-numbered" id="memberList">
+                </ol>
+                <br>
+                <div class="modal-footer">
+                    <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function viewProjectMembers()
+{
+    $("#memberList").empty();
+    $.ajax({
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json",
+        url: `/api/Project/getprojectmembers?projectId=@Model.Project.Id`,
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
+        },
+        success: function(response) {
+            console.log(response);
+
+            $("#memberList").append(`<li class=\"list-group-item d-flex justify-content-between align-items-start\">\
+                        <div class=\"ms-2 me-auto\">\
+                            <div class=\"fw-auto\">${response.cardOwner} <span class=\"badge ps-div-projects rounded-pill\">Owner</span></div>\
+                            Project Owner\
+                        </div>\
+                    </li>`);
+
+            console.log(response.cardAdmins);
+            if(response.cardAdmins.length > 0)
+            {
+                response.cardAdmins.forEach(admin => {
+                    console.log(admin);
+                    $("#memberList").append(`<li class=\"list-group-item d-flex justify-content-between align-items-start\">\
+                            <div class=\"ms-2 me-auto\">\
+                                <div class=\"fw-auto\">${admin} <span class=\"badge ps-div-users rounded-pill\">Admin</span></div>\
+                                Project Admin\
+                            </div>\
+                        </li>`);
+                });
+            }
+
+            console.log(response.cardMembers);
+            if(response.cardMembers.length > 0)
+            {
+                response.cardMembers.forEach(member => {
+                    console.log(member);
+                    $("#memberList").append(`<li class=\"list-group-item d-flex justify-content-between align-items-start\">\
+                            <div class=\"ms-2 me-auto\">\
+                                <div class=\"fw-auto\">${member}</div>\
+                                Project Member\
+                            </div>\
+                        </li>`);
+                });
+            }
+        },
+    });
+}
+</script>

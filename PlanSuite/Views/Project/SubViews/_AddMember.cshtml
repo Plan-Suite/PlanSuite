@@ -1,0 +1,81 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Enums
+@using PlanSuite.Models.Persistent
+@inject UserManager<ApplicationUser> UserManager
+@model PlanSuite.Models.Temporary.ProjectViewModel
+@{
+    int projectId = Model.Project.Id;
+    int columnCount = Model.Columns.Count;
+    int cardCount = Model.Cards.Count;
+    ApplicationUser user = await UserManager.GetUserAsync(User);
+}
+<div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="leaveProjectLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="projectMembersLabel">@Model.Localisation.Get(user, "ADD_MEMBER")</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form>
+            <div class="modal-body">
+                    <div class="form-group">
+                        <label class="m-1" for="addMemberInput">@Model.Localisation.Get(user, "ADD_MEMBER_ENTER_USERNAME")</label>
+                        <input type="text" id="addMemberInput" class="form-control" placeholder="@Model.Localisation.Get(user, "USERNAME")"/>
+                    </div>
+                <br>
+                <div class="modal-footer">
+                    <button type="button" class="btn ps-btn-primary" data-bs-dismiss="modal" onclick="onAddMember()">@Model.Localisation.Get(user, "ADD_MEMBER")</button>
+                    <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CANCEL")</button>
+                </div> 
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function onAddMember()
+{
+    var input = $("#addMemberInput").val();
+    console.log(input);
+
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        url: `/api/Project/addmember`,
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
+        },
+        data: JSON.stringify({ projectId: @Model.Project.Id, userId: '@Model.UserId', name: `${input}` }),
+        success: function(response) {
+            console.log(response);
+            if(response.response != @((int)AddMemberResponse.Success))
+            {
+                var div = $("#addUserFail");
+                div.removeClass("d-none");
+                if(response.response == @((int)AddMemberResponse.AlreadyHasAccess))
+                {
+                    div.html("@Model.Localisation.Get(user, "ADD_USER_ALREADY_HAS_ACCESS")");
+                }
+                else if(response.response == @((int)AddMemberResponse.IncorrectRoles))
+                {
+                    div.html("@Model.Localisation.Get(user, "ADD_USER_INCORRECT_ROLES")");
+                }
+                else if(response.response == @((int)AddMemberResponse.NoUser))
+                {
+                    div.html("@Model.Localisation.Get(user, "ADD_USER_NO_USER")");
+                }
+                else
+                {
+                    div.html("@Model.Localisation.Get(user, "FAIL_SERVER")");
+                }
+            }
+            else
+            {
+                $("#addUserSuccess").removeClass("d-none");
+            }
+        },
+    });
+}
+</script>
