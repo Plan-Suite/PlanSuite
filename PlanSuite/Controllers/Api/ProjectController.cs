@@ -111,5 +111,18 @@ namespace PlanSuite.Controllers.Api
             return json;
 
         }
+
+        [HttpPost("EditColumnName")]
+        public IActionResult EditColumnName([FromBody] EditColumnNameModel model)
+        {
+            Console.WriteLine($"EditColumnName: {model.ColumnId} {model.ColumnText}");
+            m_ProjectService.EditColumnTitle(model);
+
+            return Ok(new
+            {
+                Modified = true
+            });
+
+        }
     }
 }

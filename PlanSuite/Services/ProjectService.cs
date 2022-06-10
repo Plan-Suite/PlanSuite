@@ -127,6 +127,16 @@ namespace PlanSuite.Services
             return null;
         }
 
+        public void EditColumnTitle(EditColumnNameModel model)
+        {
+            var column = m_Database.Columns.Where(column => column.Id == model.ColumnId).FirstOrDefault();
+            if (column != null)
+            {
+                column.Title = model.ColumnText;
+                m_Database.SaveChanges();
+            }
+        }
+
         private ApplicationUser? GetProjectOwner(Project project)
         {
             var owner = m_Database.Users.Where(u => u.Id == project.OwnerId.ToString()).FirstOrDefault();

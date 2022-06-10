@@ -40,4 +40,10 @@ namespace PlanSuite.Models.Temporary
         public Guid UserId { get; set; }
         public string Name { get; set; }
     }
+
+    public class EditColumnNameModel
+    {
+        public int ColumnId { get; set; }
+        public string ColumnText { get; set; }
+    }
 }

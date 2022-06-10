@@ -13,7 +13,11 @@
     foreach(var item in Model.Columns)
     {
         <div class="col m4">
-            <h3 style="text-align:center;">@item.Title</h3>
+            <input type="hidden" value="ColumnTitle_@item.Id"/>
+            <h3 class="ps-modifiable" style="text-align:center;" onclick="onClickEditColumnTitle('@item.Id')" id="Column_@item.Id">@item.Title</h3>
+            <div class="form-group d-none" id="ColumnEdit_@item.Id">
+                <input class="form-control form-control-sm" type="text" id="ColumnText_@item.Id" value="@item.Title">
+            </div>
             <div class="column" style="min-height: 600px;" id="@item.Id">
                 <div class="card mb-1">
                     @*<div class="card-body">*@
@@ -80,3 +84,53 @@ else
         <p class="text-muted text-center m-1">No columns on this project, select <a class="link-primary" href="#" data-bs-toggle="modal" data-bs-target="#addColumnModal">Add Column</a> to add one.</p>
     </div>
 }
+
+<script>
+function onClickEditColumnTitle(dbId)
+{
+    var columnTitle = $(`#Column_${dbId}`);
+    var columnTitleForm = $(`#ColumnEdit_${dbId}`);
+    var columnTitleInput = $(`#ColumnText_${dbId}`);
+    var oldTitle = columnTitleInput.val();
+
+    columnTitle.addClass("d-none");
+    columnTitleForm.removeClass("d-none");
+    columnTitleInput.focusout(function() {
+        sendEditColumnNameEvent(dbId, oldTitle);
+    });
+    columnTitleInput.focus();
+}
+
+function sendEditColumnNameEvent(dbId, oldTitle)
+{
+    var columnTitle = $(`#Column_${dbId}`);
+    var columnTitleForm = $(`#ColumnEdit_${dbId}`);
+    var columnTitleInput = $(`#ColumnText_${dbId}`);
+
+    columnTitleInput.off("focusout");
+    columnTitle.removeClass("d-none");
+    columnTitleForm.addClass("d-none");
+    var text = columnTitleInput.val();
+    if(!isBlank(text))
+    {
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json",
+            url: "/api/Project/EditColumnName",
+            beforeSend: function (request) {
+                request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
+            },
+            data: JSON.stringify({ columnId: dbId, columnText: text }),
+            success: function(response)
+            {
+                columnTitle.html(text);
+            },
+        });
+    }
+    else
+    {
+        columnTitle.val(oldTitle);
+    }
+}
+</script>
