@@ -339,6 +339,49 @@ function viewCardButton(dbId)
                 assignee = response.assigneeName;
             }
 
+            var checklistHolder = $("#checklistHolder");
+            if(response.cardChecklists.length > 0)
+            {
+                checklistHolder.removeClass("d-none");
+                response.cardChecklists.forEach(function(element) {
+                    checklistHolder.append(`<div class="ps-card-checklist" id="Checklist_${element.id}">
+                            <h6 id="ChecklistName_${element.id}">${element.checklistName}</h6>`);
+
+                    checklistHolder.append(`<div id="ChecklistHolder_${element.id}">`);
+
+                    response.checklistItems.forEach(function(checklistItem) {
+                        var checklistDiv = $(`#Checklist_${checklistItem.id}`);
+
+                        console.log(`#${checklistItem.id} ${checklistItem.checklistId} == ${element.id}`);
+
+                        if(checklistItem.checklistId == element.id)
+                        {
+                            var string = "<div class=\"form-check\">";
+                            if(checklistItem.itemTicked == false)
+                            {
+                                string = `<input class="form-check-input" type="checkbox" id="${checklistItem.checklistName}">\
+                                                <label class="form-check-label" for="${checklistItem.ItemName}">${checklistItem.itemName}</label>`;
+                            }
+                            else
+                            {
+                                string = `<input class="form-check-input" type="checkbox" id="${checklistItem.ItemName}" checked>\
+                                                <label class="form-check-label" for="${checklistItem.ItemName}"><s>${checklistItem.itemName}</s></label>`;
+                            }
+                            string += "</div>";
+                            checklistDiv.append(string);
+                        }
+
+                    });
+
+                    checklistHolder.append(`</div>`);
+
+                })
+            }
+            else
+            {
+                checklistHolder.addClass("d-none");
+            }
+
             $('#viewCardLabel').text(response.name);
             $('#viewCardText').html(response.markdownContent);
             $('#viewCardEditTextEditor').val(response.rawContent);

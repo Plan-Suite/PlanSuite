@@ -25,6 +25,8 @@
             </div>
             <div class="modal-body">
                 <div id="viewCardContent">
+                    @* Card Details *@
+                    <h6>Card Details</h6>
                     <div class="mt-0">
                         <small class="text-muted" id="viewCardDueDate">
                             DUE_DATE_HERE
@@ -37,11 +39,28 @@
                         </small>
                     </div>
                     <hr />
+                    @* Card Description *@
+                    <h6>Card Description <small class="text-muted">(Click description to modify)</small></h6>
                     <p class="ps-modifiable" id="viewCardText" onclick="editDescription()">@Model.Localisation.Get(user,"DEFAULT_CARD_DESC")</p>
                     <div class="d-none" id="viewCardEditText">
                         <div class="mb-3">
                             <textarea class="form-control text-box single-line" id="viewCardEditTextEditor" rows="3" value=""></textarea>
                         </div>
+                    </div>
+                    @*Card Checklists*@
+                    <div @*class="d-none"*@ id="checklistHolder">
+                        <hr/>
+                        @*<div class="ps-card-checklist" id="Checklist_1">
+                            <h6 id="ChecklistName_1">Checklist Name</h6>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+                                <label class="form-check-label" for="flexCheckDefault">Checklist Item</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" checked>
+                                <label class="form-check-label" for="flexCheckDefault"><s>Checklist Item</s></label>
+                            </div>
+                        </div>*@
                     </div>
                 </div>
                 <form class="d-none" id="editCardContentForm">

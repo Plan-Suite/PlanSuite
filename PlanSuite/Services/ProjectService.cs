@@ -110,6 +110,26 @@ namespace PlanSuite.Services
                     }
                 }
 
+                // get card checklists
+                List<ChecklistItem> items = new List<ChecklistItem>();
+
+                var cardChecklists = m_Database.CardChecklists.Where(checklist => checklist.ChecklistCard == cardId).ToList();
+                if(cardChecklists != null && cardChecklists.Count > 0)
+                {
+                    foreach(var checklist in cardChecklists)
+                    {
+                        var checklistItems = m_Database.ChecklistItems.Where(item => item.ChecklistId == checklist.Id).OrderBy(item => item.ItemIndex).ToList();
+                        if(checklistItems != null && checklistItems.Count > 0)
+                        {
+                            items.AddRange(checklistItems);
+                        }
+                    }
+                }
+                if(cardChecklists == null)
+                {
+                    cardChecklists = new List<CardChecklist>();
+                }
+
                 // return
                 GetCardReturnJson json = new GetCardReturnJson()
                 {
@@ -120,7 +140,9 @@ namespace PlanSuite.Services
                     AssigneeName = assignee,
                     AssigneeId = assigneeId,
                     Priority = card.CardPriority,
-                    Members = members
+                    Members = members,
+                    CardChecklists = cardChecklists,
+                    ChecklistItems = items
                 };
                 return json;
             }

@@ -13,6 +13,8 @@ namespace PlanSuite.Models.Temporary
         public List<Card> Cards = new List<Card>();
         public Guid UserId;
         public ProjectRole ProjectRole;
+        /*public List<CardChecklist> Checklists = new List<CardChecklist>();
+        public List<ChecklistItem> ChecklistItems = new List<ChecklistItem>();*/
 
         public class AddColumnModel
         {

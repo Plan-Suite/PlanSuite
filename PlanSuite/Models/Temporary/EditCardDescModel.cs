@@ -1,4 +1,5 @@
 ﻿using PlanSuite.Enums;
+using PlanSuite.Models.Persistent;
 using System.ComponentModel.DataAnnotations;
 
 namespace PlanSuite.Models.Temporary
@@ -37,6 +38,8 @@ namespace PlanSuite.Models.Temporary
         public string? AssigneeName { get; set; }
         public Priority Priority { get; set; }
         public Dictionary<Guid, string> Members { get; set; } = new Dictionary<Guid, string>();
+        public List<CardChecklist> CardChecklists { get; set; } = new List<CardChecklist>();
+        public List<ChecklistItem> ChecklistItems { get; set; } = new List<ChecklistItem>();
     }
 
     public class EditCardDueDateModel
