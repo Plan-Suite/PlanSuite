@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using PlanSuite.Data;
 using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
@@ -147,6 +148,97 @@ namespace PlanSuite.Services
                 return json;
             }
             return null;
+        }
+
+        public bool DeleteChecklistItem(DeleteChecklistItemModel model)
+        {
+            Console.WriteLine($"Deleting checklistitem {model.ChecklistItemId}");
+            // Grab checklist item from database
+            var checklistItem = m_Database.ChecklistItems.Where(item => item.Id == model.ChecklistItemId).FirstOrDefault();
+            if (checklistItem == null)
+            {
+                return false;
+            }
+
+            m_Database.ChecklistItems.Remove(checklistItem);
+            m_Database.SaveChanges();
+            return true;
+        }
+
+        public bool ConvertChecklistItemToCard(ConvertChecklistItemModel model)
+        {
+            Console.WriteLine($"Converting checklistitem {model.ChecklistItemId} to card");
+            // Grab checklist item from database
+            var checklistItem = m_Database.ChecklistItems.Where(item => item.Id == model.ChecklistItemId).FirstOrDefault();
+            if(checklistItem == null)
+            {
+                return false;
+            }
+
+            // get column Id
+            var checklist = m_Database.CardChecklists.Where(list => list.Id == checklistItem.ChecklistId).FirstOrDefault();
+            if (checklist == null)
+            {
+                return false;
+            }
+
+            var card = m_Database.Cards.Where(c => c.Id == checklist.ChecklistCard).FirstOrDefault();
+            if (card == null)
+            {
+                return false;
+            }
+
+            var column = m_Database.Columns.Where(col => col.Id == card.ColumnId).FirstOrDefault();
+            if (column == null)
+            {
+                return false;
+            }
+
+            // Create card
+            AddCardModel addCard = new AddCardModel();
+            addCard.ProjectId = model.ProjectId;
+            addCard.ColumnId = column.Id;
+            addCard.Name = checklistItem.ItemName;
+            AddCard(addCard);
+
+            // Delete checklist item
+            m_Database.ChecklistItems.Remove(checklistItem);
+            m_Database.SaveChanges();
+
+            return true;
+        }
+
+        public void EditChecklistItemTickedState(EditChecklistItemTickedStateModel model)
+        {
+            Console.WriteLine($"Editing checklistitem {model.ChecklistItemId} tick state to {model.TickedState}");
+            var checklistItem = m_Database.ChecklistItems.Where(item => item.Id == model.ChecklistItemId).FirstOrDefault();
+            if (checklistItem != null)
+            {
+                checklistItem.ItemTicked = model.TickedState;
+                m_Database.SaveChanges();
+            }
+        }
+
+        public ChecklistItem AddChecklistItem(AddChecklistItemModel model)
+        {
+            int index = 0;
+            var lastChecklistItem = m_Database.ChecklistItems.Where(item => item.ChecklistId == model.ChecklistId).OrderBy(item => item.ItemIndex).LastOrDefault();
+            if(lastChecklistItem != null)
+            {
+                index = lastChecklistItem.ItemIndex + 1;
+            }
+
+            var checklistItem = new ChecklistItem
+            {
+                ChecklistId = model.ChecklistId,
+                ItemIndex = index,
+                ItemName = model.ItemText
+            };
+
+            m_Database.ChecklistItems.Add(checklistItem);
+            m_Database.SaveChanges();
+
+            return checklistItem;
         }
 
         public void EditColumnTitle(EditColumnNameModel model)
@@ -354,6 +446,17 @@ namespace PlanSuite.Services
             }
 
             return projectAccess.ProjectRole;
+        }
+
+        public void AddCard(AddCardModel model)
+        {
+            Console.WriteLine($"Adding card {model.Name} to project {model.ProjectId}");
+            var card = new Card();
+            card.ColumnId = model.ColumnId;
+            card.CardName = model.Name;
+            m_Database.Cards.Add(card);
+
+            m_Database.SaveChanges();
         }
     }
 }

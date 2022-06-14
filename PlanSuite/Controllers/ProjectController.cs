@@ -126,12 +126,7 @@ namespace PlanSuite.Controllers
 
             Console.WriteLine($"Account {_userManager.GetUserId(User)} successfully added a card to column {column.Id}");
 
-            var card = new Card();
-            card.ColumnId = addCard.ColumnId;
-            card.CardName = addCard.Name;
-            dbContext.Cards.Add(card);
-
-            dbContext.SaveChanges();
+            m_ProjectService.AddCard(addCard);
 
             return RedirectToAction(nameof(Index), "Project", new { id = column.ProjectId });
         }

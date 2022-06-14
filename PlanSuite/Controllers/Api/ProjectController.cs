@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
 using System.Text.Json;
@@ -123,6 +124,49 @@ namespace PlanSuite.Controllers.Api
                 Modified = true
             });
 
+        }
+
+        [HttpPost("AddChecklistItem")]
+        public ActionResult<ChecklistItem> AddChecklistItem([FromBody] AddChecklistItemModel model)
+        {
+            Console.WriteLine($"AddChecklistItem: {model.ChecklistId} {model.ItemText}");
+            return m_ProjectService.AddChecklistItem(model);
+        }
+
+        [HttpPost("EditChecklistItemTickedState")]
+        public IActionResult EditChecklistItemTickedState([FromBody] EditChecklistItemTickedStateModel model)
+        {
+            Console.WriteLine($"EditChecklistItemTickedState: {model.ChecklistItemId} {model.TickedState}");
+            m_ProjectService.EditChecklistItemTickedState(model);
+
+            return Ok(new
+            {
+                Modified = true
+            });
+        }
+
+        [HttpPost("ConvertChecklistItemToCard")]
+        public IActionResult ConvertChecklistItemToCard([FromBody] ConvertChecklistItemModel model)
+        {
+            Console.WriteLine($"ConvertChecklistItemToCard: {model.ChecklistItemId} {model.ProjectId}");
+            bool result = m_ProjectService.ConvertChecklistItemToCard(model);
+
+            return Ok(new
+            {
+                Converted = result
+            });
+        }
+
+        [HttpPost("DeleteChecklistItem")]
+        public IActionResult DeleteChecklistItem([FromBody] DeleteChecklistItemModel model)
+        {
+            Console.WriteLine($"DeleteChecklistItemModel: {model.ChecklistItemId}");
+            bool result = m_ProjectService.DeleteChecklistItem(model);
+
+            return Ok(new
+            {
+                Converted = result
+            });
         }
     }
 }
