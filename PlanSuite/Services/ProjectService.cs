@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using PlanSuite.Data;
 using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
@@ -110,6 +111,26 @@ namespace PlanSuite.Services
                     }
                 }
 
+                // get card checklists
+                List<ChecklistItem> items = new List<ChecklistItem>();
+
+                var cardChecklists = m_Database.CardChecklists.Where(checklist => checklist.ChecklistCard == cardId).ToList();
+                if(cardChecklists != null && cardChecklists.Count > 0)
+                {
+                    foreach(var checklist in cardChecklists)
+                    {
+                        var checklistItems = m_Database.ChecklistItems.Where(item => item.ChecklistId == checklist.Id).OrderBy(item => item.ItemIndex).ToList();
+                        if(checklistItems != null && checklistItems.Count > 0)
+                        {
+                            items.AddRange(checklistItems);
+                        }
+                    }
+                }
+                if(cardChecklists == null)
+                {
+                    cardChecklists = new List<CardChecklist>();
+                }
+
                 // return
                 GetCardReturnJson json = new GetCardReturnJson()
                 {
@@ -120,11 +141,141 @@ namespace PlanSuite.Services
                     AssigneeName = assignee,
                     AssigneeId = assigneeId,
                     Priority = card.CardPriority,
-                    Members = members
+                    Members = members,
+                    CardChecklists = cardChecklists,
+                    ChecklistItems = items
                 };
                 return json;
             }
             return null;
+        }
+
+        public bool DeleteChecklistItem(DeleteChecklistItemModel model)
+        {
+            Console.WriteLine($"Deleting checklistitem {model.ChecklistItemId}");
+            // Grab checklist item from database
+            var checklistItem = m_Database.ChecklistItems.Where(item => item.Id == model.ChecklistItemId).FirstOrDefault();
+            if (checklistItem == null)
+            {
+                return false;
+            }
+
+            m_Database.ChecklistItems.Remove(checklistItem);
+            m_Database.SaveChanges();
+            return true;
+        }
+
+        public CardChecklist AddChecklist(AddChecklistModel model)
+        {
+            Console.WriteLine($"Adding checklist {model.Name} to card {model.Id}");
+            // Add checklist to card
+            CardChecklist checklist = new CardChecklist();
+            checklist.ChecklistCard = model.Id;
+            checklist.ChecklistName = model.Name;
+
+            m_Database.CardChecklists.Add(checklist);
+            m_Database.SaveChanges();
+            return checklist;
+        }
+
+        public bool DeleteChecklist(DeleteChecklistModel model)
+        {
+            // Delete all checklist items for checklist we are deleting
+            Console.WriteLine($"Deleting checklist items for {model.ChecklistId}");
+            var checklistItem = m_Database.ChecklistItems.Where(item => item.ChecklistId == model.ChecklistId).ToList();
+            if (checklistItem == null)
+            {
+                return false;
+            }
+            m_Database.ChecklistItems.RemoveRange(checklistItem);
+
+            // Delete checklist
+            Console.WriteLine($"Deleting checklist {model.ChecklistId}");
+            var checklist = m_Database.CardChecklists.Where(item => item.Id == model.ChecklistId).FirstOrDefault();
+            if (checklist == null)
+            {
+                return false;
+            }
+            m_Database.CardChecklists.Remove(checklist);
+
+            // Save changes
+            m_Database.SaveChanges();
+            return true;
+        }
+
+        public bool ConvertChecklistItemToCard(ConvertChecklistItemModel model)
+        {
+            Console.WriteLine($"Converting checklistitem {model.ChecklistItemId} to card");
+            // Grab checklist item from database
+            var checklistItem = m_Database.ChecklistItems.Where(item => item.Id == model.ChecklistItemId).FirstOrDefault();
+            if(checklistItem == null)
+            {
+                return false;
+            }
+
+            // get column Id
+            var checklist = m_Database.CardChecklists.Where(list => list.Id == checklistItem.ChecklistId).FirstOrDefault();
+            if (checklist == null)
+            {
+                return false;
+            }
+
+            var card = m_Database.Cards.Where(c => c.Id == checklist.ChecklistCard).FirstOrDefault();
+            if (card == null)
+            {
+                return false;
+            }
+
+            var column = m_Database.Columns.Where(col => col.Id == card.ColumnId).FirstOrDefault();
+            if (column == null)
+            {
+                return false;
+            }
+
+            // Create card
+            AddCardModel addCard = new AddCardModel();
+            addCard.ProjectId = model.ProjectId;
+            addCard.ColumnId = column.Id;
+            addCard.Name = checklistItem.ItemName;
+            AddCard(addCard);
+
+            // Delete checklist item
+            m_Database.ChecklistItems.Remove(checklistItem);
+            m_Database.SaveChanges();
+
+            return true;
+        }
+
+        public void EditChecklistItemTickedState(EditChecklistItemTickedStateModel model)
+        {
+            Console.WriteLine($"Editing checklistitem {model.ChecklistItemId} tick state to {model.TickedState}");
+            var checklistItem = m_Database.ChecklistItems.Where(item => item.Id == model.ChecklistItemId).FirstOrDefault();
+            if (checklistItem != null)
+            {
+                checklistItem.ItemTicked = model.TickedState;
+                m_Database.SaveChanges();
+            }
+        }
+
+        public ChecklistItem AddChecklistItem(AddChecklistItemModel model)
+        {
+            int index = 0;
+            var lastChecklistItem = m_Database.ChecklistItems.Where(item => item.ChecklistId == model.ChecklistId).OrderBy(item => item.ItemIndex).LastOrDefault();
+            if(lastChecklistItem != null)
+            {
+                index = lastChecklistItem.ItemIndex + 1;
+            }
+
+            var checklistItem = new ChecklistItem
+            {
+                ChecklistId = model.ChecklistId,
+                ItemIndex = index,
+                ItemName = model.ItemText,
+            };
+
+            m_Database.ChecklistItems.Add(checklistItem);
+            m_Database.SaveChanges();
+            return checklistItem;
         }
 
         public void EditColumnTitle(EditColumnNameModel model)
@@ -221,7 +372,7 @@ namespace PlanSuite.Services
                 m_Database.SaveChanges();
             }
         }
-
+        
 
         public void LeaveProject(LeaveProjectModel model)
         {
@@ -332,6 +483,17 @@ namespace PlanSuite.Services
             }
 
             return projectAccess.ProjectRole;
+        }
+
+        public void AddCard(AddCardModel model)
+        {
+            Console.WriteLine($"Adding card {model.Name} to project {model.ProjectId}");
+            var card = new Card();
+            card.ColumnId = model.ColumnId;
+            card.CardName = model.Name;
+            m_Database.Cards.Add(card);
+
+            m_Database.SaveChanges();
         }
     }
 }

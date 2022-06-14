@@ -46,4 +46,38 @@ namespace PlanSuite.Models.Temporary
         public int ColumnId { get; set; }
         public string ColumnText { get; set; }
     }
+
+    public class AddChecklistItemModel
+    {
+        public int ChecklistId { get; set; }
+        public string ItemText { get; set; }
+    }
+
+    public class EditChecklistItemTickedStateModel
+    {
+        public int ChecklistItemId { get; set; }
+        public bool TickedState { get; set; }
+    }
+
+    public class ConvertChecklistItemModel
+    {
+        public int ChecklistItemId { get; set; }
+        public int ProjectId { get; set; }
+    }
+
+    public class DeleteChecklistItemModel
+    {
+        public int ChecklistItemId { get; set; }
+    }
+
+    public class DeleteChecklistModel
+    {
+        public int ChecklistId { get; set; }
+    }
+
+    public class AddChecklistModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
 }

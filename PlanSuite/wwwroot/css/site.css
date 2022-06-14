@@ -1,11 +1,10 @@
-/*
-    Colours:
-    #3A5FDA - Navbar & Primary
-    #00A896 - Success 
-    #E71D36 - Danger
-    #2E3532 - Text
-    #FFFFFF - Background
-*/
+:root {
+    --blue: #3A5FDA;
+    --green: #00A896;
+    --red: #E71D36;
+    --black: #2E3532;
+    --white: #FFFFFF;
+}
 
 html {
     font-size: 14px;
@@ -24,64 +23,64 @@ html {
 
 body {
     margin-bottom: 60px;
-    background-color: #FFFFFF;
+    background-color: var(--white);
 }
 
 .navagation-bar {
-    background-color: #3A5FDA;
-    color: #FFFFFF;
+    background-color: var(--blue);
+    color: var(--white);
 }
 
 .ps-btn-primary {
-    background-color: #3A5FDA;
-    color: #FFFFFF;
+    background-color: var(--blue);
+    color: var(--white);
 }
 
     .ps-btn-primary:hover {
         background-color: #4D6FDD;
-        color: #FFFFFF;
+        color: var(--white);
     }
 
 .ps-btn-secondary {
-    background-color: #2E3532;
-    color: #FFFFFF;
+    background-color: var(--black);
+    color: var(--white);
 }
 
     .ps-btn-secondary:hover {
         background-color: #424946;
-        color: #FFFFFF;
+        color: var(--white);
     }
 
 .ps-btn-success {
-    background-color: #00A896;
-    color: #FFFFFF;
+    background-color: var(--green);
+    color: var(--white);
 }
 
     .ps-btn-success:hover {
         background-color: #19B0A0;
-        color: #FFFFFF;
+        color: var(--white);
     }
 
 .ps-btn-danger {
-    background-color: #E71D36;
-    color: #FFFFFF;
+    background-color: var(--red);
+    color: var(--white);
 }
 
     .ps-btn-danger:hover {
         background-color: #EE6072;
-        color: #FFFFFF;
+        color: var(--white);
     }
 
 .ps-btn-white {
-    background-color: #FFFFFF;
-    border-color: #2E3532;
-    color: #2E3532;
+    background-color: var(--white);
+    border-color: var(--black);
+    color: var(--black);
 }
 
-.ps-btn-white:hover {
-    color: #FFFFFF;
-    background-color: #2E3532;
-}
+    .ps-btn-white:hover {
+        color: var(--white);
+        background-color: var(--black);
+    }
 
 .ps-link {
     color: #E5E5E5;
@@ -100,7 +99,7 @@ body {
 }
 
 .ps-div-users {
-    background-color: #00A896;
+    background-color: var(--green);
 }
 
 .ps-div-projects {
@@ -108,7 +107,7 @@ body {
 }
 
 .ps-div-cards {
-    background-color: #E71D36;
+    background-color: var(--red);
 }
 
 .ps-text-white {
@@ -159,4 +158,11 @@ img, svg {
 
 .ps-modifiable:hover {
     cursor: pointer;
+}
+
+.ps-card-checklist {
+    border: 1px solid var(--black);
+    border-radius: 5px;
+    padding: 0.5rem;
+    box-shadow: 0px 0px 5px var(--black);
 }
