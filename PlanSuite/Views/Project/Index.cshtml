@@ -345,23 +345,7 @@ function viewCardButton(dbId)
                 checklistHolder.removeClass("d-none");
                 checklistHolder.empty();
                 response.cardChecklists.forEach(function(element) {
-                    checklistHolder.append(`<div class="ps-card-checklist mb-1" id="Checklist_${element.id}">
-                            <h6 id="ChecklistName_${element.id}">${element.checklistName}</h6>`);
-
-                    checklistHolder.append(`<div id="ChecklistHolder_${element.id}">`);
-
-                    var checklistDiv = $(`#Checklist_${element.id}`);
-                    response.checklistItems.forEach(function(checklistItem) {
-                        if(checklistItem.checklistId == element.id)
-                        {
-                            insertChecklistItem(element.id, checklistItem.itemTicked, checklistItem.id, checklistItem.itemName);
-                        }
-                    });
-
-                    checklistDiv.append(`<button class="btn ps-btn-white" type="button" onclick="onAddChecklistItem('${element.id}', '${checklistDiv.attr("id")}')" id="addItemBtn_${element.id}"><i class="bi bi-plus-circle"></i> Add an item</button>`);
-
-                    checklistHolder.append(`</div>`);
-                    //checklistHolder.append(`<div class="d-grid gap-2"><button class="btn ps-btn-white" type="button"><i class="bi bi-plus-circle"></i> Add new checklist</button></div>`);
+                    addChecklist(element.id, element.checklistName, response.checklistItems);
                 })
             }
             else
@@ -565,5 +549,87 @@ function deleteChecklistItem(dbId)
         },
         data: JSON.stringify({ checklistItemId: dbId }),
     });
+}
+
+function deleteChecklist(dbId)
+{
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        url: "/api/Project/DeleteChecklist",
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
+        },
+        success: function (response) {
+            $(`#Checklist_${dbId}`).remove();
+        },
+        data: JSON.stringify({ checklistId: dbId }),
+    });
+}
+
+function onAddChecklist()
+{
+    var addChecklistForm = $("#addChecklistForm");
+    var input = $("#addChecklistInput");
+    var btn = $("#addBtn");
+    addChecklistForm.removeClass("d-none");
+    $("#addChecklistBtn").addClass("d-none");
+    var dbId = $("#viewCardId").val();
+
+    input.focus();
+    btn.on("click", function() {
+        addChecklistForm.addClass("d-none");
+        $("#addChecklistBtn").removeClass("d-none");
+
+        var text = input.val();
+
+        if(!input.val().length)
+        {
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json",
+            url: "/api/Project/AddChecklist",
+            beforeSend: function (request) {
+                request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
+            },
+            data: JSON.stringify({ id: dbId, name: text }),
+            success: function(response) {
+                addChecklist(response.id, response.checklistName, null);
+            },
+        });
+
+        btn.off("click");
+    });
+}
+
+function addChecklist(id, name, checklistItems)
+{
+    var checklistHolder = $("#checklistHolder");
+    checklistHolder.removeClass("d-none");
+
+    checklistHolder.append(`<div class="ps-card-checklist mb-1" id="Checklist_${id}">
+        <h6 id="ChecklistName_${id}">${name} <button type="button" class="btn ps-btn-white btn-sm" onclick="deleteChecklist('${id}')">Delete</button></h6>`);
+
+    checklistHolder.append(`<div id="ChecklistHolder_${id}">`);
+
+    var checklistDiv = $(`#Checklist_${id}`);
+    if(checklistItems != null && checklistItems.length)
+    {
+        checklistItems.forEach(function(checklistItem) {
+            if(checklistItem.checklistId == id)
+            {
+                insertChecklistItem(id, checklistItem.itemTicked, checklistItem.id, checklistItem.itemName);
+            }
+        });
+    }
+
+    checklistDiv.append(`<button class="btn ps-btn-white" type="button" onclick="onAddChecklistItem('${id}', '${checklistDiv.attr("id")}')" id="addItemBtn_${id}"><i class="bi bi-plus-circle"></i> Add an item</button>`);
+
+    checklistHolder.append(`</div>`);
 }
 </script>

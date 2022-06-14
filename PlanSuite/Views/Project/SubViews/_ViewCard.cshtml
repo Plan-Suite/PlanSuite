@@ -48,8 +48,15 @@
                         </div>
                     </div>
                     @*Card Checklists*@
-                    <div @*class="d-none"*@ id="checklistHolder">
+                    <div id="checklistHolder">
                         <hr/>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <div class="input-group mb-3 d-none" id="addChecklistForm">
+                            <input type="text" class="form-control form-control-sm" id="addChecklistInput" placeholder="Checklist Name" aria-label="Checklist Name" aria-describedby="addBtn">
+                            <button class="btn ps-btn-white btn-sm" type="button" id="addBtn">Button</button>
+                        </div>
+                        <button class="btn ps-btn-white btn-sm" type="button" onclick="onAddChecklist()" id="addChecklistBtn"><i class="bi bi-card-checklist"></i> Add checklist</button>
                     </div>
                 </div>
                 <form class="d-none" id="editCardContentForm">

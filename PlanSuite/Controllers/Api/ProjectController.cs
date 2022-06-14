@@ -168,5 +168,26 @@ namespace PlanSuite.Controllers.Api
                 Converted = result
             });
         }
+
+        // POST: DeleteChecklist
+        [HttpPost("DeleteChecklist")]
+        public IActionResult DeleteChecklistItem([FromBody] DeleteChecklistModel model)
+        {
+            Console.WriteLine($"DeleteChecklist: {model.ChecklistId}");
+            bool result = m_ProjectService.DeleteChecklist(model);
+
+            return Ok(new
+            {
+                Deleted = result
+            });
+        }
+
+        // POST: AddChecklist
+        [HttpPost("AddChecklist")]
+        public ActionResult<CardChecklist> AddChecklist([FromBody] AddChecklistModel model)
+        {
+            Console.WriteLine($"AddChecklist: {model.Id} {model.Name}");
+            return m_ProjectService.AddChecklist(model);
+        }
     }
 }

@@ -165,6 +165,44 @@ namespace PlanSuite.Services
             return true;
         }
 
+        public CardChecklist AddChecklist(AddChecklistModel model)
+        {
+            Console.WriteLine($"Adding checklist {model.Name} to card {model.Id}");
+            // Add checklist to card
+            CardChecklist checklist = new CardChecklist();
+            checklist.ChecklistCard = model.Id;
+            checklist.ChecklistName = model.Name;
+
+            m_Database.CardChecklists.Add(checklist);
+            m_Database.SaveChanges();
+            return checklist;
+        }
+
+        public bool DeleteChecklist(DeleteChecklistModel model)
+        {
+            // Delete all checklist items for checklist we are deleting
+            Console.WriteLine($"Deleting checklist items for {model.ChecklistId}");
+            var checklistItem = m_Database.ChecklistItems.Where(item => item.ChecklistId == model.ChecklistId).ToList();
+            if (checklistItem == null)
+            {
+                return false;
+            }
+            m_Database.ChecklistItems.RemoveRange(checklistItem);
+
+            // Delete checklist
+            Console.WriteLine($"Deleting checklist {model.ChecklistId}");
+            var checklist = m_Database.CardChecklists.Where(item => item.Id == model.ChecklistId).FirstOrDefault();
+            if (checklist == null)
+            {
+                return false;
+            }
+            m_Database.CardChecklists.Remove(checklist);
+
+            // Save changes
+            m_Database.SaveChanges();
+            return true;
+        }
+
         public bool ConvertChecklistItemToCard(ConvertChecklistItemModel model)
         {
             Console.WriteLine($"Converting checklistitem {model.ChecklistItemId} to card");
@@ -232,12 +270,11 @@ namespace PlanSuite.Services
             {
                 ChecklistId = model.ChecklistId,
                 ItemIndex = index,
-                ItemName = model.ItemText
+                ItemName = model.ItemText,
             };
 
             m_Database.ChecklistItems.Add(checklistItem);
             m_Database.SaveChanges();
-
             return checklistItem;
         }
 
@@ -335,7 +372,7 @@ namespace PlanSuite.Services
                 m_Database.SaveChanges();
             }
         }
-
+        
 
         public void LeaveProject(LeaveProjectModel model)
         {
