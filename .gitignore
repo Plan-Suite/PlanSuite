@@ -5,6 +5,7 @@
 
 # Don't include bundled files in git
 **/wwwroot/bundles
+**/wwwroot/js
 
 # User-specific files
 *.rsuser

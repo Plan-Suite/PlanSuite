@@ -1,21 +1,21 @@
-﻿function isBlank(str) {
+﻿function isBlank(str): Boolean {
     return (!!!str || /^\s*$/.test(str));
 }
 
-function intToTier(tier) {
-    var tier = "Free";
+function intToTier(tier: Number): String {
+    let userTier: String = "Free";
     switch (tier) {
         case 1:
-            tier = "Plus";
+            userTier = "Plus";
             break;
         case 2:
-            tier = "Pro";
+            userTier = "Pro";
             break;
     }
-    return tier;
+    return userTier;
 }
 
-function arrayToString(array) {
+function arrayToString(array: Array<any>) {
     if (array.length < 1) {
         return "None";
     }
