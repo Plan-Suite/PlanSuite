@@ -330,6 +330,37 @@ namespace PlanSuite.Services
                 return AddMemberResponse.IncorrectRoles;
             }
 
+            int maxMembers = 20;
+
+            // get owner
+            var owner = m_Database.Users.Where(user => user.Id == project.OwnerId.ToString()).FirstOrDefault();
+            if (owner != null)
+            {
+                var tier = owner.PaymentTier;
+                switch(tier)
+                {
+                    case PaymentTier.Plus:
+                        maxMembers = 100;
+                        break;
+                    case PaymentTier.Pro:
+                        // nobody's ever gonna reach this many project members so this is fine
+                        maxMembers = 99999;
+                        break;
+                }
+            }
+
+            // get owners tier
+            int count = m_Database.ProjectsAccess.Where(p => p.ProjectId == project.Id).ToList().Count;
+            count = count + 1;
+            if (count > maxMembers)
+            {
+                if(role == ProjectRole.Owner)
+                {
+                    return AddMemberResponse.IncorrectTierYou;
+                }
+                return AddMemberResponse.IncorrectTier;
+            }
+
             var user = m_Database.Users.Where(user => user.UserName.Equals(model.Name)).FirstOrDefault();
             if (user == null)
             {

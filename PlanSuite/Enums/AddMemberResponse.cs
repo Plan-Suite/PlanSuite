@@ -6,6 +6,8 @@
         ServerError,
         IncorrectRoles,
         NoUser,
-        AlreadyHasAccess
+        AlreadyHasAccess,
+        IncorrectTier,
+        IncorrectTierYou
     }
 }

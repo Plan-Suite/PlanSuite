@@ -66,6 +66,14 @@ function onAddMember()
                 {
                     div.html("@Model.Localisation.Get(user, "ADD_USER_NO_USER")");
                 }
+                else if(response.response == @((int)AddMemberResponse.IncorrectTier))
+                {
+                    div.html("@Model.Localisation.Get(user, "ADD_USER_INCORRECT_TIER")");
+                }
+                else if(response.response == @((int)AddMemberResponse.IncorrectTierYou))
+                {
+                    div.html("@Model.Localisation.Get(user, "ADD_USER_INCORRECT_TIER_YOU")");
+                }
                 else
                 {
                     div.html("@Model.Localisation.Get(user, "FAIL_SERVER")");

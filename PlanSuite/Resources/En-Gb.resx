@@ -138,6 +138,12 @@
   <data name="ADD_USER_INCORRECT_ROLES" xml:space="preserve">
     <value>You do not have the correct permissions to add users.</value>
   </data>
+  <data name="ADD_USER_INCORRECT_TIER" xml:space="preserve">
+    <value>The owner's account tier is too low. They need to upgrade their account.</value>
+  </data>
+  <data name="ADD_USER_INCORRECT_TIER_YOU" xml:space="preserve">
+    <value>Your account tier is too low. You need to upgrade to a higher tier to add more users.</value>
+  </data>
   <data name="ADD_USER_NO_USER" xml:space="preserve">
     <value>No such user exists.</value>
   </data>
