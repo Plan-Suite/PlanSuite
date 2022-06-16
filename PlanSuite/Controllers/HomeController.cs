@@ -4,6 +4,7 @@ using PlanSuite.Data;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
+using PlanSuite.Utility;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -28,6 +29,8 @@ namespace PlanSuite.Controllers
 
         public IActionResult Index()
         {
+            CommonCookies.ApplyCommonCookies(HttpContext);
+
             HomeViewModel viewModel = new HomeViewModel();
             if (_signInManager.IsSignedIn(User))
             {
@@ -136,16 +139,19 @@ namespace PlanSuite.Controllers
 
         public IActionResult Privacy()
         {
+            CommonCookies.ApplyCommonCookies(HttpContext);
             return View();
         }
 
         public IActionResult License()
         {
+            CommonCookies.ApplyCommonCookies(HttpContext);
             return View();
         }
 
         public IActionResult Changelog()
         {
+            CommonCookies.ApplyCommonCookies(HttpContext);
             ChangelogViewModel viewModel = new ChangelogViewModel();
             viewModel.Changelogs = dbContext.ChangeLogs.ToList();
             return View(viewModel);

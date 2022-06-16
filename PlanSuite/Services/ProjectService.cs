@@ -234,7 +234,7 @@ namespace PlanSuite.Services
 
             // Create card
             AddCardModel addCard = new AddCardModel();
-            addCard.ProjectId = model.ProjectId;
+            addCard.ProjectId = column.ProjectId;
             addCard.ColumnId = column.Id;
             addCard.Name = checklistItem.ItemName;
             AddCard(addCard);

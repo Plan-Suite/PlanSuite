@@ -24,7 +24,7 @@
                     </div>
                 <br>
                 <div class="modal-footer">
-                    <button type="button" class="btn ps-btn-primary" data-bs-dismiss="modal" onclick="onAddMember()">@Model.Localisation.Get(user, "ADD_MEMBER")</button>
+                    <button type="button" class="btn ps-btn-primary" data-bs-dismiss="modal" id="addMemberBtn">@Model.Localisation.Get(user, "ADD_MEMBER")</button>
                     <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CANCEL")</button>
                 </div> 
             </div>
@@ -32,58 +32,3 @@
         </div>
     </div>
 </div>
-
-<script>
-function onAddMember()
-{
-    var input = $("#addMemberInput").val();
-    console.log(input);
-
-    $.ajax({
-        type: "POST",
-        dataType: "json",
-        contentType: "application/json",
-        url: `/api/Project/addmember`,
-        beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
-        },
-        data: JSON.stringify({ projectId: @Model.Project.Id, userId: '@Model.UserId', name: `${input}` }),
-        success: function(response) {
-            console.log(response);
-            if(response.response != @((int)AddMemberResponse.Success))
-            {
-                var div = $("#addUserFail");
-                div.removeClass("d-none");
-                if(response.response == @((int)AddMemberResponse.AlreadyHasAccess))
-                {
-                    div.html("@Model.Localisation.Get(user, "ADD_USER_ALREADY_HAS_ACCESS")");
-                }
-                else if(response.response == @((int)AddMemberResponse.IncorrectRoles))
-                {
-                    div.html("@Model.Localisation.Get(user, "ADD_USER_INCORRECT_ROLES")");
-                }
-                else if(response.response == @((int)AddMemberResponse.NoUser))
-                {
-                    div.html("@Model.Localisation.Get(user, "ADD_USER_NO_USER")");
-                }
-                else if(response.response == @((int)AddMemberResponse.IncorrectTier))
-                {
-                    div.html("@Model.Localisation.Get(user, "ADD_USER_INCORRECT_TIER")");
-                }
-                else if(response.response == @((int)AddMemberResponse.IncorrectTierYou))
-                {
-                    div.html("@Model.Localisation.Get(user, "ADD_USER_INCORRECT_TIER_YOU")");
-                }
-                else
-                {
-                    div.html("@Model.Localisation.Get(user, "FAIL_SERVER")");
-                }
-            }
-            else
-            {
-                $("#addUserSuccess").removeClass("d-none");
-            }
-        },
-    });
-}
-</script>

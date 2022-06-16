@@ -5,6 +5,7 @@ using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
+using PlanSuite.Utility;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -30,6 +31,7 @@ namespace PlanSuite.Controllers
 
         public async Task<IActionResult> Index(int id)
         {
+            CommonCookies.ApplyCommonCookies(HttpContext);
             if (!_signInManager.IsSignedIn(User))
             {
                 return RedirectToAction(nameof(Index), "Home");

@@ -62,7 +62,6 @@ namespace PlanSuite.Models.Temporary
     public class ConvertChecklistItemModel
     {
         public int ChecklistItemId { get; set; }
-        public int ProjectId { get; set; }
     }
 
     public class DeleteChecklistItemModel

@@ -1,9 +1,9 @@
-﻿function isBlank(str): Boolean {
+﻿function isBlank(str): boolean {
     return (!!!str || /^\s*$/.test(str));
 }
 
-function intToTier(tier: Number): String {
-    let userTier: String = "Free";
+function intToTier(tier: number): string {
+    let userTier: string = "Free";
     switch (tier) {
         case 1:
             userTier = "Plus";

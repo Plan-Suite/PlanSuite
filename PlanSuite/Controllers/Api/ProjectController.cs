@@ -148,7 +148,7 @@ namespace PlanSuite.Controllers.Api
         [HttpPost("ConvertChecklistItemToCard")]
         public IActionResult ConvertChecklistItemToCard([FromBody] ConvertChecklistItemModel model)
         {
-            Console.WriteLine($"ConvertChecklistItemToCard: {model.ChecklistItemId} {model.ProjectId}");
+            Console.WriteLine($"ConvertChecklistItemToCard: {model.ChecklistItemId}");
             bool result = m_ProjectService.ConvertChecklistItemToCard(model);
 
             return Ok(new

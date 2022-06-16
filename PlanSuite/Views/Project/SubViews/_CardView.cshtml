@@ -10,21 +10,21 @@
 }
 @if(columnCount > 0)
 {
+    <input type="hidden" id="columnCount" value="@Model.Columns.Count"/>
     foreach(var item in Model.Columns)
     {
-        <div class="col m4">
+        int count = 0;
+        <div class="col m4" id="colIndex_@Model.Columns.IndexOf(item)">
             <input type="hidden" value="ColumnTitle_@item.Id"/>
-            <h3 class="ps-modifiable" style="text-align:center;" onclick="onClickEditColumnTitle('@item.Id')" id="Column_@item.Id">@item.Title</h3>
+            <h3 class="ps-modifiable" style="text-align:center;" id="Column_@item.Id">@item.Title</h3>
             <div class="form-group d-none" id="ColumnEdit_@item.Id">
                 <input class="form-control form-control-sm" type="text" id="ColumnText_@item.Id" value="@item.Title">
             </div>
             <div class="column" style="min-height: 600px;" id="@item.Id">
-                <div class="card mb-1">
-                    @*<div class="card-body">*@
-                        <div class="d-grid gap-2">
-                            <a class="btn ps-btn-white" style="text-align:left;" href="#" onclick="addNewCard('@item.Id')">@Html.Raw(Model.Localisation.Get(user, "ADD_NEW_CARD"))</a>
-                        </div>
-                    @*</div>*@
+                <div class="card mb-1 script-ignore">
+                    <div class="d-grid gap-2">
+                        <a class="btn ps-btn-white" style="text-align:left;" href="#" id="addNewCard_@item.Id">@Html.Raw(Model.Localisation.Get(user, "ADD_NEW_CARD"))</a>
+                    </div>
                 </div>
                 @foreach(var card in Model.Cards)
                 {
@@ -36,6 +36,7 @@
                             overdue = $"<span class=\"badge bg-danger\">{Model.Localisation.Get(user, "OVERDUE")}</span>";
                         }
                         string priority = string.Empty;
+                        Console.WriteLine($"Priority: {card.CardPriority}");
                         if(card.CardPriority > PlanSuite.Enums.Priority.None)
                         {
                             switch(card.CardPriority)
@@ -65,15 +66,13 @@
 
                         string cardName = card.CardName.ReplaceLineEndings("");
                         <div class="card mb-1 draggable" id="@card.Id">
-                            @*<div class="card-body">*@
-                                <div class="d-grid gap-2" style="height:60px;">
-                                    <a class="btn ps-btn-white" style="text-align:left;" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal" onclick="viewCardButton('@card.Id')">
-                                        @Html.Raw(overdue) @Html.Raw(priority) @cardName</a>
-                                </div>
-                            @*</div>*@
+                            <div class="d-grid gap-2" style="height:60px;">
+                                <a class="btn ps-btn-white" style="text-align:left;" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal">@Html.Raw(overdue) @Html.Raw(priority) @cardName</a>
+                            </div>
                         </div>
                     }
                 }
+                <input type="hidden" id="cardCount_@item.Id" value="@count"/>
             </div>
         </div>
     }
@@ -84,53 +83,3 @@ else
         <p class="text-muted text-center m-1">No columns on this project, select <a class="link-primary" href="#" data-bs-toggle="modal" data-bs-target="#addColumnModal">Add Column</a> to add one.</p>
     </div>
 }
-
-<script>
-function onClickEditColumnTitle(dbId)
-{
-    var columnTitle = $(`#Column_${dbId}`);
-    var columnTitleForm = $(`#ColumnEdit_${dbId}`);
-    var columnTitleInput = $(`#ColumnText_${dbId}`);
-    var oldTitle = columnTitleInput.val();
-
-    columnTitle.addClass("d-none");
-    columnTitleForm.removeClass("d-none");
-    columnTitleInput.focusout(function() {
-        sendEditColumnNameEvent(dbId, oldTitle);
-    });
-    columnTitleInput.focus();
-}
-
-function sendEditColumnNameEvent(dbId, oldTitle)
-{
-    var columnTitle = $(`#Column_${dbId}`);
-    var columnTitleForm = $(`#ColumnEdit_${dbId}`);
-    var columnTitleInput = $(`#ColumnText_${dbId}`);
-
-    columnTitleInput.off("focusout");
-    columnTitle.removeClass("d-none");
-    columnTitleForm.addClass("d-none");
-    var text = columnTitleInput.val();
-    if(!isBlank(text))
-    {
-        $.ajax({
-            type: "POST",
-            dataType: "json",
-            contentType: "application/json",
-            url: "/api/Project/EditColumnName",
-            beforeSend: function (request) {
-                request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
-            },
-            data: JSON.stringify({ columnId: dbId, columnText: text }),
-            success: function(response)
-            {
-                columnTitle.html(text);
-            },
-        });
-    }
-    else
-    {
-        columnTitle.val(oldTitle);
-    }
-}
-</script>
