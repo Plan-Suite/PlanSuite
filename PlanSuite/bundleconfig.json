@@ -21,6 +21,12 @@
     ]
   },
   {
+    "outputFileName": "wwwroot/bundles/admin.min.js",
+    "inputFiles": [
+      "wwwroot/js/admin/*.js"
+    ]
+  },
+  {
     "outputFileName": "wwwroot/bundles/dep.min.js",
     "inputFiles": [
       "wwwroot/lib/jquery/dist/jquery.min.js",

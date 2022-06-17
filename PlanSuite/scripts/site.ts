@@ -2,7 +2,7 @@
     return (!!!str || /^\s*$/.test(str));
 }
 
-function intToTier(tier: number): string {
+export function intToTier(tier: number): string {
     let userTier: string = "Free";
     switch (tier) {
         case 1:
@@ -15,7 +15,7 @@ function intToTier(tier: number): string {
     return userTier;
 }
 
-function arrayToString(array: Array<any>) {
+export function arrayToString(array: Array<any>) {
     if (array.length < 1) {
         return "None";
     }
