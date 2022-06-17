@@ -1,9 +1,11 @@
 ﻿import { Localisation } from "../localisation.js";
+import { isBlank } from '../site.js'
 
 const verificationToken: string = $("#RequestVerificationToken").val() as string;
 const localisation = new Localisation();
 var projectId: number;
 var columnCount: number;
+var userId: number;
 
 enum Priority {
     None,
@@ -25,6 +27,7 @@ enum AddMemberResponse {
 $(function () {
     projectId = $("#projectId").val() as number;
     columnCount = $("#columnCount").val() as number;
+    userId = $("#userId").val() as number;
 
     $(".draggable").draggable({
         revert: "invalid"
@@ -53,14 +56,29 @@ $(function () {
     $("#addColumnBtn").on("click", function () { addColumnBtn(projectId); });
     $("#seeMembersBtn").on("click", viewProjectMembers);
     $("#addMemberBtn").on("click", onAddMember);
+    $("#onLeaveProjectBtn").on("click", onLeaveProject);
+    $("#viewCardLabel").on("click", editName);
+    $("#viewCardText").on("click", editDescription);
+    $("#addChecklistBtn").on("click", onAddChecklist);
+    $("#editCardSaveContentBtn").on("click", onEditCardSaveContent);
+    $("#editCardBtn").on("click", onEditCard);
 
     for (var i = 0; i < columnCount; i++) {
         var column: JQuery<HTMLElement> = $(`#colIndex_${i}`) as JQuery<HTMLElement>;
 
         // is there not a better way to get the column id?
         var colId: number = Number(column.children("input[type='hidden']:first").val().toString().split("_")[1]);
-        column.children(`#Column_${colId}`).on("click", function () { onClickEditColumnTitle(colId) });
-        column.children(`#addNewCard_${colId}`).on("click", function () { addNewCard(colId) });
+        console.log(`colId = ${colId} start`);
+
+        var col = column.children(`#addNewCard_${colId}`);
+        console.log(`${col.html()}`);
+
+        $(`#Column_${colId}`).on("click", function () {
+            onClickEditColumnTitle(colId)
+        });
+        $(`#addNewCard_${colId}`).on("click", function () {
+            addNewCard(colId);
+        });
 
         var actualColumn: JQuery<HTMLElement> = $(`.column#${colId}`) as JQuery<HTMLElement>;
         //console.log(actualColumn.children());
@@ -69,11 +87,10 @@ $(function () {
             var element = $(this);
             if (!element.hasClass("script-ignore") && !element.is("input")) {
                 var id: number = element.attr("id") as unknown as number;
-                console.log(id);
-
                 $(`#viewCardName_${id}`).on("click", function () { viewCardButton(id) });
             }
-        })
+        });
+        console.log(`colId = ${colId} end`);
     }
 
     // 
@@ -274,7 +291,7 @@ function addNewCard(id) {
     $(name).removeClass("d-none");
 
     $('#AddCard_ColumnId').val(id);
-    $('#AddCard_ProjectId').val('@Model.Project.Id');
+    $('#AddCard_ProjectId').val(projectId);
     $('#cardNameField').focus();
 
     $('#createCardDiv').on("focusout", removeCard);
@@ -528,7 +545,7 @@ function viewProjectMembers() {
         type: "GET",
         dataType: "json",
         contentType: "application/json",
-        url: `/api/Project/getprojectmembers?projectId=@Model.Project.Id`,
+        url: `/api/Project/getprojectmembers?projectId=` + projectId,
         beforeSend: function (request) {
             request.setRequestHeader("RequestVerificationToken", verificationToken);
         },
@@ -666,4 +683,99 @@ function sendEditColumnNameEvent(dbId, oldTitle) {
     else {
         columnTitle.val(oldTitle);
     }
+}
+
+function onLeaveProject() {
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        url: `/api/Project/leaveproject`,
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", verificationToken);
+        },
+        data: JSON.stringify({ projectId: projectId, userId: userId }),
+        success: function(response) {
+            window.location.replace("/Home");
+        },
+    });
+}
+
+function onEditCard() {
+    var cardId = $("#viewCardId").val();
+    $("#editCardContentForm").removeClass("d-none");
+    $("#viewCardContent").addClass("d-none");
+
+    const url = `/api/Project/getcard?cardId=${cardId}`;
+
+    $.ajax({
+        type: "GET",
+        dataType: "json",
+        contentType: "application/json",
+        url: url,
+        success: function (response) {
+
+            // Due Date
+            var date = "";
+            if (response.unixTimestamp > 0) {
+                // I have to multiply by 1000 for some reason here idk why
+                date = new Date(response.unixTimestamp * 1000).toDateString();
+            }
+
+            $("#viewCardDueDateDateTime").val(date);
+
+            // get assignee
+            $("#assignee").empty();
+            $("#assignee").append("<option value=\"0\">Unassigned</option>");
+
+            Object.entries(response.members).forEach(([k, v]) => {
+                $("#assignee").append(`<option value="${k}">${v}</option>`);
+            });
+
+            // set assignee
+            var guid = "0";
+            if (!isBlank(response.assigneeId)) {
+                guid = response.assigneeId;
+            }
+
+            $("#assignee").val(guid).change();
+        }
+    });
+}
+
+function onEditCardSaveContent() {
+    var dbId = $('#viewCardId').val();
+    $("#editCardContentForm").addClass("d-none");
+    $("#viewCardContent").removeClass("d-none");
+    var dateEntered = getCardDueDate();
+    var radioValue = $("input[name='priority']:checked").val();
+    var assigneeId = $("#assignee").val();
+    console.log(`assigneeId: ${assigneeId}`);
+
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        url: "/api/Project/EditCard",
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", verificationToken);
+        },
+        data: JSON.stringify({ cardId: dbId, timestamp: dateEntered, priority: radioValue, assigneeId: assigneeId }),
+        success: function (response) {
+            viewCardButton(dbId);
+        },
+    });
+}
+
+function getCardDueDate() {
+    var input: string = $("#viewCardDueDateDateTime").val() as string;
+    var dbId: number = $('#viewCardId').val() as number;
+
+    console.log(`getCardDueDate: ${input}`);
+    var timestamp = 0;
+    var dateEntered = 0;
+    if (!isBlank(input)) {
+        dateEntered = new Date(input).getTime() / 1000;
+    }
+    return dateEntered;
 }

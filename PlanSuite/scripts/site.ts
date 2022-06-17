@@ -1,4 +1,4 @@
-﻿function isBlank(str): boolean {
+﻿export function isBlank(str): boolean {
     return (!!!str || /^\s*$/.test(str));
 }
 
