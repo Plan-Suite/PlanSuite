@@ -14,7 +14,7 @@
         <div class="modal-content">
             <div class="modal-header">
             <input type="hidden" id="viewCardId" value="0"/>
-            <h5 class="modal-title" id="viewCardLabel" onclick="editName()">Card Name</h5>
+            <h5 class="modal-title" id="viewCardLabel">Card Name</h5>
             <div class="d-none" id="viewCardEditLabel">
                 <div class="form-floating">
                     <input class="form-control text-box single-line" id="viewCardEditLabelEditor" type="text" value=""/>
@@ -41,7 +41,7 @@
                     <hr />
                     @* Card Description *@
                     <h6>Card Description <small class="text-muted">(Click description to modify)</small></h6>
-                    <p class="ps-modifiable" id="viewCardText" onclick="editDescription()">@Model.Localisation.Get(user,"DEFAULT_CARD_DESC")</p>
+                    <p class="ps-modifiable" id="viewCardText">@Model.Localisation.Get(user,"DEFAULT_CARD_DESC")</p>
                     <div class="d-none" id="viewCardEditText">
                         <div class="mb-3">
                             <textarea class="form-control text-box single-line" id="viewCardEditTextEditor" rows="3" value=""></textarea>
@@ -56,7 +56,7 @@
                             <input type="text" class="form-control form-control-sm" id="addChecklistInput" placeholder="Checklist Name" aria-label="Checklist Name" aria-describedby="addBtn">
                             <button class="btn ps-btn-white btn-sm" type="button" id="addBtn">Button</button>
                         </div>
-                        <button class="btn ps-btn-white btn-sm" type="button" onclick="onAddChecklist()" id="addChecklistBtn"><i class="bi bi-card-checklist"></i> Add checklist</button>
+                        <button class="btn ps-btn-white btn-sm" type="button" id="addChecklistBtn"><i class="bi bi-card-checklist"></i> Add checklist</button>
                     </div>
                 </div>
                 <form class="d-none" id="editCardContentForm">
@@ -93,100 +93,14 @@
                             </div>
                         </div>
                     </fieldset>
-                    <button type="button" class="btn ps-btn-primary" onclick="onEditCardSaveContent()">Save Content</button>
+                    <button type="button" class="btn ps-btn-primary" id="editCardSaveContentBtn">Save Content</button>
                 </form>
                 <br>
                 <div class="modal-footer">
-                    <button type="button" class="btn ps-btn-info btn-outline-dark" onclick="onEditCard()">Edit Card</button>
+                    <button type="button" class="btn ps-btn-info btn-outline-dark" id="editCardBtn">Edit Card</button>
                     <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
-<script>
-function onEditCard()
-{
-    var cardId = $("#viewCardId").val();
-    $("#editCardContentForm").removeClass("d-none");
-    $("#viewCardContent").addClass("d-none");
-
-    const url = `/api/Project/getcard?cardId=${cardId}`;
-
-    $.ajax({
-        type: "GET",
-        dataType: "json",
-        contentType: "application/json",
-        url: url, 
-        success: function(response) {
-
-            // Due Date
-            var date = "";
-            if(response.unixTimestamp > 0)
-            {
-                // I have to multiply by 1000 for some reason here idk why
-                dateString = new Date(response.unixTimestamp * 1000).toDateString();
-            }
-
-            $("#viewCardDueDateDateTime").val(date);
-
-            // get assignee
-            $("#assignee").empty();
-            $("#assignee").append("<option value=\"0\">Unassigned</option>");
-
-            Object.entries(response.members).forEach(([k,v]) => {
-                $("#assignee").append(`<option value="${k}">${v}</option>`);
-            });
-
-            // set assignee
-            var guid = "0";
-            if(!isBlank(response.assigneeId))
-            {
-                guid = response.assigneeId;
-            }
-
-            $("#assignee").val(guid).change();
-        }
-    });
-}
-
-function onEditCardSaveContent()
-{
-    var dbId = $('#viewCardId').val();
-    $("#editCardContentForm").addClass("d-none");
-    $("#viewCardContent").removeClass("d-none");
-    var dateEntered = getCardDueDate();
-    var radioValue = $("input[name='priority']:checked").val();
-    var assigneeId = $("#assignee").val();
-    console.log(`assigneeId: ${assigneeId}`);
-
-    $.ajax({
-        type: "POST",
-        dataType: "json",
-        contentType: "application/json",
-        url: "/api/Project/EditCard",
-        beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
-        },
-        data: JSON.stringify({ cardId: dbId, timestamp: dateEntered, priority: radioValue, assigneeId: assigneeId }),
-        success: function(response) {
-            viewCardButton(dbId);
-        },
-    });
-}
-
-function getCardDueDate()
-{
-    var input = $("#viewCardDueDateDateTime").val();
-    var dbId = $('#viewCardId').val();
-
-    console.log(`getCardDueDate: ${input}`);
-    var timestamp = 0;
-    var dateEntered = 0;
-    if(!isBlank(input))
-    {
-        dateEntered = new Date(input).getTime() / 1000;
-    }
-    return dateEntered;
-}
-</script>

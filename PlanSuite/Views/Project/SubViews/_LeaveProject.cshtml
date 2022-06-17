@@ -26,22 +26,3 @@
         </div>
     </div>
 </div>
-
-<script>
-function onLeaveProject()
-{
-    $.ajax({
-        type: "POST",
-        dataType: "json",
-        contentType: "application/json",
-        url: `/api/Project/leaveproject`,
-        beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", $('#RequestVerificationToken').val());
-        },
-        data: JSON.stringify({ projectId: @Model.Project.Id, userId: '@Model.UserId' }),
-        success: function(response) {
-            window.location.replace("/Home");
-        },
-    });
-}
-</script>
