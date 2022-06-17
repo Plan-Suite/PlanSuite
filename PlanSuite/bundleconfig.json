@@ -11,8 +11,13 @@
   {
     "outputFileName": "wwwroot/bundles/site.min.js",
     "inputFiles": [
-      "wwwroot/js/*.js",
-      "wwwroot/js/*/*.js"
+      "wwwroot/js/*.js"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/bundles/project.min.js",
+    "inputFiles": [
+      "wwwroot/js/project/*.js"
     ]
   },
   {
