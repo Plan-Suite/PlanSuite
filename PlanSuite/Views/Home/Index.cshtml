@@ -19,6 +19,13 @@
     string FormatDate(DateTime? value) => value.HasValue ? value.Value.ToString("dd/MMM/yyyy") : "N/A";
 }
 
+<environment include="Development">
+<script type="module" src="~/js/home/index.js" asp-append-version="true"></script>
+</environment>
+<environment exclude="Development">
+<script type="module" src="~/bundles/home.min.js" asp-append-version="true"></script>
+</environment>
+
 @if (SignInManager.IsSignedIn(User))
 {
     <div class="text-center">
@@ -134,25 +141,29 @@
         <div class="container">
         @if(count > 0)
         {
-            <div class="row">
+            <div class="row" id="MyProjects">
             @foreach(var item in Model.OwnedProjects)
             {
-                <div class="col-sm-6">
+                <div class="col-sm-6" id="OwnedProject_@item.Id">
+                    <input type="hidden" id="projectId" value="@item.Id"/>
+                    <input type="hidden" id="projectName" value="@item.Name"/>
+                    <input type="hidden" id="projectDesc" value="@item.Description"/>
+                    <input type="hidden" id="projectDate" value="@item.DueDate?.ToUniversalTime()"/>
                     <div class="card p-1 mt-2" style="height:12rem;">
                         <div>
                             <h5 class="card-title m-1">@item.Name</h5>
                             <h6 class="card-subtitle m-1 mb-2 text-muted">@Html.Raw(string.Format(Model.Localisation.Get(user, "PROJECT_SUB_TITLE"), FormatDate(item.CreatedDate), FormatDate(item.DueDate)))</h6>
                             <p class="card-text m-1">@item.Description</p>
                             <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">@Model.Localisation.Get(user, "VIEW_PROJECT")</a>
-                            <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" onclick="passButtonInfo('@item.Id', '@item.Name', '@item.Description', '@item.DueDate?.ToUniversalTime()')">@Model.Localisation.Get(user, "EDIT_PROJECT")</button>
-                            <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" onclick="passDeleteButtonInfo('@item.Id', '@item.Name')">@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
+                            <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "EDIT_PROJECT")</button>
+                            <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" id="passDeleteButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
                         </div>
                     </div>
                 </div>
             }
             @foreach(var item in Model.MemberProjects)
             {
-                <div class="col-sm-6">
+                <div class="col-sm-6" id="MemberProject_@item.Id">
                     <div class="card p-1 mt-2" style="height:12rem;">
                         <div>
                             <h5 class="card-title m-1">@item.Name</h5>
@@ -176,34 +187,3 @@ else
 {
     <h1 class="text-center">@Model.Localisation.Get(user, "LANDING_HEADER")</h1>
 }
-<script>
-function passButtonInfo(dbId, name, desc, date)
-{
-    document.getElementById('editProjectLabel').innerHTML = `<strong>Edit:</strong> ${name}`;
-    document.getElementById('editProjName').value = name;
-    document.getElementById('editProjDesc').value = desc;
-    document.getElementById('editProjDate').value = date; // i have no fking clue how to get this working :(
-    document.getElementById('EditProject_Id').value = dbId;
-}
-
-function passDeleteButtonInfo(dbId, name)
-{
-    document.getElementById('deleteProjectLabel').innerHTML = `<strong>Delete:</strong> ${name}`;
-    document.getElementById('DeleteProject_Name').value = name;
-    document.getElementById('DeleteProject_Id').value = dbId;
-}
-
-function onDeleteInput()
-{
-    const button = document.getElementById('deleteButton');
-    const projName = document.getElementById('DeleteProject_Name').value;
-    if(document.getElementById('confirmDeleteProjName').value == projName)
-    {
-        button.disabled = false;
-    }
-    else
-    {
-        button.disabled = true;
-    }
-}
-</script>
