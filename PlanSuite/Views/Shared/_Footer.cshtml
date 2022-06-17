@@ -1,0 +1,41 @@
+﻿@using PlanSuite.Models.Persistent
+@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Utility
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+
+<footer class="border-top py-3 footer navagation-bar">
+    <div class="container">
+        @if (!SignInManager.IsSignedIn(User))
+        {
+            <div class="row">
+                <div class="col text-center">
+                    <h5>Product</h5>
+                    <ul class="list-unstyled text-small">
+                    <li><a class="ps-footer-link" href="#">Features</a></li>
+                    <li><a class="ps-footer-link" href="#">Workflow</a></li>
+                    <li><a class="ps-footer-link" href="#">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="col text-center">
+                    <h5>Company</h5>
+                    <ul class="list-unstyled text-small">
+                    <li><a class="ps-footer-link" href="#">About</a></li>
+                    <li><a class="ps-footer-link" href="#">Careers</a></li>
+                    </ul>
+                </div>
+                <div class="col text-center">
+                    <h5>Other</h5>
+                    <ul class="list-unstyled text-small">
+                    <li><a class="ps-footer-link" href="#">Terms</a></li>
+                    <li><a class="ps-footer-link" href="#">Privacy</a></li>
+                    <li><a class="ps-footer-link" href="#">Changelog</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="text-center"><i class="bi bi-three-dots"></i></div>
+        }
+        <div class="text-center">&copy; 2022 - Plan Suite - Version @WebsiteVersion.Version</div>
+    </div>
+</footer>

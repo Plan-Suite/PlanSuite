@@ -31,6 +31,12 @@ body {
     color: var(--white);
 }
 
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+}
+
 .ps-btn-primary {
     background-color: var(--blue);
     color: var(--white);
@@ -165,4 +171,13 @@ img, svg {
     border-radius: 5px;
     padding: 0.5rem;
     box-shadow: 0px 0px 5px var(--black);
+}
+
+.ps-footer-link {
+    color: var(--white);
+    text-decoration: none;
+}
+
+.ps-footer-link:hover {
+    text-decoration: underline;
 }
