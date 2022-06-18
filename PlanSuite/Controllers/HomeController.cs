@@ -54,6 +54,11 @@ namespace PlanSuite.Controllers
             return View(viewModel);
         }
 
+        public IActionResult Features()
+        {
+            return View();
+        }
+
         [HttpPost]
         public IActionResult Create(HomeViewModel.CreateProjectModel createProject)
         {

@@ -181,3 +181,20 @@ img, svg {
 .ps-footer-link:hover {
     text-decoration: underline;
 }
+
+.marketing-header {
+    background-color: var(--blue);
+    min-height: 10rem;
+    color: var(--white);
+}
+
+.marketing-section {
+    padding:1rem;
+    min-height: 10rem;
+}
+
+.ps-img-centre {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}

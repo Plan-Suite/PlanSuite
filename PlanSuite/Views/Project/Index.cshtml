@@ -25,110 +25,113 @@
 <script type="module" src="~/bundles/project.min.js" asp-append-version="true"></script>
 </environment>
 
-<input type="hidden" 
-       id="RequestVerificationToken"
-       name="RequestVerificationToken" 
-       value="@GetAntiXsrfRequestToken()">
+<div class="container">
 
-<h1 class="text-center">@Model.Project.Name</h1>
-<hr />
-<div class="alert alert-success d-none" id="addUserSuccess" role="alert">Sucessfully added new user to project.</div>
-<div class="alert alert-danger d-none" id="addUserFail" role="alert">Failed to add user to project.</div>
-<h4 class="text-muted">@Model.Project.Description</h4>
-<p class="text-muted"><strong>Project Created:</strong> @Model.Project.CreatedDate<br /><strong>Project Due Date:</strong>
-    @if(Model.Project.DueDate != null)
-    {
-         @Model.Project.DueDate
-    }
-    else 
-    {
-        <text>N/A</text>
-    }
-</p>
+    <input type="hidden" 
+           id="RequestVerificationToken"
+           name="RequestVerificationToken" 
+           value="@GetAntiXsrfRequestToken()">
 
-@* Add Column *@
-<div class="modal fade" id="addColumnModal" tabindex="-1" aria-labelledby="addColumnLabel" aria-hidden="true">
-    <div class="modal-dialog">
-    <div class="modal-content">
-        <div class="modal-header">
-        <h5 class="modal-title" id="editProjectLabel"><strong>Add Column:</strong> Name Here</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <form method="post" asp-controller="Project" asp-action="AddColumn">
-            @Html.HiddenFor(model => model.AddColumn.ProjectId)
-            <div class="modal-body">
-                <div class="form-floating">
-                    @Html.EditorFor(model => model.AddColumn.Name, new { htmlAttributes = new { @class = "form-control", id = "editProjName" } })
-                    @Html.LabelFor(model => model.AddColumn.Name, new { htmlAttributes = new { @class = "form-label" } })
-                    @Html.ValidationMessageFor(model => model.AddColumn.Name, "", new { @class = "text-danger" })
-                    <br>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn ps-btn-primary">Save Column</button>
-                </div>
+    <h1 class="text-center">@Model.Project.Name</h1>
+    <hr />
+    <div class="alert alert-success d-none" id="addUserSuccess" role="alert">Sucessfully added new user to project.</div>
+    <div class="alert alert-danger d-none" id="addUserFail" role="alert">Failed to add user to project.</div>
+    <h4 class="text-muted">@Model.Project.Description</h4>
+    <p class="text-muted"><strong>Project Created:</strong> @Model.Project.CreatedDate<br /><strong>Project Due Date:</strong>
+        @if(Model.Project.DueDate != null)
+        {
+             @Model.Project.DueDate
+        }
+        else 
+        {
+            <text>N/A</text>
+        }
+    </p>
+
+    @* Add Column *@
+    <div class="modal fade" id="addColumnModal" tabindex="-1" aria-labelledby="addColumnLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="editProjectLabel"><strong>Add Column:</strong> Name Here</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-        </form>
-    </div>
-    </div>
-</div>
-
-<input type="hidden" id="projectId" value="@Model.Project.Id"/>
-<input type="hidden" id="userId" value="@Model.UserId"/>
-
-@* View Card *@
-<partial name="SubViews/_ViewCard" />
-
-@* Project Members *@
-<partial name="SubViews/_ProjectMembers" />
-
-@* Leave Project *@
-<partial name="SubViews/_LeaveProject" />
-
-@* Add Member *@
-<partial name="SubViews/_AddMember" />
-
-@* Project Navbar *@
-<div class="row">
-    <div class="col col-sm-10">
-        <button type="button" class="btn m-1 ps-btn-success float-start" data-bs-toggle="modal" data-bs-target="#addColumnModal" id="addColumnBtn">Add Column</button>
-        <div class="btn-group" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn m-1 ps-btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">More</button>
-            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#projectMembersModal" id="seeMembersBtn">See Members</a></li>
-                @if(Model.ProjectRole >= PlanSuite.Enums.ProjectRole.Admin)
-                {
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addMemberModal">Add Member</a></li>
-                }
-                @if(Model.ProjectRole != PlanSuite.Enums.ProjectRole.Owner)
-                {
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#leaveProjectModal">Leave Project</a></li>
-                }
-            </ul>
+            <form method="post" asp-controller="Project" asp-action="AddColumn">
+                @Html.HiddenFor(model => model.AddColumn.ProjectId)
+                <div class="modal-body">
+                    <div class="form-floating">
+                        @Html.EditorFor(model => model.AddColumn.Name, new { htmlAttributes = new { @class = "form-control", id = "editProjName" } })
+                        @Html.LabelFor(model => model.AddColumn.Name, new { htmlAttributes = new { @class = "form-label" } })
+                        @Html.ValidationMessageFor(model => model.AddColumn.Name, "", new { @class = "text-danger" })
+                        <br>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn ps-btn-primary">Save Column</button>
+                    </div>
+                </div>
+            </form>
+        </div>
         </div>
     </div>
-</div>
 
-<div class="row">
-    <partial name="SubViews/_CardView" />
-    <div class="card d-none" id="createCardDiv">
-        <div class="card-body">
-            <div class="d-grid gap-2">
-                <div class="btn btn-outline-dark">
-                    <form method="post" asp-controller="Project" asp-action="addcard">
-                        @Html.HiddenFor(model => model.AddCard.ColumnId)
-                        @Html.HiddenFor(model => model.AddCard.ProjectId)
-                        <div class="row">
-                            <div class="col-sm-10">
-                                @Html.EditorFor(model => model.AddCard.Name, new { htmlAttributes = new { @class = "form-control form-control-sm", id = "cardNameField", placeholder = "Card Name" } })
+    <input type="hidden" id="projectId" value="@Model.Project.Id"/>
+    <input type="hidden" id="userId" value="@Model.UserId"/>
+
+    @* View Card *@
+    <partial name="SubViews/_ViewCard" />
+
+    @* Project Members *@
+    <partial name="SubViews/_ProjectMembers" />
+
+    @* Leave Project *@
+    <partial name="SubViews/_LeaveProject" />
+
+    @* Add Member *@
+    <partial name="SubViews/_AddMember" />
+
+    @* Project Navbar *@
+    <div class="row">
+        <div class="col col-sm-10">
+            <button type="button" class="btn m-1 ps-btn-success float-start" data-bs-toggle="modal" data-bs-target="#addColumnModal" id="addColumnBtn">Add Column</button>
+            <div class="btn-group" role="group">
+                <button id="btnGroupDrop1" type="button" class="btn m-1 ps-btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">More</button>
+                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#projectMembersModal" id="seeMembersBtn">See Members</a></li>
+                    @if(Model.ProjectRole >= PlanSuite.Enums.ProjectRole.Admin)
+                    {
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addMemberModal">Add Member</a></li>
+                    }
+                    @if(Model.ProjectRole != PlanSuite.Enums.ProjectRole.Owner)
+                    {
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#leaveProjectModal">Leave Project</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <partial name="SubViews/_CardView" />
+        <div class="card d-none" id="createCardDiv">
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <div class="btn btn-outline-dark">
+                        <form method="post" asp-controller="Project" asp-action="addcard">
+                            @Html.HiddenFor(model => model.AddCard.ColumnId)
+                            @Html.HiddenFor(model => model.AddCard.ProjectId)
+                            <div class="row">
+                                <div class="col-sm-10">
+                                    @Html.EditorFor(model => model.AddCard.Name, new { htmlAttributes = new { @class = "form-control form-control-sm", id = "cardNameField", placeholder = "Card Name" } })
+                                </div>
+                                <div class="col-sm-2">
+                                    <button type="submit" class="btn ps-btn-primary btn-sm">Submit</button>
+                                </div>
                             </div>
-                            <div class="col-sm-2">
-                                <button type="submit" class="btn ps-btn-primary btn-sm">Submit</button>
-                            </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
