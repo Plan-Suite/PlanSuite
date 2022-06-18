@@ -178,9 +178,10 @@ img, svg {
     text-decoration: none;
 }
 
-.ps-footer-link:hover {
-    text-decoration: underline;
-}
+    .ps-footer-link:hover {
+        color: var(--white);
+        text-decoration: underline;
+    }
 
 .marketing-header {
     background-color: var(--blue);
@@ -197,4 +198,15 @@ img, svg {
     display: block;
     margin-left: auto;
     margin-right: auto;
+}
+
+.register-card {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--black);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
