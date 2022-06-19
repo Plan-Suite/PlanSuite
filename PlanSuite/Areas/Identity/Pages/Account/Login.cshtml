@@ -7,7 +7,7 @@
 
 <div class="container">
     <div class="register-card">
-        <h2>@ViewData["Title"]</h2>
+        <h2 class="text-center">@ViewData["Title"]</h2>
         <div class="row">
             <div class="col">
                 <section>
@@ -35,10 +35,27 @@
                         <div>
                             <button id="login-submit" type="submit" class="w-100 btn btn-lg ps-btn-primary">Log in</button>
                         </div>
-                        <div>
-                            <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a><br />
-                            <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a><br />
-                            <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
+                        <h5 class="text-center mb-3 mt-3">OR</h5>
+                        @{
+                            if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                            {
+                                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                                    <div>
+                                        <p>
+                                            @foreach (var provider in Model.ExternalLogins)
+                                            {
+                                                <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Continue with @provider.DisplayName">@provider.DisplayName</button>
+                                            }
+                                        </p>
+                                    </div>
+                                </form>
+                            }
+                        }
+                        <div class="text-center">
+                            <a class="ps-link-primary" id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a><br />
+                            <a class="ps-link-primary" id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
+                            <hr style="margin-left:auto; margin-right:auto; width: 20%;" />
+                            Not on Plan Suite yet? <a class="ps-link-primary" asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Sign up.</a><br />
                         </div>
                     </form>
                 </section>

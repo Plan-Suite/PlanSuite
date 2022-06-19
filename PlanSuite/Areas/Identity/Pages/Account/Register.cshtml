@@ -9,7 +9,8 @@
         <div class="row">
             <div class="col">
                 <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-                    <h2>Create Your account</h2><br />
+                    <h3 class="text-center mb-2">Project Management has never been easier.</h3>
+                    <h4 class="text-muted text-center mb-4">Join Plan Suite now for free!</h4>
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                     <div class="form-floating mb-1">
                         <input asp-for="Input.UserName" class="form-control" autocomplete="username" aria-required="true" />
@@ -38,6 +39,7 @@
                     </div>
                     <button id="registerSubmit" type="submit" class="w-100 btn btn-lg ps-btn-primary">Register</button>
                 </form>
+                <p class="text-center mt-4">Already have an account? <a class="ps-link-primary" href="/Identity/Account/Login">Sign in.</a></p>
             </div>
             @*<div class="col-md-6 col-md-offset-2">
                 <section>
