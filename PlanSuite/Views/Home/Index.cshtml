@@ -9,7 +9,14 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @model PlanSuite.Models.Temporary.HomeViewModel
 @{
-    ViewData["Title"] = "Home Page";
+    if (SignInManager.IsSignedIn(User))
+    {
+        ViewData["Title"] = "Home Page";
+    }
+    else
+    {
+        ViewData["Title"] = "Project management for everyone";
+    }
     int count = Model.OwnedProjects.Count;
 
     ApplicationUser user = await UserManager.GetUserAsync(User);
