@@ -15,6 +15,18 @@ WebsiteVersion.Init(builder.Environment.EnvironmentName);
 builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<AdminService>();
 
+var configuration = builder.Configuration;
+
+if(builder.Environment.IsProduction())
+{
+    builder.Services.AddAuthentication().AddFacebook(facebookOptions =>
+    {
+        facebookOptions.AppId = configuration["Authentication:Facebook:AppId"];
+        facebookOptions.AppSecret = configuration["Authentication:Facebook:AppSecret"];
+        facebookOptions.AccessDeniedPath = "/Home/AuthError";
+    });
+}
+
 // Add database connection
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
