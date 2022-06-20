@@ -24,10 +24,10 @@
         /// Increment this when we add/change minor features, incremental UI changes or backend changes
         /// If this gets incremented, then we reset patch to 0
         /// </summary>
-        public const int VERSION_MINOR = 7;
+        public const int VERSION_MINOR = 8;
 
         // Increment this when we fix bugs, update dependencies or other non-noticable features
-        public const int VERSION_PATCH = 1;
+        public const int VERSION_PATCH = 0;
 
         public static bool IsProduction { get; private set; }
         public static string EnvironmentName { get; private set; }
