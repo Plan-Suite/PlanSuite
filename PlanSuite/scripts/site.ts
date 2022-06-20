@@ -1,4 +1,7 @@
-﻿export function isBlank(str): boolean {
+﻿import * as $ from 'jquery';
+import "jquery-ui";
+
+export function isBlank(str): boolean {
     return (!!!str || /^\s*$/.test(str));
 }
 
