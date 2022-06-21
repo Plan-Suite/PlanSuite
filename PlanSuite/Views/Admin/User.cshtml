@@ -13,12 +13,7 @@
 
 <partial name="AdminHeader" />
 
-<environment include="Development">
 <script type="module" src="~/js/admin/user.js" asp-append-version="true"></script>
-</environment>
-<environment exclude="Development">
-<script type="module" src="~/bundles/admin.min.js" asp-append-version="true"></script>
-</environment>
 
 <div class="modal" id="userEditModel" tabindex="-1">
   <div class="modal-dialog">

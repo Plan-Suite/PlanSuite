@@ -26,12 +26,7 @@
     string FormatDate(DateTime? value) => value.HasValue ? value.Value.ToString("dd/MMM/yyyy") : "N/A";
 }
 
-<environment include="Development">
 <script type="module" src="~/js/home/index.js" asp-append-version="true"></script>
-</environment>
-<environment exclude="Development">
-<script type="module" src="~/bundles/home.min.js" asp-append-version="true"></script>
-</environment>
 
 @if (SignInManager.IsSignedIn(User))
 {
