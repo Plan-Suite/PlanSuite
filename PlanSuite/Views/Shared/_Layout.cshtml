@@ -10,22 +10,19 @@
     <link rel='icon' sizes='192x192' href='~/img/icon@192.png'>
     <link rel='apple-touch-icon' href='~/img/icon@152.png'>
     <meta name='msapplication-square310x310logo' content='~/img/icon@310.png'>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/jquery-ui/jquery-ui.min.css">
+    <script src="~/bundles/dep.min.js"></script>
+    <script type="module" src="~/js/site.js" asp-append-version="true"></script>
+    <script type="module" src="~/js/cookie.js" asp-append-version="true"></script>
+    <script type="module" src="~/js/localisation.js" asp-append-version="true"></script>
     <environment include="Development">
-        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="~/lib/jquery-ui/jquery-ui.min.css">
         <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
         <link rel="stylesheet" href="~/PlanSuite.styles.css" asp-append-version="true" />
-        <script src="~/bundles/dep.min.js"></script>
-        <script type="module" src="~/js/site.js" asp-append-version="true"></script>
-        <script type="module" src="~/js/cookie.js" asp-append-version="true"></script>
-        <script type="module" src="~/js/localisation.js" asp-append-version="true"></script>
     </environment>
     <environment exclude="Development">
         <link rel="stylesheet" href="~/bundles/site.min.css" />
-        <script src="~/bundles/dep.min.js"></script>
-        <script type="module" src="~/js/site.js" asp-append-version="true"></script>
-        <script type="module" src="~/js/cookie.js" asp-append-version="true"></script>
-        <script type="module" src="~/js/localisation.js" asp-append-version="true"></script>
+
         <!-- Global site tag (gtag.js) - Google Analytics -->
         <script async src="https://www.googletagmanager.com/gtag/js?id=G-BPF1G2C79K"></script>
         <script>

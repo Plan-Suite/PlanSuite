@@ -20,6 +20,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using PlanSuite.Models;
 using PlanSuite.Models.Persistent;
+using PlanSuite.Services;
 
 namespace PlanSuite.Areas.Identity.Pages.Account
 {

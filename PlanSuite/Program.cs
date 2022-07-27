@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using PlanSuite.Data;
@@ -16,8 +17,9 @@ builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<AdminService>();
 
 var configuration = builder.Configuration;
+builder.Services.AddTransient<IEmailSender, EmailService>();
 
-if(builder.Environment.IsProduction())
+if (builder.Environment.IsProduction())
 {
     builder.Services.AddAuthentication().AddFacebook(facebookOptions =>
     {
@@ -39,10 +41,6 @@ builder.Services.AddDefaultIdentity<ApplicationUser>((options) =>
     options.SignIn.RequireConfirmedAccount = true;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireDigit = false;
-#if DEBUG
-    // Development versions only need 1 char
-    options.Password.RequiredLength = 1;
-#endif
 })
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -87,5 +85,6 @@ using (var scope = app.Services.CreateScope())
 }
 
 new LocalisationService();
+EmailService.InitEmailService(configuration["Email:User"], configuration["Email:Pass"], configuration["Email:ConfigSet"], configuration["Email:Host"], int.Parse(configuration["Email:Port"]), configuration["Email:ConfigEmail"], configuration["Email:ConfigName"]);
 
 app.Run();

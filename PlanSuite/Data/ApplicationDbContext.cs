@@ -15,6 +15,7 @@ namespace PlanSuite.Data
         public DbSet<ProjectAccess> ProjectsAccess { get; set; }
         public DbSet<CardChecklist> CardChecklists { get; set; }
         public DbSet<ChecklistItem> ChecklistItems { get; set; }
+        public DbSet<PasswordResetRequest> PasswordResetRequests { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
