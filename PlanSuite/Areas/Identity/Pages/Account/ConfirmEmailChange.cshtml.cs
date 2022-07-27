@@ -55,10 +55,10 @@ namespace PlanSuite.Areas.Identity.Pages.Account
 
             // In our UI email and user name are one and the same, so when we update the email
             // we need to update the user name.
-            var setUserNameResult = await _userManager.SetUserNameAsync(user, email);
-            if (!setUserNameResult.Succeeded)
+            var setEmailResult = await _userManager.SetEmailAsync(user, email);
+            if (!setEmailResult.Succeeded)
             {
-                StatusMessage = "Error changing user name.";
+                StatusMessage = "Error changing email.";
                 return Page();
             }
 
