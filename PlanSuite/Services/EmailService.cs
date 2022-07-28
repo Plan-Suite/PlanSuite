@@ -34,10 +34,20 @@ namespace PlanSuite.Services
 
             using (var smtpClient = new SmtpClient())
             {
-                smtpClient.Connect(SmtpHost, SmtpPort, MailKit.Security.SecureSocketOptions.StartTls);
-                smtpClient.Authenticate(SmtpUser, SmtpPassword);
-                smtpClient.Disconnect(true);
-                Console.WriteLine($"Email service configured for {user}@{host} on port {port}");
+                try
+                {
+                    smtpClient.Connect(SmtpHost, SmtpPort, MailKit.Security.SecureSocketOptions.StartTls);
+                    smtpClient.Authenticate(SmtpUser, SmtpPassword);
+                    Console.WriteLine($"Email service configured for {user}@{host} on port {port}");
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine($"Exception during InitEmailService: {ex.Message}\n{ex.StackTrace}\n\n---InnerException---\n{ex.InnerException}");
+                }
+                finally
+                {
+                    smtpClient.Disconnect(true);
+                }
             }
         }
 
