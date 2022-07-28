@@ -69,7 +69,7 @@ $(function () {
         // is there not a better way to get the column id?
         var colId: number = Number(column.children("input[type='hidden']:first").val().toString().split("_")[1]);
 
-        var col = column.children(`#addNewCard_${colId}`);
+        var col = $(`#addNewCard_${colId}`);
 
         $(`#Column_${colId}`).on("click", function () {
             onClickEditColumnTitle(colId)
