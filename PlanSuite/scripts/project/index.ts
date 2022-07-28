@@ -68,20 +68,18 @@ $(function () {
 
         // is there not a better way to get the column id?
         var colId: number = Number(column.children("input[type='hidden']:first").val().toString().split("_")[1]);
-        console.log(`colId = ${colId} start`);
 
         var col = column.children(`#addNewCard_${colId}`);
-        console.log(`${col.html()}`);
 
         $(`#Column_${colId}`).on("click", function () {
             onClickEditColumnTitle(colId)
         });
-        $(`#addNewCard_${colId}`).on("click", function () {
+
+        col.on("click", function () {
             addNewCard(colId);
         });
 
-        var actualColumn: JQuery<HTMLElement> = $(`.column#${colId}`) as JQuery<HTMLElement>;
-        //console.log(actualColumn.children());
+        var actualColumn: JQuery<HTMLElement> = $(`#${colId}.column.ui-droppable`) as JQuery<HTMLElement>;
 
         actualColumn.children().each(function () {
             var element = $(this);
@@ -90,7 +88,6 @@ $(function () {
                 $(`#viewCardName_${id}`).on("click", function () { viewCardButton(id) });
             }
         });
-        console.log(`colId = ${colId} end`);
     }
 
     // 
@@ -221,6 +218,7 @@ function editDescription(): void {
 }
 
 function viewCardButton(dbId) {
+    console.log(`viewCardButton ${dbId}`);
     $('#viewCardId').val(dbId);
 
     $.ajax({
@@ -230,6 +228,7 @@ function viewCardButton(dbId) {
         url: `/api/Project/getcard?cardId=${dbId}`,
         beforeSend: function (request) {
             request.setRequestHeader("RequestVerificationToken", verificationToken);
+            console.log(`requesting ${dbId}`);
         },
         success: function (response) {
             var dateString = "None";
