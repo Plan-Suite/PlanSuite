@@ -28,5 +28,8 @@ namespace PlanSuite.Models.Persistent
 
         [Column("card_assignee")]
         public Guid CardAssignee { get; set; }
+
+        [Column("card_milestone")]
+        public int CardMilestone { get; set; }
     }
 }

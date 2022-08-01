@@ -1,0 +1,29 @@
+﻿@using PlanSuite.Models.Persistent
+@model PlanSuite.Models.Temporary.ProjectViewModel
+@{
+    int projectId = Model.Project.Id;
+}
+<div class="modal fade" id="deleteMilestoneModal" tabindex="-1" aria-labelledby="deleteMilestoneLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="editMilestoneLabel">Confirm Delete Milestone</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form method="post" asp-controller="Project" asp-action="deletemilestone">
+            <input type="hidden" asp-for="DeleteMilestone.MilestoneId" value="0">
+            <input type="hidden" asp-for="DeleteMilestone.ProjectId" value="@projectId">
+            <div class="modal-body">
+                <div class="mb-3">
+                    <p class="text-center">Are you sure you want to delete this milestone?<br /><br /><span class="fw-bolder">This action cannot be undone.</span></p>
+                </div>
+                <br>
+                <div class="modal-footer">
+                    <button type="submit" class="btn ps-btn-danger">Delete</button>
+                    <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Go Back</button>
+                </div>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>

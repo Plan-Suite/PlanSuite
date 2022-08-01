@@ -1,0 +1,106 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Models.Persistent
+@using System.Globalization
+@inject UserManager<ApplicationUser> UserManager
+@model PlanSuite.Models.Temporary.ProjectViewModel
+@{
+    //ApplicationUser user = await UserManager.GetUserAsync(User);
+}
+<div class="modal fade" id="milestonesModal" tabindex="-1" aria-labelledby="milestonesLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="milestonesLabel">Milestones</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <div class="modal-body">
+                <ul class="list-group" id="milestoneList">
+                    @foreach(var milestone in Model.Milestones)
+                    {
+                        string pillDNone;
+                        string editButtonDNone;
+                        string listItemDisabled;
+                        string closedLabel;
+                        if(milestone.IsClosed == true)
+                        {
+                            closedLabel = "Reopen";
+                            pillDNone = string.Empty;
+                            listItemDisabled = "list-group-item-light";
+                            editButtonDNone = "d-none";
+                        }
+                        else
+                        {
+                            closedLabel = "Close";
+                            pillDNone = "d-none";
+                            listItemDisabled = string.Empty;
+                            editButtonDNone = string.Empty;
+                        }
+
+                        <li class="list-group-item @listItemDisabled" id="milestoneListItem_@milestone.Id">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-auto">@milestone.Title <span class="badge rounded-pill bg-danger @pillDNone" id="milestoneBadge_@milestone.Id">Closed</span> <button type="button" class="ml-1 btn btn-sm ps-btn-danger milestone-button-inline" data-bs-toggle="modal" data-bs-target="#deleteMilestoneModal" id="listMilestonesDeleteBtn_@milestone.Id" value="@milestone.Id">Delete</button><button type="button" class="ml-1 btn btn-sm ps-btn-secondary milestone-button-inline" id="listMilestonesCloseBtn_@milestone.Id" value="@milestone.Id">@closedLabel</button><button type="button" class="ml-1 btn btn-sm ps-btn-secondary milestone-button-inline @editButtonDNone" data-bs-toggle="modal" data-bs-target="#editMilestoneModal" id="listMilestonesEditBtn_@milestone.Id" value="@milestone.Id">Edit</button></div>
+                                    @if(!string.IsNullOrEmpty(milestone.Description))
+                                    {
+                                        @milestone.Description
+                                    }
+                                    else
+                                    {
+                                        <text>This milestone has no description.</text>
+                                    }
+                                    <div class="milestone-metadata" id="milestoneDueDate_@milestone.Id">
+                                    @if(milestone.DueDate != null)
+                                    {
+                                        DateTime dueBy = (DateTime)milestone.DueDate;
+                                        <span class="milestone-metadata-item" id="milestoneDueDate"><i class="bi bi-calendar-event"></i> Due by @CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(dueBy.Month) @dueBy.Day, @dueBy.Year</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="milestone-metadata-item" id="milestoneDueDate"><i class="bi bi-calendar"></i> No due date</span>
+                                    }
+
+                                    @{
+                                        // Convert this into a typescript utility function to allow dynamic updating
+                                        string format = string.Empty;
+                                        DateTime when = milestone.LastUpdated;
+                                        TimeSpan ts = DateTime.Now.Subtract(when);
+                                        if(ts.TotalMinutes < 1)
+                                        {
+                                            format = $"{(int)ts.TotalSeconds} seconds ago";
+                                        }
+                                        else if(ts.TotalHours < 1)
+                                        {
+                                            format = $"{(int)ts.TotalMinutes} minutes ago";
+                                        }
+                                        else if(ts.TotalDays < 1)
+                                        {
+                                            format = $"{(int)ts.TotalHours} hours ago";
+                                        }
+                                        else if(ts.TotalDays < 2)
+                                        {
+                                            format = "yesterday";
+                                        }
+                                        else if(ts.TotalDays < 5)
+                                        {
+                                            format = $"on {when.DayOfWeek}";
+                                        }
+                                        else
+                                        {
+                                            format = $"{(int)ts.TotalDays} days ago";
+                                        }
+                                    }
+
+                                    <span class="milestone-metadata-item"><i class="bi bi-clock"></i> Last updated @format</span>
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+                <br>
+                <div class="modal-footer">
+                    <button type="button" class="btn ps-btn-success" data-bs-dismiss="modal" data-bs-toggle="modal" data-bs-target="#addMilestoneModal">Add Milestone</button>
+                    <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

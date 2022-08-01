@@ -1,5 +1,7 @@
-﻿import { Localisation } from "../localisation.js";
+﻿import { ajax } from "jquery";
+import { Localisation } from "../localisation.js";
 import { isBlank } from '../site.js'
+import { TimeSpan } from "../timespan.js";
 
 const verificationToken: string = $("#RequestVerificationToken").val() as string;
 const localisation = new Localisation();
@@ -62,6 +64,25 @@ $(function () {
     $("#addChecklistBtn").on("click", onAddChecklist);
     $("#editCardSaveContentBtn").on("click", onEditCardSaveContent);
     $("#editCardBtn").on("click", onEditCard);
+
+    $.ajax({
+        type: "GET",
+        dataType: "json",
+        url: `/api/Project/GetMilestones?id=${projectId}`,
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", verificationToken);
+        },
+        success: function (response) {
+            response.milestones.forEach(function (value) {
+                $(`#listMilestonesEditBtn_${value.id}`).on("click", function () { onEditMilestoneBtn(value.id); });
+                $(`#listMilestonesCloseBtn_${value.id}`).on("click", function () { onCloseMilestoneBtn(value.id); });
+                $(`#listMilestonesDeleteBtn_${value.id}`).on("click", function () { onDeleteMilestoneBtn(value.id); });
+            });
+        }
+    });
+
+    //$("#listMilestonesEditBtn").on("click", function () { onEditMilestoneBtn(); });
+    //$("#listMilestonesCloseBtn").on("click", onCloseMilestoneBtn);
 
     for (var i = 0; i < columnCount; i++) {
         var column: JQuery<HTMLElement> = $(`#colIndex_${i}`) as JQuery<HTMLElement>;
@@ -749,7 +770,6 @@ function onEditCardSaveContent() {
     var dateEntered = getCardDueDate();
     var radioValue = $("input[name='priority']:checked").val();
     var assigneeId = $("#assignee").val();
-    console.log(`assigneeId: ${assigneeId}`);
 
     $.ajax({
         type: "POST",
@@ -770,7 +790,6 @@ function getCardDueDate() {
     var input: string = $("#viewCardDueDateDateTime").val() as string;
     var dbId: number = $('#viewCardId').val() as number;
 
-    console.log(`getCardDueDate: ${input}`);
     var timestamp = 0;
     var dateEntered = 0;
     if (!isBlank(input)) {
@@ -778,3 +797,75 @@ function getCardDueDate() {
     }
     return dateEntered;
 }
+
+function onEditMilestoneBtn(id) {
+    var milestoneId = $(`#listMilestonesEditBtn_${id}`).val();
+    $("#EditMilestone_MilestoneId").val(milestoneId);
+
+    $.ajax({
+        type: "GET",
+        dataType: "json",
+        url: `/api/Project/GetMilestoneInfoForEditing?id=${milestoneId}`,
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", verificationToken);
+        },
+        success: function (response) {
+            $("#EditMilestone_Title").val(response.title);
+            $("#EditMilestone_Description").val(response.description);
+            if (response.dueDate != null) {
+                $("#EditMilestone_DueDate").val(response.dueDate);
+            }
+        },
+    });
+}
+
+function onCloseMilestoneBtn(id) {
+    var milestoneCloseBtn = $(`#listMilestonesCloseBtn_${id}`)
+    var milestoneId = milestoneCloseBtn.val();
+    $("#EditMilestone_MilestoneId").val(milestoneId);
+    var listItem = $(`#milestoneListItem_${milestoneId}`);
+    var badge = $(`#milestoneBadge_${milestoneId}`);
+    var dueDate = $(`#milestoneDueDate_${milestoneId}`);
+    var editBtn = $(`#listMilestonesEditBtn_${milestoneId}`);
+
+    console.log(`milestoneId: ${milestoneId}`);
+
+    $.ajax({
+        type: "POST",
+        contentType: "application/json",
+        dataType: "json",
+        url: `/api/Project/ToggleMilestoneIsClosed`,
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", verificationToken);
+        },
+        data: JSON.stringify({ milestoneId: milestoneId }),
+        success: function (response) {
+            console.log(response);
+
+            if (response.isClosed == true) {
+                milestoneCloseBtn.text("Reopen");
+                listItem.addClass("list-group-item-light");
+                badge.removeClass("d-none");
+                dueDate.addClass("d-none");
+                editBtn.addClass("d-none");
+            }
+            else {
+                milestoneCloseBtn.text("Close");
+                listItem.removeClass("list-group-item-light");
+                badge.addClass("d-none");
+                dueDate.removeClass("d-none");
+                editBtn.removeClass("d-none");
+            }
+        },
+    });
+}
+
+function onDeleteMilestoneBtn(id) {
+    var milestoneDeleteBtn = $(`#listMilestonesDeleteBtn_${id}`)
+    var milestoneId = milestoneDeleteBtn.val();
+    $("#DeleteMilestone_MilestoneId").val(milestoneId);
+
+    console.log(`milestoneId: ${milestoneId}`);   
+}
+
+//

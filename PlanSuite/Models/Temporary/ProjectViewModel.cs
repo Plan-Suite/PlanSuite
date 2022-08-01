@@ -11,8 +11,12 @@ namespace PlanSuite.Models.Temporary
         public AddCardModel AddCard = new AddCardModel();
         public ViewCardModel ViewCard = new ViewCardModel();
         public List<Card> Cards = new List<Card>();
+        public List<ProjectMilestone> Milestones = new List<ProjectMilestone>();
         public Guid UserId;
         public ProjectRole ProjectRole;
+        public AddMilestoneModel AddMilestone = new AddMilestoneModel();
+        public EditMilestoneModel EditMilestone = new EditMilestoneModel();
+        public DeleteMilestoneModel DeleteMilestone = new DeleteMilestoneModel();
 
         public class AddColumnModel
         {

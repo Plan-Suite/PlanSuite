@@ -245,3 +245,18 @@ img, svg {
 .nav-pills .nav-link {
     color: var(--blue);
 }
+
+.milestone-metadata {
+    font-size: 13px;
+}
+
+.milestone-metadata-item {
+    display: inline-block;
+    margin-right:0.5rem;
+}
+
+.milestone-button-inline {
+    display: inline-block;
+    float: right;
+    margin-right:0.2rem;
+}
