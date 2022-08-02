@@ -86,16 +86,22 @@
     <partial name="SubViews/_AddMember" />
 
     @* Milestones *@
-    <partial name="SubViews/_ListMilestones" />
-    <partial name="SubViews/_AddMilestone" />
-    <partial name="SubViews/_EditMilestone" />
-    <partial name="SubViews/_DeleteMilestone" />
+    @if(Model.PaymentTier >= PaymentTier.Plus)
+    {
+        <partial name="SubViews/_ListMilestones" />
+        <partial name="SubViews/_AddMilestone" />
+        <partial name="SubViews/_EditMilestone" />
+        <partial name="SubViews/_DeleteMilestone" />
+    }
 
     @* Project Navbar *@
     <div class="row">
         <div class="col col-sm-10">
             <button type="button" class="btn m-1 ps-btn-success float-start" data-bs-toggle="modal" data-bs-target="#addColumnModal" id="addColumnBtn">Add Column</button>
-            <button type="button" class="btn m-1 ps-btn-secondary" data-bs-toggle="modal" data-bs-target="#milestonesModal" id="listMilestonesBtn">Milestones</button>
+            @if(Model.PaymentTier >= PaymentTier.Plus)
+            {
+                <button type="button" class="btn m-1 ps-btn-secondary" data-bs-toggle="modal" data-bs-target="#milestonesModal" id="listMilestonesBtn">Milestones</button>
+            }
             <div class="btn-group" role="group">
                 <button id="btnGroupDrop1" type="button" class="btn m-1 ps-btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">More</button>
                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">

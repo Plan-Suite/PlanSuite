@@ -59,7 +59,7 @@
                         }
 
                         string milestone = string.Empty;
-                        if(card.CardMilestone > 0)
+                        if(Model.PaymentTier >= PlanSuite.Enums.PaymentTier.Plus && card.CardMilestone > 0)
                         {
                             var _milestone = Model.Milestones.Where(m => m.Id == card.CardMilestone).FirstOrDefault();
                             if(_milestone != null)

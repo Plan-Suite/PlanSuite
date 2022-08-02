@@ -37,9 +37,12 @@
                         <small class="text-muted" id="viewCardAssignee">
                             CARD_ASSIGNEE
                         </small><br />
-                        <small class="text-muted" id="viewCardMilestone">
-                            CARD_MILESTONE
-                        </small>
+                        @if(Model.PaymentTier >= PaymentTier.Plus)
+                        {
+                            <small class="text-muted" id="viewCardMilestone">
+                                CARD_MILESTONE
+                            </small>
+                        }
                     </div>
                     <hr />
                     @* Card Description *@
@@ -96,12 +99,15 @@
                             </div>
                         </div>
                     </fieldset>
-                    <div class="row mb-3">
-                        <legend class="col-form-label-sm">Milestone</legend>
-                        <div class="col-sm-10">
-                            <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="milestone"></select>
+                    @if(Model.PaymentTier >= PaymentTier.Plus)
+                    {
+                        <div class="row mb-3">
+                            <legend class="col-form-label-sm">Milestone</legend>
+                            <div class="col-sm-10">
+                                <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="milestone"></select>
+                            </div>
                         </div>
-                    </div>
+                    }
                     <button type="button" class="btn ps-btn-primary" id="editCardSaveContentBtn">Save Content</button>
                 </form>
                 <br>

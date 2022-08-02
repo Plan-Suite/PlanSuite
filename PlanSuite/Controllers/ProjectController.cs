@@ -58,6 +58,14 @@ namespace PlanSuite.Controllers
             viewModel.UserId = Guid.Parse(appUser.Id);
             viewModel.ProjectRole = role;
 
+            // Get project owner payment tier
+            var user = m_ProjectService.GetProjectOwner(project);
+            if(user != null)
+            {
+                Console.WriteLine($"project {project.Id} owner {user.Id} is on {user.PaymentTier} tier");
+                viewModel.PaymentTier = user.PaymentTier;
+            }
+
             var milestones = dbContext.ProjectMilestones.Where(m => m.ProjectId == project.Id).ToList();
             if (milestones != null && milestones.Count > 0)
             {

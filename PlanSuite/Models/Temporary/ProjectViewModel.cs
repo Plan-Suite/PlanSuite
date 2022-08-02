@@ -17,6 +17,7 @@ namespace PlanSuite.Models.Temporary
         public AddMilestoneModel AddMilestone = new AddMilestoneModel();
         public EditMilestoneModel EditMilestone = new EditMilestoneModel();
         public DeleteMilestoneModel DeleteMilestone = new DeleteMilestoneModel();
+        public PaymentTier PaymentTier = PaymentTier.Free;
 
         public class AddColumnModel
         {

@@ -426,7 +426,7 @@ namespace PlanSuite.Services
             }
         }
 
-        private ApplicationUser? GetProjectOwner(Project project)
+        public ApplicationUser? GetProjectOwner(Project project)
         {
             var owner = m_Database.Users.Where(u => u.Id == project.OwnerId.ToString()).FirstOrDefault();
             if (owner == null)
