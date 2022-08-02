@@ -131,6 +131,31 @@ namespace PlanSuite.Services
                     cardChecklists = new List<CardChecklist>();
                 }
 
+                // get project milestones
+                Dictionary<int, string> milestones = new Dictionary<int, string>();
+
+                var projMilestones = m_Database.ProjectMilestones.Where(m => m.ProjectId == projId).ToList();
+                foreach(var milestone in projMilestones)
+                {
+                    milestones.Add(milestone.Id, milestone.Title);
+                }
+
+                // get current milestone
+                int currentMilestoneId = 0;
+                string currentMilestoneName = string.Empty;
+                if(card.CardMilestone > 0)
+                {
+                    Console.WriteLine($"card {card.Id} milestone is {card.CardMilestone}");
+                    var ms = milestones.Where(m => m.Key == card.CardMilestone)?.FirstOrDefault();
+                    if(ms != null)
+                    {
+                        Console.WriteLine($"currentMilestoneId = {ms.Value.Key}");
+                        currentMilestoneId = ms.Value.Key;
+                        Console.WriteLine($"currentMilestoneName = {ms.Value.Value}");
+                        currentMilestoneName = ms.Value.Value;
+                    }
+                }
+
                 // return
                 GetCardReturnJson json = new GetCardReturnJson()
                 {
@@ -143,7 +168,10 @@ namespace PlanSuite.Services
                     Priority = card.CardPriority,
                     Members = members,
                     CardChecklists = cardChecklists,
-                    ChecklistItems = items
+                    ChecklistItems = items,
+                    ProjectMilestones = milestones,
+                    MilestoneId = currentMilestoneId,
+                    MilestoneName = currentMilestoneName
                 };
                 return json;
             }
@@ -495,8 +523,9 @@ namespace PlanSuite.Services
             return AddMemberResponse.Success;
         }
 
-        public void EditCardDueDate(EditCardDueDateModel model)
+        public async Task EditCardAsync(EditCardModel model)
         {
+            Console.WriteLine($"Editing card {model.CardId}");
             // Convert Unix Timestamp to DateTime
             DateTime? dueDate = null;
             if (model.Timestamp > 0)
@@ -510,7 +539,9 @@ namespace PlanSuite.Services
                 card.CardDueDate = dueDate;
                 card.CardPriority = (Priority)model.Priority;
                 card.CardAssignee = Guid.Parse(model.AssigneeId);
-                m_Database.SaveChanges();
+                card.CardMilestone = model.MilestoneId;
+                await m_Database.SaveChangesAsync();
+                Console.WriteLine($"Saved card {model.CardId}");
             }
         }
         

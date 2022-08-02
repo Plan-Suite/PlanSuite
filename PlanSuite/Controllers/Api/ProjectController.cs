@@ -57,10 +57,10 @@ namespace PlanSuite.Controllers.Api
         }
 
         [HttpPost("EditCard")]
-        public IActionResult EditCardDueDate([FromBody] EditCardDueDateModel model)
+        public async Task<IActionResult> EditCardAsync([FromBody] EditCardModel model)
         {
-            Console.WriteLine($"EditCardDueDateModel: {model.CardId} {model.Timestamp} {model.Priority} {model.AssigneeId}");
-            m_ProjectService.EditCardDueDate(model);
+            Console.WriteLine($"EditCardModel: {model.CardId} {model.Timestamp} {model.Priority} {model.AssigneeId}");
+            await m_ProjectService.EditCardAsync(model);
 
             return Ok(new
             {

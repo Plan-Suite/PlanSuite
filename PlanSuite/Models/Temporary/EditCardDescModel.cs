@@ -40,14 +40,18 @@ namespace PlanSuite.Models.Temporary
         public Dictionary<Guid, string> Members { get; set; } = new Dictionary<Guid, string>();
         public List<CardChecklist> CardChecklists { get; set; } = new List<CardChecklist>();
         public List<ChecklistItem> ChecklistItems { get; set; } = new List<ChecklistItem>();
+        public Dictionary<int, string> ProjectMilestones { get; set; } = new Dictionary<int, string>();
+        public int MilestoneId { get; set; }
+        public string MilestoneName { get; set; }
     }
 
-    public class EditCardDueDateModel
+    public class EditCardModel
     {
         public int CardId { get; set; }
         public uint Timestamp { get; set; }
         public int Priority { get; set; }
         public string AssigneeId { get; set; }
+        public int MilestoneId { get; set; }
     }
 
     public class GetProjectMembers

@@ -264,6 +264,9 @@
   <data name="VIEW_CARD_DUE_DATE" xml:space="preserve">
     <value>Due By:</value>
   </data>
+  <data name="VIEW_CARD_MILESTONE" xml:space="preserve">
+    <value>Milestone:</value>
+  </data>
   <data name="VIEW_CARD_PRIORITY" xml:space="preserve">
     <value>Priority:</value>
   </data>

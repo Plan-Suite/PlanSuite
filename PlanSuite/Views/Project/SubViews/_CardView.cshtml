@@ -61,18 +61,22 @@
                         string milestone = string.Empty;
                         if(card.CardMilestone > 0)
                         {
-                            milestone = $"<a href=\"#\" class=\"link-dark\" id=\"viewMilestone_{card.Id}\" value=\"${card.CardMilestone}\"><i class=\"bi bi-signpost\"></i> Milestone</a>";
+                            var _milestone = Model.Milestones.Where(m => m.Id == card.CardMilestone).FirstOrDefault();
+                            if(_milestone != null)
+                            {
+                                milestone += $"<br/><span class=\"fw-bold\"><i class=\"bi bi-signpost\"></i> {_milestone.Title}</span>";
+                            }
                         }
 
-                        if(!string.IsNullOrEmpty(priority) || !string.IsNullOrEmpty(overdue) || !string.IsNullOrEmpty(milestone))
+                        if(!string.IsNullOrEmpty(priority) || !string.IsNullOrEmpty(overdue))
                         {
-                            milestone += "<br/>";
+                            priority += "<br/>";
                         }
 
                         string cardName = card.CardName.ReplaceLineEndings("");
                         <div class="card mb-1 draggable" id="@card.Id">
                             <div class="d-grid gap-2" style="height:60px;">
-                                <a class="btn ps-btn-white" style="text-align:left;" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal">@Html.Raw(overdue) @Html.Raw(priority) @Html.Raw(milestone) @cardName</a>
+                                <a class="btn ps-btn-white" style="text-align:left;" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal">@Html.Raw(overdue) @Html.Raw(priority) @cardName @Html.Raw(milestone)</a>
                             </div>
                         </div>
                     }
