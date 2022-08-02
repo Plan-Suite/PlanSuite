@@ -58,16 +58,33 @@ namespace PlanSuite.Controllers
             viewModel.UserId = Guid.Parse(appUser.Id);
             viewModel.ProjectRole = role;
 
+            // Get project owner payment tier
+            var user = m_ProjectService.GetProjectOwner(project);
+            if(user != null)
+            {
+                Console.WriteLine($"project {project.Id} owner {user.Id} is on {user.PaymentTier} tier");
+                viewModel.PaymentTier = user.PaymentTier;
+            }
+
+            var milestones = dbContext.ProjectMilestones.Where(m => m.ProjectId == project.Id).ToList();
+            if (milestones != null && milestones.Count > 0)
+            {
+                viewModel.Milestones = milestones;
+                Console.WriteLine($"Grabbed {milestones.Count} milestones for project {project.Id}");
+            }
+
             var columns = dbContext.Columns.Where(c => c.ProjectId == project.Id).ToList();
             if(columns != null && columns.Count > 0)
             {
                 viewModel.Columns = columns;
-                foreach(var column in columns)
+                Console.WriteLine($"Grabbed {columns.Count} columns for project {project.Id}");
+                foreach (var column in columns)
                 {
                     var cards = dbContext.Cards.Where(c => c.ColumnId == column.Id).ToList();
                     if (cards != null && cards.Count > 0)
                     {
                         viewModel.Cards.AddRange(cards);
+                        Console.WriteLine($"Grabbed {cards.Count} cards for project {project.Id}");
                     }
                 }
             }
@@ -131,6 +148,60 @@ namespace PlanSuite.Controllers
             m_ProjectService.AddCard(addCard);
 
             return RedirectToAction(nameof(Index), "Project", new { id = column.ProjectId });
+        }
+
+        [HttpPost("addmilestone")]
+        public async Task<IActionResult> AddMilestoneAsync(AddMilestoneModel addMilestone)
+        {
+            if (!_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction(nameof(Index), "Home");
+            }
+
+            Console.WriteLine(JsonSerializer.Serialize(addMilestone));
+
+            var project = dbContext.Projects.FirstOrDefault(p => p.Id == addMilestone.ProjectId);
+            if (project == null)
+            {
+                Console.WriteLine($"No project with id {addMilestone.ProjectId} found");
+                return RedirectToAction(nameof(Index), "Home");
+            }
+
+            Console.WriteLine($"Account {_userManager.GetUserId(User)} successfully added a milestone to project {project.Id}");
+
+            await m_ProjectService.AddMilestoneAsync(addMilestone);
+
+            return RedirectToAction(nameof(Index), "Project", new { id = project.Id });
+        }
+
+        [HttpPost("editmilestone")]
+        public async Task<IActionResult> EditMilestoneAsync(EditMilestoneModel editMilestone)
+        {
+            if (!_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction(nameof(Index), "Home");
+            }
+
+            Console.WriteLine(JsonSerializer.Serialize(editMilestone));
+
+            await m_ProjectService.EditMilestoneAsync(editMilestone);
+
+            return RedirectToAction(nameof(Index), "Project", new { id = editMilestone.ProjectId });
+        }
+
+        [HttpPost("deletemilestone")]
+        public async Task<IActionResult> DeleteMilestoneAsync(DeleteMilestoneModel deleteMilestone)
+        {
+            if (!_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction(nameof(Index), "Home");
+            }
+
+            Console.WriteLine(JsonSerializer.Serialize(deleteMilestone));
+
+            await m_ProjectService.DeleteMilestoneAsync(deleteMilestone);
+
+            return RedirectToAction(nameof(Index), "Project", new { id = deleteMilestone.ProjectId });
         }
     }
 }

@@ -131,6 +131,31 @@ namespace PlanSuite.Services
                     cardChecklists = new List<CardChecklist>();
                 }
 
+                // get project milestones
+                Dictionary<int, string> milestones = new Dictionary<int, string>();
+
+                var projMilestones = m_Database.ProjectMilestones.Where(m => m.ProjectId == projId).ToList();
+                foreach(var milestone in projMilestones)
+                {
+                    milestones.Add(milestone.Id, milestone.Title);
+                }
+
+                // get current milestone
+                int currentMilestoneId = 0;
+                string currentMilestoneName = string.Empty;
+                if(card.CardMilestone > 0)
+                {
+                    Console.WriteLine($"card {card.Id} milestone is {card.CardMilestone}");
+                    var ms = milestones.Where(m => m.Key == card.CardMilestone)?.FirstOrDefault();
+                    if(ms != null)
+                    {
+                        Console.WriteLine($"currentMilestoneId = {ms.Value.Key}");
+                        currentMilestoneId = ms.Value.Key;
+                        Console.WriteLine($"currentMilestoneName = {ms.Value.Value}");
+                        currentMilestoneName = ms.Value.Value;
+                    }
+                }
+
                 // return
                 GetCardReturnJson json = new GetCardReturnJson()
                 {
@@ -143,7 +168,10 @@ namespace PlanSuite.Services
                     Priority = card.CardPriority,
                     Members = members,
                     CardChecklists = cardChecklists,
-                    ChecklistItems = items
+                    ChecklistItems = items,
+                    ProjectMilestones = milestones,
+                    MilestoneId = currentMilestoneId,
+                    MilestoneName = currentMilestoneName
                 };
                 return json;
             }
@@ -178,6 +206,76 @@ namespace PlanSuite.Services
             return checklist;
         }
 
+        internal ActionResult<GetMilestoneDataForEditingModel> GetMilestoneInfoForEditingAsync(int id)
+        {
+            Console.WriteLine($"Grabbing milestone data for id {id}");
+
+            GetMilestoneDataForEditingModel model = new GetMilestoneDataForEditingModel();
+            var milestone = m_Database.ProjectMilestones.Where(item => item.Id == id).FirstOrDefault();
+            if(milestone == null)
+            {
+                return model;
+            }
+
+            Console.WriteLine($"Returning milestone data for id {id}");
+            model.Title = milestone.Title;
+            model.Description = milestone.Description;
+            model.DueDate = milestone.DueDate;
+            return model;
+        }
+
+        public ActionResult<GetMilestonesModel> GetMilestones(int id)
+        {
+            GetMilestonesModel model = new GetMilestonesModel();
+            model.Milestones = new List<ProjectMilestone>();
+
+            var milestones = m_Database.ProjectMilestones.Where(item => item.ProjectId == id).ToList();
+            if (milestones == null || milestones.Count < 1)
+            {
+                return model;
+            }
+
+            model.Milestones = milestones;
+            return model;
+        }
+
+        internal async Task DeleteMilestoneAsync(DeleteMilestoneModel model)
+        {
+            Console.WriteLine($"Deleting milestone {model.MilestoneId} 1");
+            // Grab checklist item from database
+            var milestone = m_Database.ProjectMilestones.Where(item => item.Id == model.MilestoneId).FirstOrDefault();
+            if (milestone == null)
+            {
+                return;
+            }
+
+            Console.WriteLine($"Deleting milestone {model.MilestoneId} 2");
+            m_Database.ProjectMilestones.Remove(milestone);
+            await m_Database.SaveChangesAsync();
+        }
+
+        public async Task<ActionResult<GetToggleMilestoneIsClosedModel>> ToggleMilestoneIsClosedAsync(ToggleMilestoneIsClosedModel model)
+        {
+            Console.WriteLine($"Toggling milestone closed state for {model.MilestoneId}");
+
+            GetToggleMilestoneIsClosedModel closedModel = new GetToggleMilestoneIsClosedModel();
+            var milestone = m_Database.ProjectMilestones.Where(item => item.Id == model.MilestoneId).FirstOrDefault();
+            if (milestone == null)
+            {
+                return closedModel;
+            }
+
+            milestone.IsClosed = !milestone.IsClosed;
+            milestone.LastUpdated = DateTime.Now;
+            
+            // Save changes
+            await m_Database.SaveChangesAsync();
+
+            Console.WriteLine($"Milestone {model.MilestoneId} IsClosed = {closedModel.IsClosed}");
+            closedModel.IsClosed = milestone.IsClosed;
+            return closedModel;
+        }
+
         public bool DeleteChecklist(DeleteChecklistModel model)
         {
             // Delete all checklist items for checklist we are deleting
@@ -201,6 +299,46 @@ namespace PlanSuite.Services
             // Save changes
             m_Database.SaveChanges();
             return true;
+        }
+
+        internal async Task EditMilestoneAsync(EditMilestoneModel model)
+        {
+            Console.WriteLine($"Editing milestone {model.MilestoneId}");
+            var milestone = m_Database.ProjectMilestones.FirstOrDefault(p => p.Id == model.MilestoneId);
+            if (milestone == null)
+            {
+                Console.WriteLine($"No milestone with id {model.MilestoneId} found");
+                return;
+            }
+
+            Console.WriteLine($"Title: {milestone.Title} -> {model.Title}");
+            milestone.Title = model.Title;
+
+            Console.WriteLine($"Description: {milestone.Description} -> {model.Description}");
+            milestone.Description = model.Description;
+
+            Console.WriteLine($"DueDate: {milestone.DueDate} -> {model.DueDate}");
+            milestone.DueDate = model.DueDate;
+
+            Console.WriteLine($"LastUpdated: {milestone.LastUpdated} -> {DateTime.Now}");
+            milestone.LastUpdated = DateTime.Now;
+
+            Console.WriteLine($"Saving milestone {model.MilestoneId}");
+            await m_Database.SaveChangesAsync();
+        }
+
+        internal async Task AddMilestoneAsync(AddMilestoneModel model)
+        {
+            Console.WriteLine($"Adding milestone \"{model.Title}\" to project {model.ProjectId}");
+            var milestone = new ProjectMilestone();
+            milestone.ProjectId = model.ProjectId;
+            milestone.Title = model.Title;
+            milestone.Description = model.Description;
+            milestone.LastUpdated = DateTime.Now;
+            milestone.DueDate = model.DueDate;
+
+            await m_Database.ProjectMilestones.AddAsync(milestone);
+            await m_Database.SaveChangesAsync();
         }
 
         public bool ConvertChecklistItemToCard(ConvertChecklistItemModel model)
@@ -288,7 +426,7 @@ namespace PlanSuite.Services
             }
         }
 
-        private ApplicationUser? GetProjectOwner(Project project)
+        public ApplicationUser? GetProjectOwner(Project project)
         {
             var owner = m_Database.Users.Where(u => u.Id == project.OwnerId.ToString()).FirstOrDefault();
             if (owner == null)
@@ -385,8 +523,9 @@ namespace PlanSuite.Services
             return AddMemberResponse.Success;
         }
 
-        public void EditCardDueDate(EditCardDueDateModel model)
+        public async Task EditCardAsync(EditCardModel model)
         {
+            Console.WriteLine($"Editing card {model.CardId}");
             // Convert Unix Timestamp to DateTime
             DateTime? dueDate = null;
             if (model.Timestamp > 0)
@@ -400,7 +539,9 @@ namespace PlanSuite.Services
                 card.CardDueDate = dueDate;
                 card.CardPriority = (Priority)model.Priority;
                 card.CardAssignee = Guid.Parse(model.AssigneeId);
-                m_Database.SaveChanges();
+                card.CardMilestone = model.MilestoneId;
+                await m_Database.SaveChangesAsync();
+                Console.WriteLine($"Saved card {model.CardId}");
             }
         }
         

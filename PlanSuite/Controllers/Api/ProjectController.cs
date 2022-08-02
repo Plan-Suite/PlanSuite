@@ -57,10 +57,10 @@ namespace PlanSuite.Controllers.Api
         }
 
         [HttpPost("EditCard")]
-        public IActionResult EditCardDueDate([FromBody] EditCardDueDateModel model)
+        public async Task<IActionResult> EditCardAsync([FromBody] EditCardModel model)
         {
-            Console.WriteLine($"EditCardDueDateModel: {model.CardId} {model.Timestamp} {model.Priority} {model.AssigneeId}");
-            m_ProjectService.EditCardDueDate(model);
+            Console.WriteLine($"EditCardModel: {model.CardId} {model.Timestamp} {model.Priority} {model.AssigneeId}");
+            await m_ProjectService.EditCardAsync(model);
 
             return Ok(new
             {
@@ -188,6 +188,30 @@ namespace PlanSuite.Controllers.Api
         {
             Console.WriteLine($"AddChecklist: {model.Id} {model.Name}");
             return m_ProjectService.AddChecklist(model);
+        }
+
+        // GET: GetMilestoneInfoForEditing
+        [HttpGet("GetMilestoneInfoForEditing")]
+        public ActionResult<GetMilestoneDataForEditingModel> GetMilestoneInfoForEditingAsync(int id)
+        {
+            Console.WriteLine($"GetMilestoneInfoForEditing: {id}");
+            return m_ProjectService.GetMilestoneInfoForEditingAsync(id);
+        }
+
+        // POST: ToggleMilestoneIsClosed
+        [HttpPost("ToggleMilestoneIsClosed")]
+        public async Task<ActionResult<GetToggleMilestoneIsClosedModel>> ToggleMilestoneIsClosed([FromBody] ToggleMilestoneIsClosedModel model)
+        {
+            Console.WriteLine($"ToggleMilestoneIsClosed: {model.MilestoneId}");
+            return await m_ProjectService.ToggleMilestoneIsClosedAsync(model);
+        }
+
+        // GET: GetMilestones
+        [HttpGet("GetMilestones")]
+        public ActionResult<GetMilestonesModel> GetMilestones(int id)
+        {
+            Console.WriteLine($"GetMilestones: {id}");
+            return m_ProjectService.GetMilestones(id);
         }
     }
 }

@@ -1,0 +1,41 @@
+﻿@using PlanSuite.Models.Persistent
+@model PlanSuite.Models.Temporary.ProjectViewModel
+@{
+    int projectId = Model.Project.Id;
+}
+<div class="modal fade" id="editMilestoneModal" tabindex="-1" aria-labelledby="editMilestoneLabel" aria-hidden="true">
+    <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="editMilestoneLabel">Edit Milestone</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+            <form method="post" asp-controller="Project" asp-action="editmilestone">
+            <input type="hidden" asp-for="EditMilestone.ProjectId" value="@projectId">
+            <input type="hidden" asp-for="EditMilestone.MilestoneId" value="0">
+            <div class="modal-body">
+                <div class="mb-3">
+                    @Html.LabelFor(model => model.EditMilestone.Title, new { htmlAttributes = new { @class = "form-label", } })
+                    @Html.EditorFor(model => model.EditMilestone.Title, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.EditMilestone.Title, "", new { @class = "text-danger", })
+                </div>
+                <div class="mb-3">
+                    @Html.LabelFor(model => model.EditMilestone.Description, new { htmlAttributes = new { @class = "form-label", } })
+                    <textarea class="form-control" rows="3" asp-for="EditMilestone.Description"></textarea>
+                    @Html.ValidationMessageFor(model => model.EditMilestone.Description, "", new { @class = "text-danger", })
+                </div>
+                <div class="mb-3">
+                    @Html.LabelFor(model => model.EditMilestone.DueDate, new { htmlAttributes = new { @class = "form-label", } })
+                    @Html.EditorFor(model => model.EditMilestone.DueDate, new { htmlAttributes = new { @class = "form-control" } })
+                    @Html.ValidationMessageFor(model => model.EditMilestone.DueDate, "", new { @class = "text-danger", })
+                </div>
+                <br>
+                <div class="modal-footer">
+                    <button type="submit" class="btn ps-btn-success">Modify</button>
+                    <button type="button" class="btn ps-btn-danger" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlanSuite.Data;
 
@@ -10,9 +11,10 @@ using PlanSuite.Data;
 namespace PlanSuite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220730170624_Milestones")]
+    partial class Milestones
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -448,44 +450,6 @@ namespace PlanSuite.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("projects_access");
-                });
-
-            modelBuilder.Entity("PlanSuite.Models.Persistent.ProjectMilestone", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("description");
-
-                    b.Property<DateTime?>("DueDate")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("due_date");
-
-                    b.Property<bool>("IsClosed")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("is_closed");
-
-                    b.Property<DateTime>("LastUpdated")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("last_updated");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("int")
-                        .HasColumnName("project_id");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("title");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("project_milestones");
                 });
 
             modelBuilder.Entity("PlanSuite.Models.Persistent.Sale", b =>
