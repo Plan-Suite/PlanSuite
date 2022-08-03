@@ -20,5 +20,8 @@ namespace PlanSuite.Models.Persistent
 
         [Column("sale_date")]
         public DateTime SaleDate { get; set; }
+
+        [Column("sale_state")]
+        public SaleState SaleState { get; set; }
     }
 }
