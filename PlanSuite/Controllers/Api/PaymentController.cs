@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using PlanSuite.Data;
+using PlanSuite.WebHookEvents;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Services;
 using Stripe;
@@ -20,6 +21,7 @@ namespace PlanSuite.Controllers.Api
         private readonly SignInManager<ApplicationUser> m_SignInManager;
         private readonly ApplicationDbContext m_Database;
         private readonly IEmailSender m_EmailSender;
+        private readonly string m_EndpointSecret;
 
         public PaymentController(ILogger<ProjectController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ApplicationDbContext database, IEmailSender emailSender)
         {
@@ -28,6 +30,7 @@ namespace PlanSuite.Controllers.Api
             m_SignInManager = signInManager;
             m_Database = database;
             m_EmailSender = emailSender;
+            m_EndpointSecret = PaymentService.Secret;
         }
 
         public static string GetPaymentReceiptString(Sale sale, int amount)
@@ -86,6 +89,7 @@ namespace PlanSuite.Controllers.Api
 
             user.PaymentExpiry = sale.SaleDate.AddMonths(1);
             user.PaymentTier = sale.PaymentTier;
+            user.StripeCustomerId = customer.Id;
             await m_UserManager.UpdateAsync(user);
 
             string message = GetPaymentReceiptString(sale, (int)session.AmountTotal);
@@ -96,6 +100,38 @@ namespace PlanSuite.Controllers.Api
             return Redirect($"/Join/UpgradeSuccess?saleId={sale.Id}&amount={session.AmountTotal}");
         }
 
-        
+        [HttpPost("WebHookEvent")]
+        public async Task<IActionResult> OnWebHookEvent()
+        {
+            m_Logger.LogInformation("OnWebHookEvent start");
+
+            var domain = $"https://{HttpContext.Request.Host}";
+            var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+
+            try
+            {
+                var stripeEvent = EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], m_EndpointSecret);
+
+                // Handle the event
+                if (stripeEvent.Type == Events.InvoicePaymentFailed)
+                {
+                    m_Logger.LogInformation("Handling InvoicePaymentFailed event");
+
+                    InvoicePaymentFailedEvent invoicePaymentFailed = new InvoicePaymentFailedEvent();
+                    await invoicePaymentFailed.OnEvent(stripeEvent, m_Database, m_EmailSender, domain);
+                }
+                else
+                {
+                    // Unexpected event type
+                    m_Logger.LogWarning($"Unhandled event type: {stripeEvent.Type}");
+                }
+                return Ok();
+            }
+            catch (StripeException e)
+            {
+                m_Logger.LogError($"StripeException: {e.Message}\nStripeError: {e.StripeError.Error}\n\n{e.StripeError.Message}");
+                return BadRequest();
+            }
+        }
     }
 }

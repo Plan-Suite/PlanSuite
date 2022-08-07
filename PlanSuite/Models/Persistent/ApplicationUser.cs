@@ -8,5 +8,6 @@ namespace PlanSuite.Models.Persistent
         public PaymentTier PaymentTier { get; set; }
         public DateTime? PaymentExpiry { get; set; }
         public bool FinishedFirstTimeLogin { get; set; }
+        public string? StripeCustomerId { get; set; }
     }
 }

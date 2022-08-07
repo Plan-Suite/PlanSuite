@@ -5,6 +5,7 @@ using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
+using PlanSuite.Utility;
 using Stripe;
 using Stripe.Checkout;
 
@@ -93,6 +94,16 @@ namespace PlanSuite.Controllers
             {
                 // User has returned null, this should never happen.
                 return NotFound("User returned null, this should not happen.");
+            }
+
+            var customerService = new CustomerService();
+            Customer customer = await customerService.GetAsync(user.StripeCustomerId);
+            if (customer == null)
+            {
+                customer = await PaymentUtils.CreateCustomerAsync(user);
+
+                user.StripeCustomerId = customer.Id;
+                await m_UserManager.UpdateAsync(user);
             }
 
             string domain = $"https://{HttpContext.Request.Host}";
