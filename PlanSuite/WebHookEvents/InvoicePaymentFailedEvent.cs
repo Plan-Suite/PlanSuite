@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity.UI.Services;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using PlanSuite.Data;
+using PlanSuite.Models.Persistent;
 using Stripe;
 using System.Globalization;
 
@@ -7,7 +9,7 @@ namespace PlanSuite.WebHookEvents
 {
     public class InvoicePaymentFailedEvent : IEvent
     {
-        public async Task<bool> OnEvent(Event stripeEvent, ApplicationDbContext database, IEmailSender emailSender, string arg1)
+        public async Task<bool> OnEvent(Event stripeEvent, ApplicationDbContext database, IEmailSender emailSender, UserManager<ApplicationUser> userManager, string arg1)
         {
             var invoice = stripeEvent.Data.Object as Invoice;
             if (invoice == null)
@@ -58,9 +60,10 @@ namespace PlanSuite.WebHookEvents
             if(invoice.Subscription != null)
             {
                 user.PaymentExpiry = invoice.Subscription.CurrentPeriodEnd;
+                await userManager.UpdateAsync(user);
             }
 
-            await emailSender.SendEmailAsync(user.Email, "PlanSuite ", message);
+            await emailSender.SendEmailAsync(user.Email, "PlanSuite Payment Failed", message);
             return true;
         }
     }

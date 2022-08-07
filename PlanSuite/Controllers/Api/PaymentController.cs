@@ -118,7 +118,14 @@ namespace PlanSuite.Controllers.Api
                     m_Logger.LogInformation("Handling InvoicePaymentFailed event");
 
                     InvoicePaymentFailedEvent invoicePaymentFailed = new InvoicePaymentFailedEvent();
-                    await invoicePaymentFailed.OnEvent(stripeEvent, m_Database, m_EmailSender, domain);
+                    await invoicePaymentFailed.OnEvent(stripeEvent, m_Database, m_EmailSender, m_UserManager, domain);
+                }
+                else if (stripeEvent.Type == Events.InvoicePaid)
+                {
+                    m_Logger.LogInformation("Handling InvoicePaid event");
+
+                    InvoicePaidEvent invoicePaymentSucceeded = new InvoicePaidEvent();
+                    await invoicePaymentSucceeded.OnEvent(stripeEvent, m_Database, m_EmailSender, m_UserManager, domain);
                 }
                 else
                 {
