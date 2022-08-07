@@ -86,5 +86,6 @@ using (var scope = app.Services.CreateScope())
 
 new LocalisationService();
 EmailService.InitEmailService(configuration["Email:User"], configuration["Email:Pass"], configuration["Email:ConfigSet"], configuration["Email:Host"], int.Parse(configuration["Email:Port"]), configuration["Email:ConfigEmail"], configuration["Email:ConfigName"]);
+PaymentService.InitPaymentService(configuration["Stripe:ApiKey"], configuration["Stripe:SecretKey"], configuration["Stripe:Plus"], configuration["Stripe:Pro"]);
 
 app.Run();

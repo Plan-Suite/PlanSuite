@@ -6,6 +6,8 @@ using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
 using PlanSuite.Utility;
+using Stripe;
+using Stripe.BillingPortal;
 using System.Diagnostics;
 using System.Security.Claims;
 
@@ -178,6 +180,59 @@ namespace PlanSuite.Controllers
         {
             CommonCookies.ApplyCommonCookies(HttpContext);
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> BillingPortal()
+        {
+            if (!_signInManager.IsSignedIn(User))
+            {
+                _logger.LogWarning("User was not signed in during BillingPortal");
+                return RedirectToAction(nameof(Index));
+            }
+
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                _logger.LogError("User was null during BillingPortal");
+                return BadRequest();
+            }
+
+            var customerService = new CustomerService();
+            Customer customer;
+            if (string.IsNullOrEmpty(user.StripeCustomerId))
+            {
+                customer = await PaymentUtils.CreateCustomerAsync(user);
+
+                Console.WriteLine(customer.ToJson());
+
+                user.StripeCustomerId = customer.Id;
+                await _userManager.UpdateAsync(user);
+            }
+            else
+            {
+                customer = await customerService.GetAsync(user.StripeCustomerId);
+                if(customer == null)
+                {
+                    customer = await PaymentUtils.CreateCustomerAsync(user);
+
+                    Console.WriteLine(customer.ToJson());
+
+                    user.StripeCustomerId = customer.Id;
+                    await _userManager.UpdateAsync(user);
+                }
+            }
+
+            // Authenticate your user.
+            var options = new SessionCreateOptions
+            {
+                Customer = user.StripeCustomerId,
+                ReturnUrl = $"https://{HttpContext.Request.Host}/Identity/Account/Manage",
+            };
+            var sessionService = new SessionService();
+            var session = sessionService.Create(options);
+
+            return Redirect(session.Url);
         }
     }
 }

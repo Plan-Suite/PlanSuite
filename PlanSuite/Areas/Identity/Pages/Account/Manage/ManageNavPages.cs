@@ -26,6 +26,11 @@ namespace  PlanSuite.Areas.Identity.Pages.Account.Manage
         public static string Email => "Email";
 
         /// <summary>
+        ///     Payments / Billing
+        /// </summary>
+        public static string Payments => "Billing";
+
+        /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
@@ -72,6 +77,11 @@ namespace  PlanSuite.Areas.Identity.Pages.Account.Manage
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static string EmailNavClass(ViewContext viewContext) => PageNavClass(viewContext, Email);
+
+        /// <summary>
+        ///     Payments / Billing
+        /// </summary>
+        public static string PaymentsNavClass(ViewContext viewContext) => PageNavClass(viewContext, Payments);
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
