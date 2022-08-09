@@ -12,6 +12,8 @@
             $(`#passDeleteButtonInfoBtn_${id}`).on("click", function () { passDeleteButtonInfo(id, name); });
         }
     });
+
+    $("#confirmDeleteProjName").on("keyup", function () { onDeleteInput(); });
 });
 
 function passButtonInfo(dbId, name, desc, date) {
@@ -31,10 +33,8 @@ function passDeleteButtonInfo(dbId, name) {
 function onDeleteInput() {
     const button = $('#deleteButton');
     const projName = $('#DeleteProject_Name').val();
-    if ($('#confirmDeleteProjName').val() == projName) {
-        button.attr('disabled', 0);
-    }
-    else {
-        button.attr('disabled', 1);
+    const deleteProjConfirm = $('#confirmDeleteProjName');
+    if (deleteProjConfirm.val() == projName) {
+        button.removeAttr("disabled");
     }
 }
