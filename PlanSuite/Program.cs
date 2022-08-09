@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using PlanSuite.Data;
 using PlanSuite.Models.Persistent;
@@ -15,6 +14,7 @@ WebsiteVersion.Init(builder.Environment.EnvironmentName);
 // Add services to the container.
 builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<AdminService>();
+builder.Services.AddScoped<OrganisationService>();
 
 var configuration = builder.Configuration;
 builder.Services.AddTransient<IEmailSender, EmailService>();

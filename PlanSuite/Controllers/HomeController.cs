@@ -16,7 +16,7 @@ namespace PlanSuite.Controllers
     public class HomeController : Controller
     {
         private readonly ApplicationDbContext dbContext;
-        private readonly ILogger<HomeController> _logger;
+        private readonly ILogger<HomeController> m_Logger;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly LocalisationService m_Localisation;
@@ -24,7 +24,7 @@ namespace PlanSuite.Controllers
         public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
         {
             dbContext = context;
-            _logger = logger;
+            m_Logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
             m_Localisation = LocalisationService.Instance;
@@ -38,23 +38,77 @@ namespace PlanSuite.Controllers
             if (_signInManager.IsSignedIn(User))
             {
                 viewModel.OwnedProjects = new List<Project>();
+                Guid userId = Guid.Parse(_userManager.GetUserId(User));
+                m_Logger.LogInformation($"Grabbing projects for user {userId}");
 
                 // Get projects where user is owner
-                var ownedProjects = dbContext.Projects.Where(p => p.OwnerId == Guid.Parse(_userManager.GetUserId(User))).ToList();
-                viewModel.OwnedProjects.AddRange(ownedProjects);
+                var ownedProjects = dbContext.Projects.Where(p => p.OwnerId == userId && p.OrganisationId < 1).ToList();
+                if(ownedProjects != null && ownedProjects.Count > 0)
+                {
+                    m_Logger.LogInformation($"Grabbing {ownedProjects.Count} owned projects for user {userId}");
+                    viewModel.OwnedProjects.AddRange(ownedProjects);
+                }
 
                 // Get projects where user is member
-                var projectAccesses = dbContext.ProjectsAccess.Where(access => access.UserId == Guid.Parse(_userManager.GetUserId(User))).ToList();
-                foreach(var access in projectAccesses)
+                var projectAccesses = dbContext.ProjectsAccess.Where(access => access.UserId == userId).ToList();
+                if (projectAccesses != null && projectAccesses.Count > 0)
                 {
-                    var project = dbContext.Projects.Where(project => project.Id == access.ProjectId && access.ProjectRole >= Enums.ProjectRole.User).FirstOrDefault();
-                    if(project != null)
+                    m_Logger.LogInformation($"Grabbing {projectAccesses.Count} member projects for user {userId}");
+                    foreach (var access in projectAccesses)
                     {
-                        viewModel.MemberProjects.Add(project);
+                        var project = dbContext.Projects.Where(project => project.Id == access.ProjectId && access.ProjectRole >= ProjectRole.User).FirstOrDefault();
+                        if (project != null)
+                        {
+                            if(project.OrganisationId > 0)
+                            {
+                                AddToOrganisationMap(viewModel, project);
+                            }
+
+                            viewModel.MemberProjects.Add(project);
+                        }
+                    }
+                }
+
+                // get all organisations user is member of and then return said organisation owned projects projects
+                var organisationMemberships = dbContext.OrganizationsMembership.Where(member => member.UserId == userId).ToList();
+                if(organisationMemberships != null && organisationMemberships.Count > 0)
+                {
+                    m_Logger.LogInformation($"Grabbing organisation projects for {organisationMemberships.Count} organisations for user {userId}");
+                    foreach(var organisationMemership in organisationMemberships)
+                    {
+                        int organisationId = organisationMemership.OrganisationId;
+                        var organisation = dbContext.Organizations.Where(o => o.Id == organisationId).FirstOrDefault();
+                        if (organisation != null)
+                        {
+                            // Confirm if user is actually a member of said organisation
+                            var organisationMembership = dbContext.OrganizationsMembership.Where(member => member.OrganisationId == organisationId && member.UserId == userId && member.Role >= ProjectRole.User).FirstOrDefault();
+                            if (organisationMembership != null)
+                            {
+                                var organisationProjects = dbContext.Projects.Where(p => p.OrganisationId == organisationId).ToList();
+                                if (organisationProjects != null && organisationProjects.Count > 0)
+                                {
+                                    foreach (var project in organisationProjects)
+                                    {
+                                        AddToOrganisationMap(viewModel, project);
+                                    }
+                                    viewModel.MemberProjects.AddRange(organisationProjects);
+                                }
+                            }
+                        }
                     }
                 }
             }
             return View(viewModel);
+        }
+
+        private void AddToOrganisationMap(HomeViewModel viewModel, Project project)
+        {
+            var org = dbContext.Organizations.Where(o => o.Id == project.OrganisationId).FirstOrDefault();
+            if (org != null && !viewModel.OrganisationMap.ContainsKey(project.Id))
+            {
+                m_Logger.LogInformation($"AddToOrganisationMap for organisation {org.Id} to project {project.Id}");
+                viewModel.OrganisationMap.Add(project.Id, org);
+            }
         }
 
         public IActionResult Features()
@@ -187,14 +241,14 @@ namespace PlanSuite.Controllers
         {
             if (!_signInManager.IsSignedIn(User))
             {
-                _logger.LogWarning("User was not signed in during BillingPortal");
+                m_Logger.LogWarning("User was not signed in during BillingPortal");
                 return RedirectToAction(nameof(Index));
             }
 
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                _logger.LogError("User was null during BillingPortal");
+                m_Logger.LogError("User was null during BillingPortal");
                 return BadRequest();
             }
 

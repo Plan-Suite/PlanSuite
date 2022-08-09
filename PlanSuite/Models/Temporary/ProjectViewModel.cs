@@ -6,6 +6,7 @@ namespace PlanSuite.Models.Temporary
     public class ProjectViewModel : BaseViewModel
     {
         public Project Project;
+        public Organisation Organisation;
         public List<Column> Columns = new List<Column>();
         public AddColumnModel AddColumn = new AddColumnModel();
         public AddCardModel AddCard = new AddCardModel();

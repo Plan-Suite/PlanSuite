@@ -162,8 +162,14 @@
   <data name="CREATED_DATE" xml:space="preserve">
     <value>Created Date:</value>
   </data>
+  <data name="CREATE_NEW_ORGANISATION" xml:space="preserve">
+    <value>Create New Organisation</value>
+  </data>
   <data name="CREATE_NEW_PROJECT" xml:space="preserve">
     <value>Create New Project</value>
+  </data>
+  <data name="CREATE_ORGANISATION" xml:space="preserve">
+    <value>Create Organisation</value>
   </data>
   <data name="CREATE_PROJECT" xml:space="preserve">
     <value>Create Project</value>
@@ -247,7 +253,7 @@
     <value>&lt;strong&gt;Project Created:&lt;/strong&gt; {0}&lt;br /&gt;&lt;strong&gt;Project Due Date:&lt;/strong&gt; {1}</value>
   </data>
   <data name="PROJECT_SUB_TITLE" xml:space="preserve">
-    <value>&lt;strong&gt;Created Date:&lt;/strong&gt; {0}&lt;br/&gt;&lt;strong&gt;Due Date:&lt;/strong&gt; {1}</value>
+    <value>&lt;strong&gt;Created Date:&lt;/strong&gt; {0}&lt;br/&gt;&lt;strong&gt;Due Date:&lt;/strong&gt; {1}&lt;br/&gt;&lt;strong&gt;Organisation:&lt;/strong&gt; {2}</value>
   </data>
   <data name="SAVE_CHANGES" xml:space="preserve">
     <value>Save Changes</value>

@@ -41,6 +41,15 @@
         {
             <text>N/A</text>
         }
+    <br /><strong>Project Organisation:</strong>
+        @if(Model.Organisation != null)
+        {
+             @Model.Organisation.Name
+        }
+        else 
+        {
+            <text>N/A</text>
+        }
     </p>
 
     @* Add Column *@

@@ -55,6 +55,12 @@ namespace PlanSuite.Controllers
             Console.WriteLine($"Account {_userManager.GetUserId(User)} successfully accessed {project.Id} as {role}");
             ProjectViewModel viewModel = new ProjectViewModel();
             viewModel.Project = project;
+
+            var organisation = dbContext.Organizations.Where(o => o.Id == project.OrganisationId).FirstOrDefault();
+            if(organisation != null)
+            {
+                viewModel.Organisation = organisation;
+            }    
             viewModel.UserId = Guid.Parse(appUser.Id);
             viewModel.ProjectRole = role;
 

@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PlanSuite.Models.Persistent
 {
-    // Not used at present but will be once we implement billing
     [Table("sales")]
     public class Sale
     {
