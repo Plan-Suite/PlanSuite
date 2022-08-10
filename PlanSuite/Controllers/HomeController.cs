@@ -39,8 +39,9 @@ namespace PlanSuite.Controllers
             {
                 viewModel.OwnedProjects = new List<Project>();
                 Guid userId = Guid.Parse(_userManager.GetUserId(User));
-                m_Logger.LogInformation($"Grabbing projects for user {userId}");
+                viewModel.CreateOrganisation.OwnerId = userId;
 
+                m_Logger.LogInformation($"Grabbing projects for user {userId}");
                 // Get projects where user is owner
                 var ownedProjects = dbContext.Projects.Where(p => p.OwnerId == userId && p.OrganisationId < 1).ToList();
                 if(ownedProjects != null && ownedProjects.Count > 0)

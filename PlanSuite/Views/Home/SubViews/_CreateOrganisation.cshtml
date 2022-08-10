@@ -4,35 +4,41 @@
 @inject UserManager<ApplicationUser> UserManager
 @{
     ApplicationUser user = await UserManager.GetUserAsync(User);
+    Console.WriteLine(user.Id);
 }
 <div class="modal fade" id="createOrganisationModal" tabindex="-1" aria-labelledby="createOrganisationLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-            <h5 class="modal-title" id="createOrganisationLabel">@Model.Localisation.Get(user, "CREATE_NEW_ORGANISATION")</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="createOrganisationLabel">@Model.Localisation.Get(user, "CREATE_NEW_ORGANISATION")</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form method="post" asp-controller="Home" asp-action="Create">
-                <input type="hidden" id="CreateOrganisationId" value="0" />
+            @using (Html.BeginForm("Create", "Organisation", FormMethod.Post))
+            {
+                @Html.HiddenFor(model => model.CreateOrganisation.OwnerId)
                 <div class="modal-body">
-                    <div class="form-floating">
+                    <div class="form-floating mb-3">
                         @Html.EditorFor(model => model.CreateOrganisation.Name, new { htmlAttributes = new { @class = "form-control" } })
                         @Html.LabelFor(model => model.CreateOrganisation.Name, new { htmlAttributes = new { @class = "form-label" } })
                         @Html.ValidationMessageFor(model => model.CreateOrganisation.Name, "", new { @class = "text-danger" })
-                        <br>
                     </div>
-                    <div class="form-floating">
+                    <div class="form-floating mb-3">
                         @Html.EditorFor(model => model.CreateOrganisation.Description, new { htmlAttributes = new { @class = "form-control" } })
                         @Html.LabelFor(model => model.CreateOrganisation.Description, new { htmlAttributes = new { @class = "form-label" } })
                         @Html.ValidationMessageFor(model => model.CreateOrganisation.Description, "", new { @class = "text-danger" })
-                        <br>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
                         <button type="submit" class="btn ps-btn-primary">@Model.Localisation.Get(user, "CREATE_ORGANISATION")</button>
                     </div>
                 </div>
-            </form>
+            }
+
         </div>
     </div>
 </div>
+
+@section Scripts 
+{
+     <partial name="_ValidationScriptsPartial"/>    
+}
