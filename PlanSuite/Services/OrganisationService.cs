@@ -44,7 +44,7 @@ namespace PlanSuite.Services
                 return OrganisationErrorCode.IsPlusTier;
             }
 
-            m_Logger.LogInformation($"Creating organisation");
+            m_Logger.LogInformation($"Creating organisation {model.Name}");
             Organisation organisation = new Organisation
             {
                 Name = model.Name,
@@ -52,6 +52,7 @@ namespace PlanSuite.Services
                 Tier = paymentTier
             };
             await m_Database.Organizations.AddAsync(organisation);
+            await m_Database.SaveChangesAsync();
 
             m_Logger.LogInformation($"Creating organisation membership for {owner.UserName} with org id {organisation.Id}");
             OrganisationMembership membership = new OrganisationMembership
@@ -61,9 +62,9 @@ namespace PlanSuite.Services
                 Role = ProjectRole.Owner
             };
             await m_Database.OrganizationsMembership.AddAsync(membership);
-
             m_Logger.LogInformation($"Saving org {organisation.Id}");
             await m_Database.SaveChangesAsync();
+
             return OrganisationErrorCode.Success;
         }
     }

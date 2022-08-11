@@ -22,24 +22,13 @@ namespace PlanSuite.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest("MODEL_STATE_NOT_VALID");
+                return RedirectToAction($"/Home/Index?orgStatus={(int)OrganisationErrorCode.ModelStateInvalid}");
             }
 
             m_Logger.LogInformation($"CreateOrganisation: {createOrganisation.Name} {createOrganisation.Description} {createOrganisation.OwnerId}");
             OrganisationErrorCode errorCode = await m_OrganisationService.OnCreateOrganisation(createOrganisation);
 
-            if(errorCode != OrganisationErrorCode.Success)
-            {
-                return BadRequest(new
-                {
-                    ErrorCode = errorCode
-                });
-            }
-
-            return Ok(new
-            {
-                ErrorCode = errorCode
-            });
+            return RedirectToAction($"/Home/Index?orgStatus={(int)errorCode}");
         }
     }
 }

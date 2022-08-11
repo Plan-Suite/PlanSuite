@@ -6,6 +6,7 @@
 <ul class="nav nav-pills flex-column">
     <li class="nav-item"><a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)" id="profile" asp-page="./Index"><i class="bi bi-person"></i> Profile</a></li>
     <li class="nav-item"><a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)" id="email" asp-page="./Email"><i class="bi bi-envelope"></i> Email</a></li>
+    <hr />
     <form method="post" asp-controller="Home" asp-action="BillingPortal">
         <li class="nav-item"><button type="submit" class="nav-link @ManageNavPages.PaymentsNavClass(ViewContext)" id="payments"><i class="bi bi-credit-card"></i> Billing</button></li>
     </form>
@@ -15,5 +16,7 @@
         <li id="external-logins" class="nav-item"><a id="external-login" class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)" asp-page="./ExternalLogins"><i class="bi bi-fingerprint"></i> External logins</a></li>
     }
     <li class="nav-item"><a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" id="two-factor" asp-page="./TwoFactorAuthentication"><i class="bi bi-lock"></i> Two-factor authentication</a></li>
+    <li class="nav-item"><a class="nav-link @ManageNavPages.OrganisationsNavClass(ViewContext)" id="organisations" asp-page="./Organisations"><i class="bi bi-building"></i> Organisations</a></li>
+    <hr />
     <li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)" id="personal-data" asp-page="./PersonalData"><i class="bi bi-person-rolodex"></i> Personal data</a></li>
 </ul>
