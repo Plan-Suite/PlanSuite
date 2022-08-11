@@ -12,6 +12,8 @@ namespace PlanSuite.Models.Temporary
         public List<Project> MemberProjects { get; set; } = new List<Project>();
         public EditProjectModel EditProject { get; set; } = new EditProjectModel();
         public DeleteProjectModel DeleteProject { get; set; } = new DeleteProjectModel();
+        public Organisation ViewingOrganisation { get; set; }
+        public OrganisationMembership CurrentOrganisationMembership { get; set; }
 
         public class CreateProjectModel
         {
@@ -19,6 +21,7 @@ namespace PlanSuite.Models.Temporary
             public string Description { get; set; }
             [BindProperty]
             public DateTime? DueDate { get; set; }
+            public int OrganisationId { get; set; } = 0;
         }
 
         public class EditProjectModel

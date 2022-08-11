@@ -17,7 +17,7 @@
     {
         ViewData["Title"] = "Project management for everyone";
     }
-    int count = Model.OwnedProjects.Count;
+    int count = Model.OwnedProjects.Count + Model.MemberProjects.Count;
 
     ApplicationUser user = await UserManager.GetUserAsync(User);
 }
@@ -31,10 +31,23 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <div class="text-center">
-        <h1 class="display-4">@Model.Localisation.Get(user, "YOUR_PROJECTS")</h1>
+
+        @{
+            string header = @Model.Localisation.Get(user, "YOUR_PROJECTS");
+            if(Model.ViewingOrganisation != null)
+            {
+                header = Model.ViewingOrganisation.Name;
+            }
+        }
+
+
+        <h1 class="display-4">@header</h1>
         @* Button trigger modal *@
         <button type="button" class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal"><i class="bi bi-journal-plus"></i> @Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</button>
-        <button type="button" class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#createOrganisationModal"><i class="bi bi-people"></i> @Model.Localisation.Get(user, "CREATE_NEW_ORGANISATION")</button>
+        @if(Model.ViewingOrganisation == null)
+        {
+            <button type="button" class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#createOrganisationModal"><i class="bi bi-people"></i> @Model.Localisation.Get(user, "CREATE_NEW_ORGANISATION")</button>
+        }
 
         <partial name="SubViews/_CreateOrganisation"/>
 
@@ -47,6 +60,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
                 <form method="post" asp-controller="Home" asp-action="Create">
+                    @Html.HiddenFor(model => Model.CreateProject.OrganisationId)
                     <div class="modal-body">
                         <div class="form-floating">
                             @Html.EditorFor(model => model.CreateProject.Name, new { htmlAttributes = new { @class = "form-control" } })
@@ -147,51 +161,70 @@
         @if(count > 0)
         {
             <div class="row" id="MyProjects">
-                @foreach(var item in Model.OwnedProjects)
+                @if(Model.OwnedProjects.Count > 0)
                 {
-                    // get org name
-                    string organisationName = "N/A";
-                    if(Model.OrganisationMap.ContainsKey(item.Id))
+                    foreach(var item in Model.OwnedProjects)
                     {
-                        organisationName = Model.OrganisationMap[item.Id].Name;
-                    }
+                        // get org name
+                        string organisationName = "N/A";
+                        if(Model.OrganisationMap.ContainsKey(item.Id))
+                        {
+                            organisationName = $"<a href=\"/?orgId={Model.OrganisationMap[item.Id].Id}\">{Model.OrganisationMap[item.Id].Name}</a>";
+                        }
 
-                    <div class="col-sm-6" id="OwnedProject_@item.Id">
-                        <input type="hidden" id="projectId" value="@item.Id"/>
-                        <input type="hidden" id="projectName" value="@item.Name"/>
-                        <input type="hidden" id="projectDesc" value="@item.Description"/>
-                        <input type="hidden" id="projectDate" value="@item.DueDate?.ToUniversalTime()"/>
-                        <div class="card p-1 mt-2" style="height:12rem;">
-                            <div>
-                                <h5 class="card-title m-1">@item.Name</h5>
-                                <h6 class="card-subtitle m-1 mb-2 text-muted">@Html.Raw(string.Format(Model.Localisation.Get(user, "PROJECT_SUB_TITLE"), FormatDate(item.CreatedDate), FormatDate(item.DueDate), organisationName))</h6>
-                                <p class="card-text m-1">@item.Description</p>
-                                <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">@Model.Localisation.Get(user, "VIEW_PROJECT")</a>
-                                <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "EDIT_PROJECT")</button>
-                                <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" id="passDeleteButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
+                        <div class="col-sm-6" id="OwnedProject_@item.Id">
+                            <input type="hidden" id="projectId" value="@item.Id"/>
+                            <input type="hidden" id="projectName" value="@item.Name"/>
+                            <input type="hidden" id="projectDesc" value="@item.Description"/>
+                            <input type="hidden" id="projectDate" value="@item.DueDate?.ToUniversalTime()"/>
+                            <div class="card p-1 mt-2" style="height:12rem;">
+                                <div>
+                                    <h5 class="card-title m-1">@item.Name</h5>
+                                    <h6 class="card-subtitle m-1 mb-2 text-muted">@Html.Raw(string.Format(Model.Localisation.Get(user, "PROJECT_SUB_TITLE"), FormatDate(item.CreatedDate), FormatDate(item.DueDate), organisationName))</h6>
+                                    <p class="card-text m-1">@item.Description</p>
+                                    <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">@Model.Localisation.Get(user, "VIEW_PROJECT")</a>
+                                    <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "EDIT_PROJECT")</button>
+                                    <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" id="passDeleteButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    }
                 }
-                @foreach(var item in Model.MemberProjects)
+                @if(Model.MemberProjects.Count > 0)
                 {
-                    // get org name
-                    string organisationName = "N/A";
-                    if(Model.OrganisationMap.ContainsKey(item.Id))
+                    foreach(var item in Model.MemberProjects)
                     {
-                        organisationName = Model.OrganisationMap[item.Id].Name;
-                    }
+                        // get org name
+                        string organisationName = "N/A";
+                        if(Model.OrganisationMap.ContainsKey(item.Id))
+                        {
+                            organisationName = $"<a href=\"/?orgId={Model.OrganisationMap[item.Id].Id}\">{Model.OrganisationMap[item.Id].Name}</a>";
+                        }
 
-                    <div class="col-sm-6" id="MemberProject_@item.Id">
-                        <div class="card p-1 mt-2" style="height:12rem;">
-                            <div>
-                                <h5 class="card-title m-1">@item.Name</h5>
-                                <h6 class="card-subtitle m-1 mb-2 text-muted">@Html.Raw(string.Format(Model.Localisation.Get(user, "PROJECT_SUB_TITLE"), FormatDate(item.CreatedDate), FormatDate(item.DueDate), organisationName))</h6>
-                                <p class="card-text m-1">@item.Description</p>
-                                <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">@Model.Localisation.Get(user, "VIEW_PROJECT")</a>
+                        if(Model.ViewingOrganisation != null)
+                        {
+                            organisationName = Model.ViewingOrganisation.Name;
+                        }
+
+                        <div class="col-sm-6" id="MemberProject_@item.Id">
+                            <div class="card p-1 mt-2" style="height:12rem;">
+                                <div>
+                                    <h5 class="card-title m-1">@item.Name</h5>
+                                    <h6 class="card-subtitle m-1 mb-2 text-muted">@Html.Raw(string.Format(Model.Localisation.Get(user, "PROJECT_SUB_TITLE"), FormatDate(item.CreatedDate), FormatDate(item.DueDate), organisationName))</h6>
+                                    <p class="card-text m-1">@item.Description</p>
+                                    <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">@Model.Localisation.Get(user, "VIEW_PROJECT")</a>
+                                    @if(Model.CurrentOrganisationMembership != null && Model.CurrentOrganisationMembership.Role >= PlanSuite.Enums.ProjectRole.Admin)
+                                    {
+                                        <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "EDIT_PROJECT")</button>
+                                    }
+                                    @if(Model.CurrentOrganisationMembership != null && Model.CurrentOrganisationMembership.Role >= PlanSuite.Enums.ProjectRole.Owner)
+                                    {
+                                        <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" id="passDeleteButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
+                                    }
+                                    </div>
                             </div>
                         </div>
-                    </div>
+                    }
                 }
             </div>
         }
