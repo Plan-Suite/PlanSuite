@@ -142,8 +142,9 @@
                     @Html.HiddenFor(model => model.DeleteProject.Name)
                     <div class="modal-body">
                         <div class="form-floating">
-                            @Html.EditorFor(model => model.DeleteProject.Name, new { htmlAttributes = new { @class = "form-control", id = "confirmDeleteProjName", onkeyup="onDeleteInput()" } })
-                            @Html.LabelFor(model => model.DeleteProject.Name, "Enter the project name in order to be able to delete it", new { htmlAttributes = new { @class = "form-label" } })
+                            // buttonName: string, comparisonValue: string, formName: string
+                            @Html.EditorFor(model => model.DeleteProject.Name, new { htmlAttributes = new { @class = "form-control", id = "confirmDeleteProjName", onkeyup="onDeleteInput('deleteButton', 'DeleteProject_Name', 'confirmDeleteProjName')" } })
+                            @Html.LabelFor(model => model.DeleteProject.Name, "Enter the project name to be able to delete it", new { htmlAttributes = new { @class = "form-label" } })
                             @Html.ValidationMessageFor(model => model.DeleteProject.Name, "", new { @class = "text-danger" })
                             <br>
                         </div>

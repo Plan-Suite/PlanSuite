@@ -1,4 +1,6 @@
-﻿$(function () {
+﻿import { onDeleteInput } from "../site.js";
+
+$(function () {
 
     $("#MyProjects").children().each(function () {
         var element = $(this);
@@ -11,6 +13,10 @@
             $(`#passButtonInfoBtn_${id}`).on("click", function () { passButtonInfo(id, name, desc, date); });
             $(`#passDeleteButtonInfoBtn_${id}`).on("click", function () { passDeleteButtonInfo(id, name); });
         }
+    });
+
+    $(function () {
+        $("#confirmDeleteProjName").on("keyup", function () { onDeleteInput('deleteButton', 'DeleteProject_Name', 'confirmDeleteProjName') });
     });
 });
 
@@ -26,15 +32,4 @@ function passDeleteButtonInfo(dbId, name) {
     $('#deleteProjectLabel').html(`<strong>Delete:</strong> ${name}`);
     $('#DeleteProject_Name').val(name);
     $('#DeleteProject_Id').val(dbId);
-}
-
-function onDeleteInput() {
-    const button = $('#deleteButton');
-    const projName = $('#DeleteProject_Name').val();
-    if ($('#confirmDeleteProjName').val() == projName) {
-        button.attr('disabled', 0);
-    }
-    else {
-        button.attr('disabled', 1);
-    }
 }

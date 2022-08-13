@@ -67,5 +67,56 @@ namespace PlanSuite.Services
 
             return OrganisationErrorCode.Success;
         }
+
+        public async Task<OrganisationErrorCode> OnDeleteOrganisation(DeleteOrganisationModel model)
+        {
+            // Get owner tier
+            var owner = await m_UserManager.FindByIdAsync(model.UserId.ToString());
+            if (owner == null)
+            {
+                m_Logger.LogError($"User was null during OnDeleteOrganisation with id {model.UserId}");
+                return OrganisationErrorCode.OwnerWasNull;
+            }
+
+            // Check if the organisation already exists
+            var organisation = m_Database.Organizations.Where(org => org.Id == model.Id).FirstOrDefault();
+            if(organisation == null)
+            {
+                m_Logger.LogError($"Organisation {model.Id} was null during OnDeleteOrganisation");
+                return OrganisationErrorCode.OrgWasNull;
+            }
+
+            // Check if the userId is the owner
+            var organisationMembership = m_Database.OrganizationsMembership.Where(member => 
+                member.OrganisationId == model.Id
+                && member.UserId == model.UserId
+                && member.Role >= ProjectRole.Owner).FirstOrDefault();
+            if (organisationMembership == null)
+            {
+                m_Logger.LogError($"User is not a member of or is not the owner of organisation {model.Id} during OnDeleteOrganisation");
+                return OrganisationErrorCode.OrgWasNull;
+            }
+
+            m_Logger.LogInformation($"Deleting organisation {model.Name}");
+            m_Database.Organizations.Remove(organisation);
+
+            m_Logger.LogInformation($"Deleting organisation membership for {owner.UserName} with org id {model.Id}");
+            m_Database.OrganizationsMembership.Remove(organisationMembership);
+
+            m_Logger.LogInformation($"Reverting organisation projects for organisation {model.Id} back to original owner");
+            var organisationProjects = m_Database.Projects.Where(project => project.OrganisationId == model.Id).ToList();
+            if(organisationProjects.Count > 0)
+            {
+                foreach(var project in organisationProjects)
+                {
+                    project.OrganisationId = 0;
+                }
+            }
+
+            m_Logger.LogInformation($"Saving organisation deletion to database");
+            await m_Database.SaveChangesAsync();
+
+            return OrganisationErrorCode.Success;
+        }
     }
 }

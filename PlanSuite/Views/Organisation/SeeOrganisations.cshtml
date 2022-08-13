@@ -4,18 +4,17 @@
 *@
 @{
     ViewData["Title"] = "Organisations";
-    bool canEditOrg = false;
 }
 <div class="container">
     <h3>@ViewData["Title"]</h3>
-    if(Model.Organisations.Count > 0)
+    @if(Model.Organisations.Count > 0)
     {
         <ul class="list-group">
             @foreach(var organisation in Model.Organisations)
             {
                 string orgRole = "member";
                 string editBtn = string.Empty;
-                string leaveBtn = $"<a href=\"#\" class=\"btn btn-sm ps-btn-danger\" id=\"btnLeaveOrg_{organisation.Value.Id}\"><i class=\"bi bi-box-arrow-left\"></i> Leave</a>";
+                string leaveBtn = $"<a href=\"#\" class=\"btn btn-sm ps-btn-danger\" id=\"onLeaveOrg_{organisation.Value.Id}\"><i class=\"bi bi-arrow-left\"></i> Leave</a>";
                 if(organisation.Key.Role == ProjectRole.Admin)
                 {
                     // Change role to admin
@@ -24,10 +23,9 @@
                 else if(organisation.Key.Role == ProjectRole.Owner)
                 {
                     // Show edit button for owner, remove leave btn and change role to owner
-                    editBtn = $"<a href=\"#\" class=\"btn btn-sm ps-btn-secondary\" id=\"btnEditOrg_{organisation.Value.Id}\"><i class=\"bi bi-gear\"></i> Edit</a>";
+                    editBtn = $"<a class=\"btn btn-sm ps-btn-secondary\" href=\"/Organisation/EditOrganisation?orgId={organisation.Value.Id}\"><i class=\"bi bi-gear\"></i> Edit</a>";
                     leaveBtn = string.Empty;
                     orgRole = "owner";
-                    canEditOrg = true;
                 }
 
                 <li class="list-group-item">
@@ -36,7 +34,7 @@
                     {
                         <p>@organisation.Value.Description</p>
                     }
-                    <div class="mt-2"><a class="btn btn-sm ps-btn-primary" asp-controller="Home" asp-action="Index" asp-route-orgId="@organisation.Value.Id"><i class="bi bi-journal-plus"></i> See Projects</a> <a href="#" class="btn btn-sm ps-btn-secondary" id="btnEditOrg_@organisation.Value.Id"><i class="bi bi-people"></i> Members</a> @Html.Raw(editBtn) @Html.Raw(leaveBtn)</div>
+                    <div class="mt-2"><a class="btn btn-sm ps-btn-primary" asp-controller="Home" asp-action="Index" asp-route-orgId="@organisation.Value.Id"><i class="bi bi-journal-plus"></i> See Projects</a> <a href="#" class="btn btn-sm ps-btn-secondary" id="btnMembersOrg_@organisation.Value.Id"><i class="bi bi-people"></i> Members</a> @Html.Raw(editBtn) @Html.Raw(leaveBtn)</div>
                 </li>
             }
         </ul>
@@ -44,11 +42,5 @@
     else
     {
         <p>You are not in any organisation.</p>
-    }
-
-    @* No point in rendering this partial if the user cannot access it *@
-    @if(canEditOrg)
-    {
-        @*<partial name="SubViews/_EditProject"/>*@
     }
 </div>

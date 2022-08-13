@@ -177,8 +177,14 @@
   <data name="DEFAULT_CARD_DESC" xml:space="preserve">
     <value>Click here to add a description.</value>
   </data>
+  <data name="DELETE" xml:space="preserve">
+    <value>Delete</value>
+  </data>
   <data name="DELETE_LBL" xml:space="preserve">
     <value>Delete:</value>
+  </data>
+  <data name="DELETE_ORGANISATION" xml:space="preserve">
+    <value>Delete Organisation</value>
   </data>
   <data name="DELETE_PROJECT" xml:space="preserve">
     <value>Delete Project</value>
@@ -189,8 +195,14 @@
   <data name="DUE_DATE_LBL" xml:space="preserve">
     <value>Due Date:</value>
   </data>
+  <data name="EDIT" xml:space="preserve">
+    <value>Edit</value>
+  </data>
   <data name="EDIT_LBL" xml:space="preserve">
     <value>Edit:</value>
+  </data>
+  <data name="EDIT_ORGANISATION" xml:space="preserve">
+    <value>Edit Organisation</value>
   </data>
   <data name="EDIT_PROJECT" xml:space="preserve">
     <value>Edit Project</value>
