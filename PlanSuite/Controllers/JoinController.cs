@@ -173,7 +173,7 @@ namespace PlanSuite.Controllers
             Customer customer;
             if (string.IsNullOrEmpty(user.StripeCustomerId))
             {
-                m_Logger.LogInformation($"Creating stripe customer for user {user.Id}")
+                m_Logger.LogInformation($"Creating stripe customer for user {user.Id}");
                 customer = await PaymentUtils.CreateCustomerAsync(user);
 
                 Console.WriteLine(customer.ToJson());
