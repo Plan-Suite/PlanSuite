@@ -5,6 +5,9 @@
 @{
     ViewData["Title"] = "Organisations";
 }
+
+<script type="module" src="~/js/organisation/seeOrganisation.js" asp-append-version="true"></script>
+
 <div class="container">
     <h3>@ViewData["Title"]</h3>
     @if(Model.Organisations.Count > 0)
@@ -34,7 +37,7 @@
                     {
                         <p>@organisation.Value.Description</p>
                     }
-                    <div class="mt-2"><a class="btn btn-sm ps-btn-primary" asp-controller="Home" asp-action="Index" asp-route-orgId="@organisation.Value.Id"><i class="bi bi-journal-plus"></i> See Projects</a> <a href="#" class="btn btn-sm ps-btn-secondary" id="btnMembersOrg_@organisation.Value.Id"><i class="bi bi-people"></i> Members</a> @Html.Raw(editBtn) @Html.Raw(leaveBtn)</div>
+                    <div class="mt-2"><a class="btn btn-sm ps-btn-primary" asp-controller="Home" asp-action="Index" asp-route-orgId="@organisation.Value.Id"><i class="bi bi-journal-plus"></i> See Projects</a> <a href="#" class="btn btn-sm ps-btn-secondary" id="btnMembersOrg_@organisation.Value.Id" data-bs-toggle="modal" data-bs-target="#organisationMembersModal"><i class="bi bi-people"></i> Members</a> @Html.Raw(editBtn) @Html.Raw(leaveBtn)</div>
                 </li>
             }
         </ul>
@@ -43,4 +46,28 @@
     {
         <p>You are not in any organisation.</p>
     }
+
+    <div class="modal fade" id="organisationMembersModal" tabindex="-1" aria-labelledby="organisationMembersLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="organisationMembersLabel">Organisation Members</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-center" id="spinner">
+                      <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                      </div>
+                    </div>
+                    <ol class="list-group list-group-numbered" id="memberList">
+                    </ol>
+                    <br>
+                    <div class="modal-footer">
+                        <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

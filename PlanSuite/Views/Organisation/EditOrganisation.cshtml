@@ -45,31 +45,31 @@
     @* Create New Project *@
     <div class="modal fade" id="deleteOrganisationModal" tabindex="-1" aria-labelledby="deleteOrganisationLabel" aria-hidden="true">
         <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteOrganisationLabel">@Model.Localisation.Get(user, "DELETE_ORGANISATION")</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            @using (Html.BeginForm("Delete", "Organisation", FormMethod.Post))
-            {
-                @Html.HiddenFor(model => model.DeleteOrganisation.Id)
-                @Html.HiddenFor(model => model.DeleteOrganisation.Name)
-                @Html.HiddenFor(model => model.DeleteOrganisation.UserId)
-                <div class="modal-body">
-                    <div class="form-floating">
-                        @Html.EditorFor(model => model.DeleteOrganisation.Name, new { htmlAttributes = new { @class = "form-control", id = "confirmDeleteOrgName" } })
-                        @Html.LabelFor(model => model.DeleteOrganisation.Name, "Enter the organisation name to be able to delete it", new { htmlAttributes = new { @class = "form-label" } })
-                        @Html.ValidationMessageFor(model => model.DeleteOrganisation.Name, "", new { @class = "text-danger" })
-                        <br>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
-                        <button type="submit" class="btn ps-btn-danger" id="deleteButton" disabled>@Model.Localisation.Get(user, "DELETE")</button>
-                    </div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteOrganisationLabel">@Model.Localisation.Get(user, "DELETE_ORGANISATION")</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                @using (Html.BeginForm("Delete", "Organisation", FormMethod.Post))
+                {
+                    @Html.HiddenFor(model => model.DeleteOrganisation.Id)
+                    @Html.HiddenFor(model => model.DeleteOrganisation.Name)
+                    @Html.HiddenFor(model => model.DeleteOrganisation.UserId)
+                    <div class="modal-body">
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.DeleteOrganisation.Name, new { htmlAttributes = new { @class = "form-control", id = "confirmDeleteOrgName" } })
+                            @Html.LabelFor(model => model.DeleteOrganisation.Name, "Enter the organisation name to be able to delete it", new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.ValidationMessageFor(model => model.DeleteOrganisation.Name, "", new { @class = "text-danger" })
+                            <br>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
+                            <button type="submit" class="btn ps-btn-danger" id="deleteButton" disabled>@Model.Localisation.Get(user, "DELETE")</button>
+                        </div>
+                    </div>
                     
-            }
-        </div>
+                }
+            </div>
         </div>
     </div>
 </div>
