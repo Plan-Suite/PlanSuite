@@ -37,7 +37,7 @@
                     {
                         <p>@organisation.Value.Description</p>
                     }
-                    <div class="mt-2"><a class="btn btn-sm ps-btn-primary" asp-controller="Home" asp-action="Index" asp-route-orgId="@organisation.Value.Id"><i class="bi bi-journal-plus"></i> See Projects</a> <a href="#" class="btn btn-sm ps-btn-secondary" id="btnMembersOrg_@organisation.Value.Id" data-bs-toggle="modal" data-bs-target="#organisationMembersModal"><i class="bi bi-people"></i> Members</a> @Html.Raw(editBtn) @Html.Raw(leaveBtn)</div>
+                    <div class="mt-2"><a class="btn btn-sm ps-btn-primary" asp-controller="Home" asp-action="Index" asp-route-orgId="@organisation.Value.Id"><i class="bi bi-journal-plus"></i> See Projects</a> <a class="btn btn-sm ps-btn-secondary" asp-controller="Organisation" asp-action="SeeMembers" asp-route-orgId="@organisation.Value.Id"><i class="bi bi-people"></i> Members</a> @Html.Raw(editBtn) @Html.Raw(leaveBtn)</div>
                 </li>
             }
         </ul>
@@ -64,7 +64,7 @@
                     </ol>
                     <br>
                     <div class="modal-footer">
-                        <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-circle"></i> Close</button>
                     </div>
                 </div>
             </div>

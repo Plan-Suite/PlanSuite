@@ -1,4 +1,6 @@
-﻿namespace PlanSuite.Utility
+﻿using Microsoft.AspNetCore.Mvc;
+
+namespace PlanSuite.Utility
 {
     public static class ApplicationInfo
     {

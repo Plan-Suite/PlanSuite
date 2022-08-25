@@ -123,8 +123,14 @@
   <data name="ADD_MEMBER" xml:space="preserve">
     <value>Add Member</value>
   </data>
+  <data name="ADD_MEMBER_ENTER_EMAIL" xml:space="preserve">
+    <value>Enter Email:</value>
+  </data>
   <data name="ADD_MEMBER_ENTER_USERNAME" xml:space="preserve">
     <value>Enter Username:</value>
+  </data>
+  <data name="ADD_MEMBER_SUCCESS" xml:space="preserve">
+    <value>Successfully added member.</value>
   </data>
   <data name="ADD_NEW_CARD" xml:space="preserve">
     <value>&lt;i class="bi bi-plus-circle"&gt;&lt;/i&gt; Add New Card</value>
@@ -152,6 +158,9 @@
   </data>
   <data name="CANCEL" xml:space="preserve">
     <value>Cancel</value>
+  </data>
+  <data name="CANNOT_FIND_USER" xml:space="preserve">
+    <value>Cannot find the specified user.</value>
   </data>
   <data name="CHANGES" xml:space="preserve">
     <value>Changes</value>
@@ -210,6 +219,9 @@
   <data name="EDIT_PROJECT_LBL" xml:space="preserve">
     <value>Edit Project:</value>
   </data>
+  <data name="EMAIL" xml:space="preserve">
+    <value>Email</value>
+  </data>
   <data name="FAIL_SERVER" xml:space="preserve">
     <value>Failed due to server error.</value>
   </data>
@@ -240,6 +252,9 @@
   <data name="LOW_PRIORITY" xml:space="preserve">
     <value>Low Priority</value>
   </data>
+  <data name="MAKE_ADMIN_SUCCESS" xml:space="preserve">
+    <value>User was made into an admin.</value>
+  </data>
   <data name="MEDIUM" xml:space="preserve">
     <value>Medium</value>
   </data>
@@ -258,6 +273,9 @@
   <data name="NO_PROJECTS" xml:space="preserve">
     <value>No Projects</value>
   </data>
+  <data name="ORGANISATION_MEMBERS" xml:space="preserve">
+    <value>Organisation Members</value>
+  </data>
   <data name="OVERDUE" xml:space="preserve">
     <value>Overdue</value>
   </data>
@@ -269,6 +287,9 @@
   </data>
   <data name="SAVE_CHANGES" xml:space="preserve">
     <value>Save Changes</value>
+  </data>
+  <data name="UNKNOWN_ERROR" xml:space="preserve">
+    <value>An unknown error occured.</value>
   </data>
   <data name="USERNAME" xml:space="preserve">
     <value>Username</value>

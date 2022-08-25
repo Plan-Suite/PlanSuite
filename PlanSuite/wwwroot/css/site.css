@@ -283,3 +283,21 @@ input.input-validation-error {
 /*.validation-summary-valid {
     display: none;
 } */
+
+.ps-alert {
+    position: relative;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+    padding: 1rem 1rem;
+    margin-bottom: 1rem;
+}
+
+.ps-alert-error {
+    background-color: var(--red);
+    color: var(--white);
+}
+
+.ps-alert-success {
+    background-color: var(--green);
+    color: var(--white);
+}

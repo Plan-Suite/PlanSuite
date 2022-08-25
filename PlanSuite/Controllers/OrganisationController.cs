@@ -163,5 +163,175 @@ namespace PlanSuite.Controllers
 
             return View(model);
         }
+
+        public async Task<IActionResult> SeeMembers(int orgId, int error = 0)
+        {
+            if (!m_SigninManager.IsSignedIn(User))
+            {
+                return Redirect($"/Identity/Account/Login");
+            }
+
+            var user = await m_UserManager.GetUserAsync(User);
+            if (user == null)
+            {
+                m_Logger.LogError($"User was null during GetUserAsync");
+                return Redirect("/Home/Index");
+            }
+
+
+            SeeMembersModel model = new SeeMembersModel();
+            var organisation = m_Database.Organizations.Where(org => org.Id == orgId).FirstOrDefault();
+            if(organisation == null)
+            {
+                m_Logger.LogError($"Organisation {orgId} does not exist");
+                return Redirect("/Organisation/SeeOrganisations");
+            }
+
+            model.Organisation = organisation;
+
+            Guid userId = Guid.Parse(user.Id);
+            
+            var organisationMember = m_Database.OrganizationsMembership.Where(member => 
+                member.OrganisationId == orgId &&
+                member.UserId == userId &&
+                member.Role >= ProjectRole.User).FirstOrDefault();
+            if(organisationMember == null)
+            {
+                m_Logger.LogError($"User {user.Id} is not a member of orgId {orgId} or does not have the correct permissions");
+                return Redirect("/Organisation/SeeOrganisations");
+            }
+
+            model.OrganisationMembership = organisationMember;
+
+            m_Logger.LogInformation($"Grabbing org membership for orgId {orgId}");
+
+            var organisationMemberships = m_Database.OrganizationsMembership.Where(member => member.OrganisationId == orgId).ToList();
+            if (organisationMemberships != null && organisationMemberships.Count > 0)
+            {
+                foreach (var orgMembership in organisationMemberships)
+                {
+                    if (orgMembership.Role < ProjectRole.User)
+                    {
+                        continue;
+                    }
+
+                    var orgUser = await m_UserManager.FindByIdAsync(orgMembership.UserId.ToString());
+
+                    switch(orgMembership.Role)
+                    {
+                        case ProjectRole.Owner:
+                            model.Owners.Add(userId, orgUser.UserName);
+                            break;
+                        case ProjectRole.Admin:
+                            model.Admins.Add(userId, orgUser.UserName);
+                            break;
+                        default:
+                            model.Members.Add(userId, orgUser.UserName);
+                            break;
+                    }
+                }
+            }
+
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddMember([FromForm] AddOrganisationMemberModel addMember)
+        {
+            if (!m_SigninManager.IsSignedIn(User))
+            {
+                return Redirect($"/Identity/Account/Login");
+            }
+
+            var user = await m_UserManager.GetUserAsync(User);
+            if (user == null)
+            {
+                m_Logger.LogError($"User was null during GetUserAsync");
+                return Redirect("/Home/Index");
+            }
+
+            Console.WriteLine($"AddMember: {addMember.OrganisationId} {addMember.Username} {addMember.Email}");
+
+            var membership = new OrganisationMembership();
+            membership.OrganisationId = addMember.OrganisationId;
+
+            ApplicationUser newMember = null;
+            if(!string.IsNullOrEmpty(addMember.Username))
+            {
+                newMember = await m_UserManager.FindByNameAsync(addMember.Username);
+            }
+            if (!string.IsNullOrEmpty(addMember.Email))
+            {
+                newMember = await m_UserManager.FindByEmailAsync(addMember.Email);
+            }
+
+            RouteValueDictionary routeValues = new RouteValueDictionary();
+            if(newMember != null)
+            {
+                membership.UserId = Guid.Parse(newMember.Id);
+                membership.Role = ProjectRole.User;
+                await m_Database.OrganizationsMembership.AddAsync(membership);
+                await m_Database.SaveChangesAsync();
+                m_Logger.LogInformation($"Added {membership.UserId} to organisation {membership.OrganisationId}");
+                routeValues.Add("success", 1);
+            }
+            else
+            {
+                routeValues.Add("error", 1);
+            }
+
+            routeValues.Add("orgId", addMember.OrganisationId);
+            return RedirectToAction(nameof(SeeMembers), routeValues);
+        }
+
+        public async Task<IActionResult> MakeAdmin(int orgId, Guid userId)
+        {
+            if (!m_SigninManager.IsSignedIn(User))
+            {
+                return Redirect($"/Identity/Account/Login");
+            }
+
+            var user = await m_UserManager.GetUserAsync(User);
+            if (user == null)
+            {
+                m_Logger.LogError($"User was null during GetUserAsync");
+                return Redirect("/Home/Index");
+            }
+
+            RouteValueDictionary routeValues = new RouteValueDictionary();
+            routeValues.Add("orgId", orgId);
+            var membership = m_Database.OrganizationsMembership.Where(member => member.UserId == userId && member.OrganisationId == orgId).FirstOrDefault();
+            if(membership == null)
+            {
+                m_Logger.LogError($"User was null during MakeAdmin");
+                routeValues.Add("error", 2);
+                return RedirectToAction(nameof(SeeMembers), routeValues);
+            }
+
+            membership.Role = ProjectRole.Admin;
+            await m_Database.SaveChangesAsync();
+
+            routeValues.Add("success", 2);
+            return RedirectToAction(nameof(SeeMembers), routeValues);
+        }
+
+        public async Task<IActionResult> RemoveUser(int userId)
+        {
+            if (!m_SigninManager.IsSignedIn(User))
+            {
+                return Redirect($"/Identity/Account/Login");
+            }
+
+            var user = await m_UserManager.GetUserAsync(User);
+            if (user == null)
+            {
+                m_Logger.LogError($"User was null during GetUserAsync");
+                return Redirect("/Home/Index");
+            }
+
+            return Redirect("/Home/Index");
+        }
     }
 }
