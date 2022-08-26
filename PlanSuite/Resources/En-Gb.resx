@@ -315,4 +315,7 @@
   <data name="YOUR_PROJECTS" xml:space="preserve">
     <value>Your Projects</value>
   </data>
+  <data name="ORG_CREATE_ERROR_ORG_LIMIT" xml:space="preserve">
+    <value>Cannot create organisation as you have exceeded your organisation limit. Upgrade your membership to remove this limit.</value>
+  </data>
 </root>

@@ -19,10 +19,10 @@ namespace PlanSuite.Models.Temporary
 
         [DataType(DataType.Text)]
         [Display(Name = "Username")]
-        public string Username { get; set; }
+        public string? Username { get; set; }
 
         [DataType(DataType.EmailAddress)]
         [Display(Name = "Email")]
-        public string Email { get; set; }
+        public string? Email { get; set; }
     }
 }

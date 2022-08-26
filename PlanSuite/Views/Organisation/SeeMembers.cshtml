@@ -104,17 +104,11 @@
                         @Html.LabelFor(model => model.AddMember.Username, new { htmlAttributes = new { @class = "form-label" } })
                         @Html.EditorFor(model => model.AddMember.Username, new { htmlAttributes = new { @class = "form-control" } })
                         @Html.ValidationMessageFor(model => model.AddMember.Username, "", new { @class = "text-danger" })
-
-                        @*<label class="m-1" for="addMemberUsername">@Model.Localisation.Get(user, "ADD_MEMBER_ENTER_USERNAME")</label>
-                        <input type="text" id="addMemberUsername" class="form-control" placeholder="@Model.Localisation.Get(user, "USERNAME")"/>*@
                     </div>
                     <div class="form-group mb-3">
                         @Html.LabelFor(model => model.AddMember.Email, new { htmlAttributes = new { @class = "form-label" } })
                         @Html.EditorFor(model => model.AddMember.Email, new { htmlAttributes = new { @class = "form-control" } })
                         @Html.ValidationMessageFor(model => model.AddMember.Email, "", new { @class = "text-danger" })
-
-                        @*<label class="m-1" for="addMemberEmail">@Model.Localisation.Get(user, "ADD_MEMBER_ENTER_EMAIL")</label>
-                        <input type="text" id="addMemberEmail" class="form-control" placeholder="@Model.Localisation.Get(user, "EMAIL")"/>*@
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn ps-btn-primary">@Model.Localisation.Get(user, "ADD_MEMBER")</button>
