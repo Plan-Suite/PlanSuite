@@ -317,7 +317,7 @@ namespace PlanSuite.Controllers
             return RedirectToAction(nameof(SeeMembers), routeValues);
         }
 
-        public async Task<IActionResult> RemoveUser(int userId)
+        public async Task<IActionResult> RemoveUser(int orgId, Guid userId)
         {
             if (!m_SigninManager.IsSignedIn(User))
             {
@@ -331,7 +331,31 @@ namespace PlanSuite.Controllers
                 return Redirect("/Home/Index");
             }
 
-            return Redirect("/Home/Index");
+            RouteValueDictionary routeValues = new RouteValueDictionary();
+            routeValues.Add("orgId", orgId);
+
+            var membership = m_Database.OrganizationsMembership.Where(member => member.UserId == userId && member.OrganisationId == orgId).FirstOrDefault();
+            if(membership == null)
+            {
+                // Not a member of organisation
+                m_Logger.LogError($"User {user.Id} is not a member of orgId {orgId} when trying to be removed.");
+                routeValues.Add("error", 2);
+                return RedirectToAction(nameof(SeeMembers), routeValues);
+            }
+
+            if(membership.Role >= ProjectRole.Admin)
+            {
+                // User is currently an admin
+                m_Logger.LogError($"User {user.Id} is an admin/owner of organisation {orgId} when trying to be removed.");
+                routeValues.Add("error", 3);
+                return RedirectToAction(nameof(SeeMembers), routeValues);
+            }
+
+            m_Database.OrganizationsMembership.Remove(membership);
+            await m_Database.SaveChangesAsync();
+
+            routeValues.Add("success", 3);
+            return RedirectToAction(nameof(SeeMembers), routeValues);
         }
     }
 }

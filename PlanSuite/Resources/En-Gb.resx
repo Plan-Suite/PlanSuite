@@ -318,4 +318,16 @@
   <data name="ORG_CREATE_ERROR_ORG_LIMIT" xml:space="preserve">
     <value>Cannot create organisation as you have exceeded your organisation limit. Upgrade your membership to remove this limit.</value>
   </data>
+  <data name="REMOVE_MEMBER_SUCCESS" xml:space="preserve">
+    <value>Member successfully removed.</value>
+  </data>
+  <data name="USER_NOT_EXIST" xml:space="preserve">
+    <value>User does not exist.</value>
+  </data>
+  <data name="NOT_ORG_MEMBER" xml:space="preserve">
+    <value>Member specified is not a member of this organisation.</value>
+  </data>
+  <data name="REMOVE_MEMBER_FAIL_ADMIN" xml:space="preserve">
+    <value>Cannot remove member as they are an administrator. Ask the organisation owner to remove their admin status first.</value>
+  </data>
 </root>

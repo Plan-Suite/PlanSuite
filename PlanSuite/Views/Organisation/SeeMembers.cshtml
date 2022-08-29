@@ -29,6 +29,12 @@
             case 1:
                 errorMessage = Model.Localisation.Get(user, "CANNOT_FIND_USER");
                 break;
+            case 2:
+                errorMessage = Model.Localisation.Get(user, "NOT_ORG_MEMBER");
+                break;
+            case 3:
+                errorMessage = Model.Localisation.Get(user, "REMOVE_MEMBER_FAIL_ADMIN");
+                break;
         }
         <div class="ps-alert ps-alert-error"><i class="bi bi-exclamation-triangle"></i> @errorMessage</div>
     }
@@ -43,6 +49,9 @@
                 break;
             case 2:
                 successMessage = Model.Localisation.Get(user, "MAKE_ADMIN_SUCCESS");
+                break;
+            case 3:
+                successMessage = Model.Localisation.Get(user, "REMOVE_MEMBER_SUCCESS");
                 break;
         }
         <div class="ps-alert ps-alert-success"><i class="bi bi-check-circle"></i> @successMessage</div>
