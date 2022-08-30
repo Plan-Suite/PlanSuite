@@ -16,15 +16,15 @@ builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<OrganisationService>();
 
-var configuration = builder.Configuration;
+var configuration = System.Environment.GetEnvironmentVariables();
 builder.Services.AddTransient<IEmailSender, EmailService>();
 
 if (builder.Environment.IsProduction())
 {
     builder.Services.AddAuthentication().AddFacebook(facebookOptions =>
     {
-        facebookOptions.AppId = configuration["Authentication:Facebook:AppId"];
-        facebookOptions.AppSecret = configuration["Authentication:Facebook:AppSecret"];
+        facebookOptions.AppId = configuration["FacebookId"].ToString();
+        facebookOptions.AppSecret = configuration["FacebookSecret"].ToString();
         facebookOptions.AccessDeniedPath = "/Home/AuthError";
     });
 }
@@ -85,7 +85,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 new LocalisationService();
-EmailService.InitEmailService(configuration["Email:User"], configuration["Email:Pass"], configuration["Email:ConfigSet"], configuration["Email:Host"], int.Parse(configuration["Email:Port"]), configuration["Email:ConfigEmail"], configuration["Email:ConfigName"]);
-PaymentService.InitPaymentService(configuration["Stripe:ApiKey"], configuration["Stripe:SecretKey"], configuration["Stripe:Plus"], configuration["Stripe:Pro"]);
+EmailService.InitEmailService(configuration["EmailUser"].ToString(), configuration["EmailPass"].ToString(), configuration["EmailConfigSet"].ToString(), configuration["EmailHost"].ToString(), int.Parse(configuration["EmailPort"].ToString()), configuration["EmailConfigEmail"].ToString(), configuration["EmailConfigName"].ToString());
+PaymentService.InitPaymentService(configuration["StripeApi"].ToString(), configuration["StripeSecret"].ToString(), configuration["StripePlus"].ToString(), configuration["StripePro"].ToString());
 
 app.Run();
