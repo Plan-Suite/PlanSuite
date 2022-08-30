@@ -11,7 +11,7 @@ using System.Diagnostics;
 namespace PlanSuite.Controllers
 {
     // We want to limit access to anything administrator related for obvious reasons
-    //[Authorize(Roles = "Administrator")]
+    [Authorize(Roles = "SuperUser,Administrator,Support,Developer")]
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext dbContext;
