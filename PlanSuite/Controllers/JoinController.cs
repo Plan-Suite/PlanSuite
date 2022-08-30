@@ -97,7 +97,9 @@ namespace PlanSuite.Controllers
             }
 
             var customerService = new CustomerService();
-            Customer customer = await customerService.GetAsync(user.StripeCustomerId);
+            Customer customer = await CreateUserStripeCustomer(user, customerService);
+
+            customer = await customerService.GetAsync(user.StripeCustomerId);
             if (customer == null)
             {
                 customer = await PaymentUtils.CreateCustomerAsync(user);
@@ -111,7 +113,7 @@ namespace PlanSuite.Controllers
             m_Logger.LogInformation($"Domain is {domain}");
 
             PaymentTier paymentTier = PaymentTier.Plus;
-            if(lookupKey == PaymentService.ProUrl)
+            if (lookupKey == PaymentService.ProUrl)
             {
                 paymentTier = PaymentTier.Pro;
             }
@@ -164,6 +166,36 @@ namespace PlanSuite.Controllers
 
             Response.Headers.Add("Location", session.Url);
             return new StatusCodeResult(303);
+        }
+
+        private async Task<Customer> CreateUserStripeCustomer(ApplicationUser user, CustomerService customerService)
+        {
+            Customer customer;
+            if (string.IsNullOrEmpty(user.StripeCustomerId))
+            {
+                m_Logger.LogInformation($"Creating stripe customer for user {user.Id}");
+                customer = await PaymentUtils.CreateCustomerAsync(user);
+
+                Console.WriteLine(customer.ToJson());
+
+                user.StripeCustomerId = customer.Id;
+                await m_UserManager.UpdateAsync(user);
+            }
+            else
+            {
+                customer = await customerService.GetAsync(user.StripeCustomerId);
+                if (customer == null)
+                {
+                    customer = await PaymentUtils.CreateCustomerAsync(user);
+
+                    Console.WriteLine(customer.ToJson());
+
+                    user.StripeCustomerId = customer.Id;
+                    await m_UserManager.UpdateAsync(user);
+                }
+            }
+
+            return customer;
         }
 
         public IActionResult UpgradeSuccess(int saleId, long amount)

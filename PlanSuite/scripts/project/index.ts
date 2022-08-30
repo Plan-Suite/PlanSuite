@@ -89,6 +89,7 @@ $(function () {
 
         // is there not a better way to get the column id?
         var colId: number = Number(column.children("input[type='hidden']:first").val().toString().split("_")[1]);
+        console.log(`colId = ${colId} index ${i}`);
 
         var col = $(`#addNewCard_${colId}`);
 
@@ -306,9 +307,9 @@ function viewCardButton(dbId) {
 function addNewCard(id) {
     const name = "#createCardDiv";
 
-    removeCard();
+    //removeCard();
 
-    $(name).detach().appendTo(`#${id}`);
+    $(name).detach().appendTo(`#Column_${id}`);
     $(name).removeClass("d-none");
 
     $('#AddCard_ColumnId').val(id);
@@ -390,8 +391,8 @@ function insertChecklistItem(elementId, ticked, id, name, insertBefore = false) 
     </ul>\
     </div>`;
 
-    $(`#convertChecklistItemToCardBtn_${id}`).on("click", function () { convertChecklistItemToCard(id); })
-    $(`#deleteChecklistItem_${id}`).on("click", function () { deleteChecklistItem(id); })
+    $(document).on('click', `#convertChecklistItemToCardBtn_${id}`, function () { convertChecklistItemToCard(id); });
+    $(document).on('click', `#deleteChecklistItem_${id}`, function () { deleteChecklistItem(id); });
 
     var string = `<div class="form-check mb-1" id="checklistItemFormCheck_${id}">`;
     if (ticked == false) {
@@ -466,6 +467,7 @@ function convertChecklistItemToCard(dbId) {
 }
 
 function deleteChecklistItem(dbId) {
+    console.log(dbId);
     $.ajax({
         type: "POST",
         dataType: "json",
@@ -475,6 +477,7 @@ function deleteChecklistItem(dbId) {
             request.setRequestHeader("RequestVerificationToken", verificationToken);
         },
         success: function (response) {
+            console.log(response);
             $(`#checklistItemFormCheck_${dbId}`).remove();
         },
         data: JSON.stringify({ checklistItemId: dbId }),
@@ -541,7 +544,7 @@ function addChecklist(id, name, checklistItems) {
     checklistHolder.append(`<div class="ps-card-checklist mb-1" id="Checklist_${id}">
         <h6 id="ChecklistName_${id}">${name} <button id="ChecklistNameDeleteBtn_${id}" type="button" class="btn ps-btn-white btn-sm")">Delete</button></h6>`);
 
-    $(`ChecklistNameDeleteBtn_${id}`).on("click", function () { deleteChecklist(id); });
+    $(`#ChecklistNameDeleteBtn_${id}`).on("click", function () { deleteChecklist(id); });
 
     checklistHolder.append(`<div id="ChecklistHolder_${id}">`);
 
@@ -555,7 +558,7 @@ function addChecklist(id, name, checklistItems) {
     }
 
     checklistDiv.append(`<button class="btn ps-btn-white" type="button" id="addItemBtn_${id}"><i class="bi bi-plus-circle"></i> Add an item</button>`);
-    $(`addItemBtn_${id}`).on("click", function () { onAddChecklistItem(id, checklistDiv.attr("id")); });
+    $(`#addItemBtn_${id}`).on("click", function () { onAddChecklistItem(id, checklistDiv.attr("id")); });
 
     checklistHolder.append(`</div>`);
 }

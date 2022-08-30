@@ -187,6 +187,16 @@ namespace PlanSuite.Controllers
 
             ClaimsPrincipal claimsPrincipal = HttpContext.User as ClaimsPrincipal;
 
+            if(string.IsNullOrEmpty(createProject.Name))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (string.IsNullOrEmpty(createProject.Description))
+            {
+                createProject.Description = createProject.Name;
+            }
+
             var project = new Project();
             project.Name = createProject.Name;
             project.Description = createProject.Description;
