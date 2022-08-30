@@ -123,8 +123,14 @@
   <data name="ADD_MEMBER" xml:space="preserve">
     <value>Add Member</value>
   </data>
+  <data name="ADD_MEMBER_ENTER_EMAIL" xml:space="preserve">
+    <value>Enter Email:</value>
+  </data>
   <data name="ADD_MEMBER_ENTER_USERNAME" xml:space="preserve">
     <value>Enter Username:</value>
+  </data>
+  <data name="ADD_MEMBER_SUCCESS" xml:space="preserve">
+    <value>Successfully added member.</value>
   </data>
   <data name="ADD_NEW_CARD" xml:space="preserve">
     <value>&lt;i class="bi bi-plus-circle"&gt;&lt;/i&gt; Add New Card</value>
@@ -153,6 +159,9 @@
   <data name="CANCEL" xml:space="preserve">
     <value>Cancel</value>
   </data>
+  <data name="CANNOT_FIND_USER" xml:space="preserve">
+    <value>Cannot find the specified user.</value>
+  </data>
   <data name="CHANGES" xml:space="preserve">
     <value>Changes</value>
   </data>
@@ -162,8 +171,14 @@
   <data name="CREATED_DATE" xml:space="preserve">
     <value>Created Date:</value>
   </data>
+  <data name="CREATE_NEW_ORGANISATION" xml:space="preserve">
+    <value>Create New Organisation</value>
+  </data>
   <data name="CREATE_NEW_PROJECT" xml:space="preserve">
     <value>Create New Project</value>
+  </data>
+  <data name="CREATE_ORGANISATION" xml:space="preserve">
+    <value>Create Organisation</value>
   </data>
   <data name="CREATE_PROJECT" xml:space="preserve">
     <value>Create Project</value>
@@ -171,8 +186,14 @@
   <data name="DEFAULT_CARD_DESC" xml:space="preserve">
     <value>Click here to add a description.</value>
   </data>
+  <data name="DELETE" xml:space="preserve">
+    <value>Delete</value>
+  </data>
   <data name="DELETE_LBL" xml:space="preserve">
     <value>Delete:</value>
+  </data>
+  <data name="DELETE_ORGANISATION" xml:space="preserve">
+    <value>Delete Organisation</value>
   </data>
   <data name="DELETE_PROJECT" xml:space="preserve">
     <value>Delete Project</value>
@@ -183,14 +204,23 @@
   <data name="DUE_DATE_LBL" xml:space="preserve">
     <value>Due Date:</value>
   </data>
+  <data name="EDIT" xml:space="preserve">
+    <value>Edit</value>
+  </data>
   <data name="EDIT_LBL" xml:space="preserve">
     <value>Edit:</value>
+  </data>
+  <data name="EDIT_ORGANISATION" xml:space="preserve">
+    <value>Edit Organisation</value>
   </data>
   <data name="EDIT_PROJECT" xml:space="preserve">
     <value>Edit Project</value>
   </data>
   <data name="EDIT_PROJECT_LBL" xml:space="preserve">
     <value>Edit Project:</value>
+  </data>
+  <data name="EMAIL" xml:space="preserve">
+    <value>Email</value>
   </data>
   <data name="FAIL_SERVER" xml:space="preserve">
     <value>Failed due to server error.</value>
@@ -222,6 +252,9 @@
   <data name="LOW_PRIORITY" xml:space="preserve">
     <value>Low Priority</value>
   </data>
+  <data name="MAKE_ADMIN_SUCCESS" xml:space="preserve">
+    <value>User was made into an admin.</value>
+  </data>
   <data name="MEDIUM" xml:space="preserve">
     <value>Medium</value>
   </data>
@@ -240,6 +273,9 @@
   <data name="NO_PROJECTS" xml:space="preserve">
     <value>No Projects</value>
   </data>
+  <data name="ORGANISATION_MEMBERS" xml:space="preserve">
+    <value>Organisation Members</value>
+  </data>
   <data name="OVERDUE" xml:space="preserve">
     <value>Overdue</value>
   </data>
@@ -247,10 +283,13 @@
     <value>&lt;strong&gt;Project Created:&lt;/strong&gt; {0}&lt;br /&gt;&lt;strong&gt;Project Due Date:&lt;/strong&gt; {1}</value>
   </data>
   <data name="PROJECT_SUB_TITLE" xml:space="preserve">
-    <value>&lt;strong&gt;Created Date:&lt;/strong&gt; {0}&lt;br/&gt;&lt;strong&gt;Due Date:&lt;/strong&gt; {1}</value>
+    <value>&lt;strong&gt;Created Date:&lt;/strong&gt; {0}&lt;br/&gt;&lt;strong&gt;Due Date:&lt;/strong&gt; {1}&lt;br/&gt;&lt;strong&gt;Organisation:&lt;/strong&gt; {2}</value>
   </data>
   <data name="SAVE_CHANGES" xml:space="preserve">
     <value>Save Changes</value>
+  </data>
+  <data name="UNKNOWN_ERROR" xml:space="preserve">
+    <value>An unknown error occured.</value>
   </data>
   <data name="USERNAME" xml:space="preserve">
     <value>Username</value>
@@ -275,5 +314,23 @@
   </data>
   <data name="YOUR_PROJECTS" xml:space="preserve">
     <value>Your Projects</value>
+  </data>
+  <data name="ORG_CREATE_ERROR_ORG_LIMIT" xml:space="preserve">
+    <value>Cannot create organisation as you have exceeded your organisation limit. Upgrade your membership to remove this limit.</value>
+  </data>
+  <data name="REMOVE_MEMBER_SUCCESS" xml:space="preserve">
+    <value>Member successfully removed.</value>
+  </data>
+  <data name="USER_NOT_EXIST" xml:space="preserve">
+    <value>User does not exist.</value>
+  </data>
+  <data name="NOT_ORG_MEMBER" xml:space="preserve">
+    <value>Member specified is not a member of this organisation.</value>
+  </data>
+  <data name="REMOVE_MEMBER_FAIL_ADMIN" xml:space="preserve">
+    <value>Cannot remove member as they are an administrator. Ask the organisation owner to remove their admin status first.</value>
+  </data>
+  <data name="TRANSFER_TO_ORG" xml:space="preserve">
+    <value>Transfer to organisation</value>
   </data>
 </root>

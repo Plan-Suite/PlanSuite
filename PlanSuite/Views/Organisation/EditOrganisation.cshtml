@@ -1,0 +1,75 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Enums
+@using PlanSuite.Models.Persistent
+@model PlanSuite.Models.Temporary.EditOrganisationViewModel
+@inject UserManager<ApplicationUser> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+
+    Model.EditOrganisation.OrganisationId = Model.Organisation.Id;
+    Model.EditOrganisation.Name = Model.Organisation.Name;
+    Model.EditOrganisation.Description = Model.Organisation.Description;
+
+    Model.DeleteOrganisation.Id = Model.Organisation.Id;
+    Model.DeleteOrganisation.Name = Model.Organisation.Name;
+    Model.DeleteOrganisation.UserId = Guid.Parse(user.Id);
+
+    ViewData["Title"] = Model.Localisation.Get(user, "EDIT_ORGANISATION");
+}
+
+<script type="module" src="~/js/organisation/editOrganisation.js" asp-append-version="true"></script>
+
+<div class="container">
+    <h3 class="mt-2">@ViewData["Title"]</h3>
+    @using (Html.BeginForm("Edit", "Organisation", FormMethod.Post))
+    {
+        @Html.HiddenFor(model => model.EditOrganisation.OrganisationId)
+        <div class="modal-body">
+            <div class="form-floating mb-3">
+                @Html.EditorFor(model => model.EditOrganisation.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.LabelFor(model => model.EditOrganisation.Name, new { htmlAttributes = new { @class = "form-label" } })
+                @Html.ValidationMessageFor(model => model.EditOrganisation.Name, "", new { @class = "text-danger" })
+            </div>
+            <div class="form-floating mb-3">
+                @Html.EditorFor(model => model.EditOrganisation.Description, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.LabelFor(model => model.EditOrganisation.Description, new { htmlAttributes = new { @class = "form-label" } })
+                @Html.ValidationMessageFor(model => model.EditOrganisation.Description, "", new { @class = "text-danger" })
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn ps-btn-danger" data-bs-toggle="modal" data-bs-target="#deleteOrganisationModal"><i class="bi bi-trash"></i> @Model.Localisation.Get(user, "DELETE")</button>
+                <button type="submit" class="btn ps-btn-primary"><i class="bi bi-pencil-square"></i> @Model.Localisation.Get(user, "EDIT")</button>
+            </div>
+        </div>
+    }
+
+    @* Create New Project *@
+    <div class="modal fade" id="deleteOrganisationModal" tabindex="-1" aria-labelledby="deleteOrganisationLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteOrganisationLabel">@Model.Localisation.Get(user, "DELETE_ORGANISATION")</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                @using (Html.BeginForm("Delete", "Organisation", FormMethod.Post))
+                {
+                    @Html.HiddenFor(model => model.DeleteOrganisation.Id)
+                    @Html.HiddenFor(model => model.DeleteOrganisation.Name)
+                    @Html.HiddenFor(model => model.DeleteOrganisation.UserId)
+                    <div class="modal-body">
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.DeleteOrganisation.Name, new { htmlAttributes = new { @class = "form-control", id = "confirmDeleteOrgName" } })
+                            @Html.LabelFor(model => model.DeleteOrganisation.Name, "Enter the organisation name to be able to delete it", new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.ValidationMessageFor(model => model.DeleteOrganisation.Name, "", new { @class = "text-danger" })
+                            <br>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
+                            <button type="submit" class="btn ps-btn-danger" id="deleteButton" disabled>@Model.Localisation.Get(user, "DELETE")</button>
+                        </div>
+                    </div>
+                    
+                }
+            </div>
+        </div>
+    </div>
+</div>

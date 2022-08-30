@@ -23,3 +23,12 @@ export function arrayToString(array: Array<any>) {
     let text = array.join(",");
     return text;
 }
+
+export function onDeleteInput(buttonName: string, comparisonValue: string, formName: string) {
+    const button = $(`#${buttonName}`);
+    const projName = $(`#${comparisonValue}`).val();
+    const deleteProjConfirm = $(`#${formName}`);
+    if (deleteProjConfirm.val() == projName) {
+        button.removeAttr("disabled");
+    }
+}

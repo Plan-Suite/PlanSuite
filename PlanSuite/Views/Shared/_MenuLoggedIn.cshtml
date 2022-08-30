@@ -1,0 +1,11 @@
+﻿@using PlanSuite.Models.Persistent
+@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Utility
+@inject SignInManager<ApplicationUser> SignInManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="nav-item">
+        <a class="nav-link text-light" asp-area="" asp-controller="Organisation" asp-action="SeeOrganisations"><i class="bi bi-building"></i> Organisations</a>
+    </li>
+}

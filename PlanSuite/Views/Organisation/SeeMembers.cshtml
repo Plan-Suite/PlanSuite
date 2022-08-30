@@ -1,0 +1,131 @@
+﻿@using Microsoft.AspNetCore.Http.Extensions
+@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Enums
+@using PlanSuite.Models.Persistent
+@using PlanSuite.Utility
+@inject UserManager<ApplicationUser> UserManager
+@model PlanSuite.Models.Temporary.SeeMembersModel
+@{
+    var user = await UserManager.GetUserAsync(User);
+    ViewData["Title"] = Model.Localisation.Get(user, "ORGANISATION_MEMBERS");
+
+    Model.AddMember.OrganisationId = Model.Organisation.Id;
+
+    int errorCode = UrlUtility.GetUrlRouteInt(Context.Request, "error");
+    int successCode = UrlUtility.GetUrlRouteInt(Context.Request, "success");
+}
+
+@*<script type="module" src="~/js/organisation/seeMembers.js" asp-append-version="true"></script>*@
+
+<div class="container">
+    <h3>@ViewData["Title"]</h3>
+    <h4>@Model.Organisation.Name</h4>
+
+    @if(errorCode > 0)
+    {
+        string errorMessage = Model.Localisation.Get(user, "UNKNOWN_ERROR");
+        switch(errorCode)
+        {
+            case 1:
+                errorMessage = Model.Localisation.Get(user, "CANNOT_FIND_USER");
+                break;
+            case 2:
+                errorMessage = Model.Localisation.Get(user, "NOT_ORG_MEMBER");
+                break;
+            case 3:
+                errorMessage = Model.Localisation.Get(user, "REMOVE_MEMBER_FAIL_ADMIN");
+                break;
+        }
+        <div class="ps-alert ps-alert-error"><i class="bi bi-exclamation-triangle"></i> @errorMessage</div>
+    }
+
+    @if(successCode > 0)
+    {
+        string successMessage = Model.Localisation.Get(user, "ADD_MEMBER_SUCCESS");
+        switch(successCode)
+        {
+            case 1:
+                successMessage = Model.Localisation.Get(user, "ADD_MEMBER_SUCCESS");
+                break;
+            case 2:
+                successMessage = Model.Localisation.Get(user, "MAKE_ADMIN_SUCCESS");
+                break;
+            case 3:
+                successMessage = Model.Localisation.Get(user, "REMOVE_MEMBER_SUCCESS");
+                break;
+        }
+        <div class="ps-alert ps-alert-success"><i class="bi bi-check-circle"></i> @successMessage</div>
+    }
+
+    <button class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#addMemberModal" id="addMemberBtn"><i class="bi bi-person-plus"></i> Add Member</button>
+
+    <ol class="list-group list-group-numbered mt-3">
+        @foreach(var owner in Model.Owners)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+                <div class="ms-2 me-auto">
+                    <div class="fw-auto">@owner.Value <span class="badge ps-div-projects rounded-pill">Owner</span></div>
+                </div>
+            </li>
+        }
+
+        @foreach(var admin in Model.Admins)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+                <div class="ms-2 me-auto">
+                    <div class="fw-auto">@admin.Value <span class="badge ps-div-projects rounded-pill">Admin</span></div>
+                    <a class="btn ps-btn-danger" asp-controller="Organisation" asp-action="RemoveUser" asp-route-userId="@admin.Key"><i class="bi bi-person-dash"></i> Remove</a>
+                    @if(Model.OrganisationMembership != null && Model.OrganisationMembership.Role >= ProjectRole.Owner)
+                    {
+                        <a class="btn ps-btn-secondary" asp-controller="Organisation" asp-action="RemoveAdmin" asp-route-userId="@admin.Key"><i class="bi bi-file-excel"></i> Remove Admin</a>
+                    }
+                </div>
+            </li>
+        }
+        
+        @foreach(var member in Model.Members)
+        {
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+                <div class="ms-2 me-auto">
+                    <div class="fw-auto">@member.Value</div>
+                    <a class="btn ps-btn-danger" asp-controller="Organisation" asp-action="RemoveUser" asp-route-userId="@member.Key"><i class="bi bi-person-dash"></i> Remove</a>
+                    @if(Model.OrganisationMembership != null && Model.OrganisationMembership.Role >= ProjectRole.Owner)
+                    {
+                        <a class="btn ps-btn-secondary" asp-controller="Organisation" asp-action="MakeAdmin" asp-route-orgId="@Model.Organisation.Id" asp-route-userId="@member.Key"><i class="bi bi-file-person"></i> Make Admin</a>
+                    }
+                </div>
+            </li>
+        }
+    </ol>
+
+    <div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="leaveProjectLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="projectMembersLabel">@Model.Localisation.Get(user, "ADD_MEMBER")</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            @using (Html.BeginForm("AddMember", "Organisation", FormMethod.Post))
+            {
+                @Html.HiddenFor(model => model.AddMember.OrganisationId)
+                <div class="modal-body">
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(model => model.AddMember.Username, new { htmlAttributes = new { @class = "form-label" } })
+                        @Html.EditorFor(model => model.AddMember.Username, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.AddMember.Username, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group mb-3">
+                        @Html.LabelFor(model => model.AddMember.Email, new { htmlAttributes = new { @class = "form-label" } })
+                        @Html.EditorFor(model => model.AddMember.Email, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.AddMember.Email, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn ps-btn-primary">@Model.Localisation.Get(user, "ADD_MEMBER")</button>
+                        <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CANCEL")</button>
+                    </div> 
+                </div>    
+            }
+        </div>
+    </div>
+</div>
+</div>

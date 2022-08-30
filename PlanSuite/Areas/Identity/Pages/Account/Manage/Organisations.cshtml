@@ -1,0 +1,35 @@
+﻿@page
+@using PlanSuite.Enums
+@model PlanSuite.Areas.Identity.Pages.Account.Manage.OrganisationsModel
+@{
+    ViewData["Title"] = "Manage Organisations";
+    ViewData["ActivePage"] = ManageNavPages.Organisations;
+}
+
+<div class="container-fluid">
+    <h3>@ViewData["Title"]</h3>
+    <ul class="list-group">
+        @foreach(var organisation in Model.Organisations)
+        {
+            string orgRole = "member";
+            string editBtn = string.Empty;
+            string leaveBtn = $"<a href=\"#\" class=\"btn ps-btn-danger milestone-button-inline\" id=\"btnLeaveOrg_{organisation.Value.Id}\">Leave</a>";
+            if(organisation.Key.Role == ProjectRole.Admin)
+            {
+                orgRole = "admin";
+            }
+            else if(organisation.Key.Role == ProjectRole.Owner)
+            {
+                editBtn = $"<a href=\"#\" class=\"btn ps-btn-secondary milestone-button-inline\" id=\"btnEditOrg_{organisation.Value.Id}\">Edit</a>";
+                leaveBtn = string.Empty;
+                orgRole = "owner";
+            }
+
+            <li class="list-group-item"><a href="#" class="ps-link-primary">@organisation.Value.Name</a> <span class="text-muted">(@orgRole)</span> @Html.Raw(editBtn) @Html.Raw(leaveBtn)</li>
+        }
+    </ul>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

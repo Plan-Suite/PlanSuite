@@ -5,6 +5,8 @@
 @using PlanSuite.Models.Persistent
 @using PlanSuite.Services
 @using System.Security.Claims
+@using PlanSuite.Utility
+@using PlanSuite.Enums
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
 @model PlanSuite.Models.Temporary.HomeViewModel
@@ -17,9 +19,10 @@
     {
         ViewData["Title"] = "Project management for everyone";
     }
-    int count = Model.OwnedProjects.Count;
+    int count = Model.OwnedProjects.Count + Model.MemberProjects.Count;
 
     ApplicationUser user = await UserManager.GetUserAsync(User);
+    OrganisationErrorCode orgStatusCode = (OrganisationErrorCode)UrlUtility.GetUrlRouteInt(Context.Request, "orgStatus");
 }
 
 @functions{
@@ -31,102 +34,169 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <div class="text-center">
-        <h1 class="display-4">@Model.Localisation.Get(user, "YOUR_PROJECTS")</h1>
+
+        @{
+            if (orgStatusCode > OrganisationErrorCode.Success)
+            {
+                string errorMessage = Model.Localisation.Get(user, "UNKNOWN_ERROR");
+                switch (orgStatusCode)
+                {
+                    case OrganisationErrorCode.IsFreeTier:
+                    case OrganisationErrorCode.IsPlusTier:
+                        errorMessage = Model.Localisation.Get(user, "ORG_CREATE_ERROR_ORG_LIMIT");
+                        break;
+                    default:
+                        errorMessage = Model.Localisation.Get(user, "ORG_CREATE_ERROR_SERVER");
+                        break;
+                }
+                <div class="ps-alert ps-alert-error"><i class="bi bi-exclamation-triangle"></i> @errorMessage</div>
+            }
+
+            string header = @Model.Localisation.Get(user, "YOUR_PROJECTS");
+            if (Model.ViewingOrganisation != null)
+            {
+                header = Model.ViewingOrganisation.Name;
+            }
+        }
+
+
+        <h1 class="display-4">@header</h1>
         @* Button trigger modal *@
-        <button type="button" class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal">@Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</button>
+
+        @if (Model.CurrentOrganisationMembership != null)
+        {
+            if(Model.CurrentOrganisationMembership.Role >= ProjectRole.Admin)
+            {
+                <button type="button" class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal"><i class="bi bi-journal-plus"></i> @Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</button>
+            }
+        }
+        else
+        {
+            <button type="button" class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal"><i class="bi bi-journal-plus"></i> @Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</button>    
+        }
+
+        @if (user.PaymentTier >= PaymentTier.Plus)
+        {
+            @if (Model.ViewingOrganisation == null)
+            {
+                <button type="button" class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#createOrganisationModal"><i class="bi bi-people"></i> @Model.Localisation.Get(user, "CREATE_NEW_ORGANISATION")</button>
+            }
+            <partial name="SubViews/_CreateOrganisation" />
+        }
 
         @* Create New Project *@
         <div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="createProjectLabel">@Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-                <form method="post" asp-controller="Home" asp-action="Create">
-                    <div class="modal-body">
-                        <div class="form-floating">
-                            @Html.EditorFor(model => model.CreateProject.Name, new { htmlAttributes = new { @class = "form-control" } })
-                            @Html.LabelFor(model => model.CreateProject.Name, new { htmlAttributes = new { @class = "form-label" } })
-                            @Html.ValidationMessageFor(model => model.CreateProject.Name, "", new { @class = "text-danger" })
-                            <br>
-                        </div>
-                        <div class="form-floating">
-                            @Html.EditorFor(model => model.CreateProject.Description, new { htmlAttributes = new { @class = "form-control" } })
-                            @Html.LabelFor(model => model.CreateProject.Description, new { htmlAttributes = new { @class = "form-label" } })
-                            @Html.ValidationMessageFor(model => model.CreateProject.Description, "", new { @class = "text-danger" })
-                            <br>
-                        </div>
-                        <div class="form-floating">
-                            @Html.EditorFor(model => model.CreateProject.DueDate, new { htmlAttributes = new { @class = "form-control" } })
-                            @Html.LabelFor(model => model.CreateProject.DueDate, new { htmlAttributes = new { @class = "form-label" } })
-                            @Html.ValidationMessageFor(model => model.CreateProject.DueDate, "", new { @class = "text-danger" })
-                            <br>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
-                            <button type="submit" class="btn ps-btn-primary">@Model.Localisation.Get(user, "CREATE_PROJECT")</button>
-                        </div>
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createProjectLabel">@Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                </form>
+                    <form method="post" asp-controller="Home" asp-action="Create">
+                        @Html.HiddenFor(model => Model.CreateProject.OrganisationId)
+                        <div class="modal-body">
+                            <div class="form-floating">
+                                @Html.EditorFor(model => model.CreateProject.Name, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.LabelFor(model => model.CreateProject.Name, new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.ValidationMessageFor(model => model.CreateProject.Name, "", new { @class = "text-danger" })
+                                <br>
+                            </div>
+                            <div class="form-floating">
+                                @Html.EditorFor(model => model.CreateProject.Description, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.LabelFor(model => model.CreateProject.Description, new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.ValidationMessageFor(model => model.CreateProject.Description, "", new { @class = "text-danger" })
+                                <br>
+                            </div>
+                            <div class="form-floating">
+                                @Html.EditorFor(model => model.CreateProject.DueDate, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.LabelFor(model => model.CreateProject.DueDate, new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.ValidationMessageFor(model => model.CreateProject.DueDate, "", new { @class = "text-danger" })
+                                <br>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
+                                <button type="submit" class="btn ps-btn-primary">@Model.Localisation.Get(user, "CREATE_PROJECT")</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-          </div>
         </div>
 
         @* Edit Existing Project *@
         <div class="modal fade" id="editProjectModal" tabindex="-1" aria-labelledby="editProjectLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="editProjectLabel">EDIT_PROJECT</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
-                <form method="post" asp-controller="Home" asp-action="Edit">
-                    @Html.HiddenFor(model => model.EditProject.Id)
-                    <div class="modal-body">
-                        <div class="form-floating">
-                            @Html.EditorFor(model => model.EditProject.Name, new { htmlAttributes = new { @class = "form-control", id = "editProjName" } })
-                            @Html.LabelFor(model => model.EditProject.Name, new { htmlAttributes = new { @class = "form-label" } })
-                            @Html.ValidationMessageFor(model => model.EditProject.Name, "", new { @class = "text-danger" })
-                            <br>
-                        </div>
-                        <div class="form-floating">
-                            @Html.EditorFor(model => model.EditProject.Description, new { htmlAttributes = new { @class = "form-control", id = "editProjDesc" } })
-                            @Html.LabelFor(model => model.EditProject.Description, new { htmlAttributes = new { @class = "form-label" } })
-                            @Html.ValidationMessageFor(model => model.EditProject.Description, "", new { @class = "text-danger" })
-                            <br>
-                        </div>
-                        <div class="form-floating">
-                            @Html.EditorFor(model => model.EditProject.DueDate, new { htmlAttributes = new { @class = "form-control", id = "editProjDate" } })
-                            @Html.LabelFor(model => model.EditProject.DueDate, new { htmlAttributes = new { @class = "form-label" } })
-                            @Html.ValidationMessageFor(model => model.EditProject.DueDate, "", new { @class = "text-danger" })
-                            <br>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
-                            <button type="submit" class="btn ps-btn-primary">@Model.Localisation.Get(user, "SAVE_CHANGES")</button>
-                        </div>
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editProjectLabel">EDIT_PROJECT</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                </form>
+                    <form method="post" asp-controller="Home" asp-action="Edit">
+                        @Html.HiddenFor(model => model.EditProject.Id)
+                        <div class="modal-body">
+                            <div class="form-floating mb-3">
+                                @Html.EditorFor(model => model.EditProject.Name, new { htmlAttributes = new { @class = "form-control", id = "editProjName" } })
+                                @Html.LabelFor(model => model.EditProject.Name, new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.ValidationMessageFor(model => model.EditProject.Name, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="form-floating mb-3">
+                                @Html.EditorFor(model => model.EditProject.Description, new { htmlAttributes = new { @class = "form-control", id = "editProjDesc" } })
+                                @Html.LabelFor(model => model.EditProject.Description, new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.ValidationMessageFor(model => model.EditProject.Description, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="form-floating mb-3">
+                                @Html.EditorFor(model => model.EditProject.DueDate, new { htmlAttributes = new { @class = "form-control", id = "editProjDate" } })
+                                @Html.LabelFor(model => model.EditProject.DueDate, new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.ValidationMessageFor(model => model.EditProject.DueDate, "", new { @class = "text-danger" })
+                            </div>
+                            @if (Model.CurrentOrganisationMembership != null)
+                            {
+                                if (Model.CurrentOrganisationMembership.Role >= ProjectRole.Owner)
+                                {
+                                    <div class="form-floating mb-3">
+                                        <select id="editProjOrg" class="form-control" asp-for="EditProject.Organisation" asp-items="@(new SelectList(Model.Organisations, "Value", "Name"))">
+                                            <option value="0">@Model.Localisation.Get(user, "NONE")</option>
+                                        </select>
+                                    </div>
+                                }
+                                else
+                                {
+                                    @Html.HiddenFor(model => model.EditProject.Organisation)
+                                }
+                            }
+                            else
+                            {
+                                <div class="form-floating mb-3">
+                                    <select id="editProjOrg" class="form-control" asp-for="EditProject.Organisation" asp-items="@(new SelectList(Model.Organisations, "Value", "Name"))">
+                                        <option value="0">@Model.Localisation.Get(user, "NONE")</option>
+                                    </select>
+                                </div>
+                            }
+                            <div class="modal-footer">
+                                <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
+                                <button type="submit" class="btn ps-btn-primary">@Model.Localisation.Get(user, "SAVE_CHANGES")</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-          </div>
         </div>
 
         @* Delete Existing Project *@
         <div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-labelledby="deleteProjectLabel" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="deleteProjectLabel">DELETE_PROJECT</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteProjectLabel">DELETE_PROJECT</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
                 <form method="post" asp-controller="Home" asp-action="Delete">
                     @Html.HiddenFor(model => model.DeleteProject.Id)
                     @Html.HiddenFor(model => model.DeleteProject.Name)
                     <div class="modal-body">
                         <div class="form-floating">
-                            @Html.EditorFor(model => model.DeleteProject.Name, new { htmlAttributes = new { @class = "form-control", id = "confirmDeleteProjName" } })
-                            @Html.LabelFor(model => model.DeleteProject.Name, "Enter the project name in order to be able to delete it", new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.EditorFor(model => model.DeleteProject.Name, new { htmlAttributes = new { @class = "form-control", id = "confirmDeleteProjName", onkeyup = "onDeleteInput('deleteButton', 'DeleteProject_Name', 'confirmDeleteProjName')" } })
+                            @Html.LabelFor(model => model.DeleteProject.Name, "Enter the project name to be able to delete it", new { htmlAttributes = new { @class = "form-label" } })
                             @Html.ValidationMessageFor(model => model.DeleteProject.Name, "", new { @class = "text-danger" })
                             <br>
                         </div>
@@ -137,55 +207,94 @@
                     </div>
                 </form>
             </div>
-          </div>
+           </div>
         </div>
 
         <div class="container">
-        @if(count > 0)
-        {
-            <div class="row" id="MyProjects">
-            @foreach(var item in Model.OwnedProjects)
+            @if (count > 0)
             {
-                <div class="col-sm-6" id="OwnedProject_@item.Id">
-                    <input type="hidden" id="projectId" value="@item.Id"/>
-                    <input type="hidden" id="projectName" value="@item.Name"/>
-                    <input type="hidden" id="projectDesc" value="@item.Description"/>
-                    <input type="hidden" id="projectDate" value="@item.DueDate?.ToUniversalTime()"/>
-                    <div class="card p-1 mt-2" style="height:12rem;">
-                        <div>
-                            <h5 class="card-title m-1">@item.Name</h5>
-                            <h6 class="card-subtitle m-1 mb-2 text-muted">@Html.Raw(string.Format(Model.Localisation.Get(user, "PROJECT_SUB_TITLE"), FormatDate(item.CreatedDate), FormatDate(item.DueDate)))</h6>
-                            <p class="card-text m-1">@item.Description</p>
-                            <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">@Model.Localisation.Get(user, "VIEW_PROJECT")</a>
-                            <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "EDIT_PROJECT")</button>
-                            <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" id="passDeleteButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
-                        </div>
-                    </div>
+                <div class="row" id="MyProjects">
+                    @if (Model.OwnedProjects.Count > 0)
+                    {
+                        foreach (var item in Model.OwnedProjects)
+                        {
+                            // get org name
+                            string organisationName = "N/A";
+                            if (Model.OrganisationMap.ContainsKey(item.Id))
+                            {
+                                organisationName = $"<a href=\"/?orgId={Model.OrganisationMap[item.Id].Id}\">{Model.OrganisationMap[item.Id].Name}</a>";
+                            }
+
+                            <div class="col-sm-6" id="OwnedProject_@item.Id">
+                                <input type="hidden" id="projectId" value="@item.Id" />
+                                <input type="hidden" id="projectName" value="@item.Name" />
+                                <input type="hidden" id="projectDesc" value="@item.Description" />
+                                <input type="hidden" id="projectDate" value="@item.DueDate?.ToUniversalTime()" />
+                                <input type="hidden" id="projectOrganisation" value="@item.OrganisationId" />
+                                <div class="card p-1 mt-2" style="height:12rem;">
+                                    <div>
+                                        <h5 class="card-title m-1">@item.Name</h5>
+                                        <h6 class="card-subtitle m-1 mb-2 text-muted">@Html.Raw(string.Format(Model.Localisation.Get(user, "PROJECT_SUB_TITLE"), FormatDate(item.CreatedDate), FormatDate(item.DueDate), organisationName))</h6>
+                                        <p class="card-text m-1">@item.Description</p>
+                                        <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">@Model.Localisation.Get(user, "VIEW_PROJECT")</a>
+                                        <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "EDIT_PROJECT")</button>
+                                        <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" id="passDeleteButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                    @if (Model.MemberProjects.Count > 0)
+                    {
+                        foreach (var item in Model.MemberProjects)
+                        {
+                            // get org name
+                            string organisationName = "N/A";
+                            if (Model.OrganisationMap.ContainsKey(item.Id))
+                            {
+                                organisationName = $"<a href=\"/?orgId={Model.OrganisationMap[item.Id].Id}\">{Model.OrganisationMap[item.Id].Name}</a>";
+                            }
+
+                            if (Model.ViewingOrganisation != null)
+                            {
+                                organisationName = Model.ViewingOrganisation.Name;
+                            }
+
+                            <div class="col-sm-6" id="MemberProject_@item.Id">
+                                <input type="hidden" id="projectId" value="@item.Id" />
+                                <input type="hidden" id="projectName" value="@item.Name" />
+                                <input type="hidden" id="projectDesc" value="@item.Description" />
+                                <input type="hidden" id="projectDate" value="@item.DueDate?.ToUniversalTime()" />
+                                <input type="hidden" id="projectOrganisation" value="@item.OrganisationId" />
+                                <div class="card p-1 mt-2" style="height:12rem;">
+                                    <div>
+                                        <h5 class="card-title m-1">@item.Name</h5>
+                                        <h6 class="card-subtitle m-1 mb-2 text-muted">@Html.Raw(string.Format(Model.Localisation.Get(user, "PROJECT_SUB_TITLE"), FormatDate(item.CreatedDate), FormatDate(item.DueDate), organisationName))</h6>
+                                        <p class="card-text m-1">@item.Description</p>
+                                        <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">@Model.Localisation.Get(user, "VIEW_PROJECT")</a>
+                                        @if (Model.CurrentOrganisationMembership != null && Model.CurrentOrganisationMembership.Role >= PlanSuite.Enums.ProjectRole.Admin)
+                                        {
+                                            <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "EDIT_PROJECT")</button>
+                                        }
+                                        @if (Model.CurrentOrganisationMembership != null && Model.CurrentOrganisationMembership.Role >= PlanSuite.Enums.ProjectRole.Admin)
+                                        {
+                                            <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" id="passDeleteButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
                 </div>
             }
-            @foreach(var item in Model.MemberProjects)
+            else
             {
-                <div class="col-sm-6" id="MemberProject_@item.Id">
-                    <div class="card p-1 mt-2" style="height:12rem;">
-                        <div>
-                            <h5 class="card-title m-1">@item.Name</h5>
-                            <h6 class="card-subtitle m-1 mb-2 text-muted">@Html.Raw(string.Format(Model.Localisation.Get(user, "PROJECT_SUB_TITLE"), FormatDate(item.CreatedDate), FormatDate(item.DueDate)))</h6>
-                            <p class="card-text m-1">@item.Description</p>
-                            <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">@Model.Localisation.Get(user, "VIEW_PROJECT")</a>
-                        </div>
-                    </div>
-                </div>
+                <p>@Model.Localisation.Get(user, "NO_PROJECTS")</p>
             }
-            </div>
-        }
-        else
-        {
-            <p>@Model.Localisation.Get(user, "NO_PROJECTS")</p>
-        }
         </div>
     </div>
 }
 else
-{
-    <partial name="SubViews/Landing"/>
+            {
+    <partial name="SubViews/Landing" />
 }
