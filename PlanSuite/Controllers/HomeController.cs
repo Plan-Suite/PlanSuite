@@ -30,7 +30,7 @@ namespace PlanSuite.Controllers
             m_Localisation = LocalisationService.Instance;
         }
 
-        public IActionResult Index(int orgId = 0)
+        public async Task<IActionResult> Index(int orgId = 0)
         {
             CommonCookies.ApplyCommonCookies(HttpContext);
 
@@ -40,6 +40,8 @@ namespace PlanSuite.Controllers
                 viewModel.OwnedProjects = new List<Project>();
                 Guid userId = Guid.Parse(_userManager.GetUserId(User));
                 viewModel.CreateOrganisation.OwnerId = userId;
+
+                var user = await _userManager.FindByIdAsync(userId.ToString());
 
                 if (orgId >= 1)
                 {
@@ -63,6 +65,12 @@ namespace PlanSuite.Controllers
                         m_Logger.LogWarning($"Organisation {orgId} does not exist");
                         return RedirectToAction(nameof(Index));
                     }
+
+                    viewModel.Organisations.Add(new ItemList()
+                    {
+                        Name = organisation.Name,
+                        Value = organisation.Id
+                    });
 
                     // Show organisation projects
                     m_Logger.LogInformation($"Grabbing organisation projects for organisation {orgId} for user {userId}");
@@ -124,6 +132,14 @@ namespace PlanSuite.Controllers
                             var organisationMembership = m_Database.OrganizationsMembership.Where(member => member.OrganisationId == organisationId && member.UserId == userId && member.Role >= ProjectRole.User).FirstOrDefault();
                             if (organisationMembership != null)
                             {
+                                if(organisationMembership.Role >= ProjectRole.Admin)
+                                {
+                                    viewModel.Organisations.Add(new ItemList()
+                                    {
+                                        Name = organisation.Name,
+                                        Value = organisation.Id
+                                    });
+                                }
                                 var organisationProjects = m_Database.Projects.Where(p => p.OrganisationId == organisationId).ToList();
                                 if (organisationProjects != null && organisationProjects.Count > 0)
                                 {
@@ -211,6 +227,7 @@ namespace PlanSuite.Controllers
             project.Name = editProject.Name;
             project.Description = editProject.Description;
             project.DueDate = editProject.DueDate;
+            project.OrganisationId = editProject.Organisation;
             m_Database.SaveChanges();
 
             return RedirectToAction(nameof(Index));

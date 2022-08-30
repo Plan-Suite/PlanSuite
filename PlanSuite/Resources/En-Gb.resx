@@ -330,4 +330,7 @@
   <data name="REMOVE_MEMBER_FAIL_ADMIN" xml:space="preserve">
     <value>Cannot remove member as they are an administrator. Ask the organisation owner to remove their admin status first.</value>
   </data>
+  <data name="TRANSFER_TO_ORG" xml:space="preserve">
+    <value>Transfer to organisation</value>
+  </data>
 </root>
