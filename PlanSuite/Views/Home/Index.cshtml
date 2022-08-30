@@ -186,17 +186,17 @@
         <div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-labelledby="deleteProjectLabel" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" id="deleteProjectLabel">DELETE_PROJECT</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-              </div>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteProjectLabel">DELETE_PROJECT</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
                 <form method="post" asp-controller="Home" asp-action="Delete">
                     @Html.HiddenFor(model => model.DeleteProject.Id)
                     @Html.HiddenFor(model => model.DeleteProject.Name)
                     <div class="modal-body">
                         <div class="form-floating">
-                            @Html.EditorFor(model => model.DeleteProject.Name, new { htmlAttributes = new { @class = "form-control", id = "confirmDeleteProjName" } })
-                            @Html.LabelFor(model => model.DeleteProject.Name, "Enter the project name in order to be able to delete it", new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.EditorFor(model => model.DeleteProject.Name, new { htmlAttributes = new { @class = "form-control", id = "confirmDeleteProjName", onkeyup = "onDeleteInput('deleteButton', 'DeleteProject_Name', 'confirmDeleteProjName')" } })
+                            @Html.LabelFor(model => model.DeleteProject.Name, "Enter the project name to be able to delete it", new { htmlAttributes = new { @class = "form-label" } })
                             @Html.ValidationMessageFor(model => model.DeleteProject.Name, "", new { @class = "text-danger" })
                             <br>
                         </div>
@@ -205,24 +205,9 @@
                             <button type="submit" class="btn ps-btn-danger" id="deleteButton" disabled>@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
                         </div>
                     </div>
-                    <form method="post" asp-controller="Home" asp-action="Delete">
-                        @Html.HiddenFor(model => model.DeleteProject.Id)
-                        @Html.HiddenFor(model => model.DeleteProject.Name)
-                        <div class="modal-body">
-                            <div class="form-floating">
-                                @Html.EditorFor(model => model.DeleteProject.Name, new { htmlAttributes = new { @class = "form-control", id = "confirmDeleteProjName", onkeyup = "onDeleteInput('deleteButton', 'DeleteProject_Name', 'confirmDeleteProjName')" } })
-                                @Html.LabelFor(model => model.DeleteProject.Name, "Enter the project name to be able to delete it", new { htmlAttributes = new { @class = "form-label" } })
-                                @Html.ValidationMessageFor(model => model.DeleteProject.Name, "", new { @class = "text-danger" })
-                                <br>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
-                                <button type="submit" class="btn ps-btn-danger" id="deleteButton" disabled>@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
+                </form>
             </div>
+           </div>
         </div>
 
         <div class="container">
