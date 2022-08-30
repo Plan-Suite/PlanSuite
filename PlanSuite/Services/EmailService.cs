@@ -20,7 +20,7 @@ namespace PlanSuite.Services
             
         }
 
-        public static void InitEmailService(string user, string pass, string configSet, string host, int port, string configEmail, string configName)
+        public static async Task InitEmailService(string user, string pass, string configSet, string host, int port, string configEmail, string configName)
         {
             Console.WriteLine($"Configuring email service...");
             SmtpUser = user;
@@ -36,8 +36,8 @@ namespace PlanSuite.Services
             {
                 try
                 {
-                    smtpClient.Connect(SmtpHost, SmtpPort, MailKit.Security.SecureSocketOptions.StartTls);
-                    smtpClient.Authenticate(SmtpUser, SmtpPassword);
+                    await smtpClient.ConnectAsync(SmtpHost, SmtpPort, MailKit.Security.SecureSocketOptions.StartTls);
+                    await smtpClient.AuthenticateAsync(SmtpUser, SmtpPassword);
                     Console.WriteLine($"Email service configured for {user}@{host} on port {port}");
                 }
                 catch(Exception ex)
@@ -46,7 +46,7 @@ namespace PlanSuite.Services
                 }
                 finally
                 {
-                    smtpClient.Disconnect(true);
+                    await smtpClient.DisconnectAsync(true);
                 }
             }
         }

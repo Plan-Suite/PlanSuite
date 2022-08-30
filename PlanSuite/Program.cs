@@ -85,7 +85,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 new LocalisationService();
-EmailService.InitEmailService(configuration["EmailUser"].ToString(), configuration["EmailPass"].ToString(), configuration["EmailConfigSet"].ToString(), configuration["EmailHost"].ToString(), int.Parse(configuration["EmailPort"].ToString()), configuration["EmailConfigEmail"].ToString(), configuration["EmailConfigName"].ToString());
+await EmailService.InitEmailService(configuration["EmailUser"].ToString(), configuration["EmailPass"].ToString(), configuration["EmailConfigSet"].ToString(), configuration["EmailHost"].ToString(), int.Parse(configuration["EmailPort"].ToString()), configuration["EmailConfigEmail"].ToString(), configuration["EmailConfigName"].ToString());
 PaymentService.InitPaymentService(configuration["StripeApi"].ToString(), configuration["StripeSecret"].ToString(), configuration["StripePlus"].ToString(), configuration["StripePro"].ToString());
 
 app.Run();
