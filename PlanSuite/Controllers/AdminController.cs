@@ -11,7 +11,7 @@ using System.Diagnostics;
 namespace PlanSuite.Controllers
 {
     // We want to limit access to anything administrator related for obvious reasons
-    [Authorize(Roles = "SuperUser,Administrator,Support,Developer")]
+    [Authorize(Roles = "SuperUser,Support,Developer")]
     public class AdminController : Controller
     {
         private readonly ApplicationDbContext dbContext;
@@ -56,7 +56,7 @@ namespace PlanSuite.Controllers
 
             decimal plusPrice = 4.99m;
             decimal proPrice = 9.99m;
-
+            
             // We dont want to count the root user
             model.UserCount = dbContext.Users.Where(user => user.NormalizedUserName != "ROOT").ToList().Count;
             model.ProjectCount = dbContext.Projects.ToList().Count;
@@ -83,7 +83,8 @@ namespace PlanSuite.Controllers
             return View(model);
         }
 
-        public IActionResult User()
+        [Authorize(Roles = "SuperUser,Support")]
+        public IActionResult UserManager()
         {
             AdminIndexViewModel model = new AdminIndexViewModel();
             model.Section = "User";
