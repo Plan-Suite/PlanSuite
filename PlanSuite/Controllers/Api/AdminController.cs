@@ -66,5 +66,16 @@ namespace PlanSuite.Controllers.Api
                 Modified = result
             });
         }
+
+        [HttpPost("SetRole")]
+        public async Task<ActionResult> SetRole([FromBody] SetRoleModel model)
+        {
+            Console.WriteLine($"SetRoleModel: {model.Id} {model.Role}");
+            bool result = await m_AdminService.SetRole(model);
+            return Ok(new
+            {
+                Modified = result
+            });
+        }
     }
 }

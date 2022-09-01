@@ -64,18 +64,18 @@ namespace PlanSuite.Controllers
             model.Section = "Index";
 
             DateTime end = MonthUtil.GetPreviousMonth(true);
-            model.PlusSalesThisMonth = plusPrice * dbContext.Sales.Where(s => s.PaymentTier == Enums.PaymentTier.Plus && s.SaleDate > end).ToList().Count;
-            model.ProSalesThisMonth = proPrice * dbContext.Sales.Where(s => s.PaymentTier == Enums.PaymentTier.Pro && s.SaleDate > end).ToList().Count;
+            model.PlusSalesThisMonth = plusPrice * dbContext.Sales.Where(s => s.PaymentTier == Enums.PaymentTier.Plus && s.SaleDate > end && s.SaleIsFree == false).ToList().Count;
+            model.ProSalesThisMonth = proPrice * dbContext.Sales.Where(s => s.PaymentTier == Enums.PaymentTier.Pro && s.SaleDate > end && s.SaleIsFree == false).ToList().Count;
 
             DateTime start = MonthUtil.GetPreviousMonth(false);
 
-            decimal plusSalesLastMonth = plusPrice * dbContext.Sales.Where(s =>  s.PaymentTier == Enums.PaymentTier.Plus && s.SaleDate > start && s.SaleDate < end).ToList().Count;
-            decimal proSalesLastMonth = proPrice * dbContext.Sales.Where(s => s.PaymentTier == Enums.PaymentTier.Pro && s.SaleDate > start && s.SaleDate < end).ToList().Count;
+            decimal plusSalesLastMonth = plusPrice * dbContext.Sales.Where(s =>  s.PaymentTier == Enums.PaymentTier.Plus && s.SaleDate > start && s.SaleDate < end && s.SaleIsFree == false).ToList().Count;
+            decimal proSalesLastMonth = proPrice * dbContext.Sales.Where(s => s.PaymentTier == Enums.PaymentTier.Pro && s.SaleDate > start && s.SaleDate < end && s.SaleIsFree == false).ToList().Count;
 
             DateTime jan01 = new DateTime(DateTime.Now.Year, 1, 1);
 
-            decimal plusSalesThisYear= plusPrice * dbContext.Sales.Where(s => s.PaymentTier == Enums.PaymentTier.Plus && s.SaleDate > jan01 && s.SaleDate < DateTime.Now).ToList().Count;
-            decimal proSalesThisYear = proPrice * dbContext.Sales.Where(s => s.PaymentTier == Enums.PaymentTier.Pro && s.SaleDate > jan01 && s.SaleDate < DateTime.Now).ToList().Count;
+            decimal plusSalesThisYear= plusPrice * dbContext.Sales.Where(s => s.PaymentTier == Enums.PaymentTier.Plus && s.SaleDate > jan01 && s.SaleDate < DateTime.Now && s.SaleIsFree == false).ToList().Count;
+            decimal proSalesThisYear = proPrice * dbContext.Sales.Where(s => s.PaymentTier == Enums.PaymentTier.Pro && s.SaleDate > jan01 && s.SaleDate < DateTime.Now && s.SaleIsFree == false).ToList().Count;
 
             model.TotalSalesThisMonth = model.PlusSalesThisMonth + model.ProSalesThisMonth;
             model.TotalSalesLastMonth = plusSalesLastMonth + proSalesLastMonth;

@@ -22,5 +22,8 @@ namespace PlanSuite.Models.Persistent
 
         [Column("sale_state")]
         public SaleState SaleState { get; set; }
+
+        [Column("sale_is_free")]
+        public bool SaleIsFree { get; set; }
     }
 }

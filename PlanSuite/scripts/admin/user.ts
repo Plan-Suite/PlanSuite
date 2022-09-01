@@ -1,11 +1,18 @@
 ﻿import { isBlank, intToTier, arrayToString } from "../site.js";
 
+let editIdInput: JQuery<HTMLElement>;
+
 $(function () {
+
+    editIdInput = $("#EditUserId");
+    editIdInput.val(0);
 
     $("#giveAdminBtn").on("click", giveAdmin);
     $("#sendPasswordResetBtn").on("click", sendPasswordReset);
     $("#saveChangesBtn").on("click", saveChanges);
     $("#onSearchBtn").on("click", onSearch);
+    $("#setPlusRole").on("click", function () { setRole(1); });
+    $("#setProRole").on("click", function () { setRole(2); });
 });
 
 function saveChanges() {
@@ -28,7 +35,7 @@ function saveChanges() {
 
 function onEdit(id) {
     console.log(id);
-    $("#EditUserId").val(id);
+    editIdInput.val(id);
 }
 
 function giveAdmin() {
@@ -39,6 +46,23 @@ function giveAdmin() {
         url: "/api/Admin/GiveAdmin",
         data: JSON.stringify({
             id: $("#EditUserId").val(),
+        }),
+        success: function (result) {
+            console.log(result);
+            location.reload();
+        }
+    });
+}
+
+function setRole(role: number) {
+    $.ajax({
+        type: "POST",
+        dataType: "json",
+        contentType: "application/json",
+        url: "/api/Admin/SetRole",
+        data: JSON.stringify({
+            id: $("#EditUserId").val(),
+            role: role,
         }),
         success: function (result) {
             console.log(result);
@@ -93,9 +117,9 @@ function onSearch() {
         contentType: "application/json",
         url: url,
         success: function (result) {
-            console.log(result);
             if (result.getUserModels != null) {
                 result.getUserModels.forEach(function (element) {
+                    console.log(element);
                     var tr = `<tr>\
                       <th scope="row">${element.username}</th>\
                       <td>${element.email}</td>\
@@ -105,7 +129,7 @@ function onSearch() {
                     </tr>`;
                     $("#tbody").prepend(tr);
 
-                    $(`onEditBtn_${element.userId}`).on("click", function () { onEdit(element.userId); });
+                    $(`#onEditBtn_${element.userId}`).on("click", function () { onEdit(element.userId); });
                 });
             }
             $("#userSearchTable").removeClass("d-none");

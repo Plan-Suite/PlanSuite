@@ -1,9 +1,12 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Routing;
 using PlanSuite.Data;
+using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Utility;
+using Stripe;
 using System.Security.Policy;
 
 namespace PlanSuite.Services
@@ -14,13 +17,15 @@ namespace PlanSuite.Services
         private readonly UserManager<ApplicationUser> m_UserManager;
         private readonly SignInManager<ApplicationUser> m_SignInManager;
         private readonly RoleManager<IdentityRole> m_RoleManager;
+        private readonly IEmailSender m_EmailSender;
 
-        public AdminService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager)
+        public AdminService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IEmailSender emailSender)
         {
             m_Database = dbContext;
             m_UserManager = userManager;
             m_SignInManager = signInManager;
             m_RoleManager = roleManager;
+            m_EmailSender = emailSender;
         }
 
         public async Task<GetUsersModel> GetUser(string? username, string? email)
@@ -103,6 +108,36 @@ namespace PlanSuite.Services
                 Console.WriteLine($"SECURITY: Removed {user.UserName} from {Constants.AdminRole}");
             }
 
+            return true;
+        }
+
+        public async Task<bool> SetRole(SetRoleModel model)
+        {
+            var user = await m_UserManager.FindByIdAsync(model.Id);
+            if (user == null)
+            {
+                return false;
+            }
+
+            PaymentTier paymentTier = (PaymentTier)model.Role; ;
+            DateTime now = DateTime.Now;
+
+            var sale = new Sale();
+            sale.OwnerId = Guid.Parse(user.Id);
+            sale.PaymentTier = paymentTier;
+            sale.SaleDate = now;
+            sale.SaleState = Enums.SaleState.Success;
+            sale.SaleIsFree = true;
+            await m_Database.Sales.AddAsync(sale);
+            await m_Database.SaveChangesAsync();
+
+            user.PaymentExpiry = now.AddMonths(1);
+            user.PaymentTier = paymentTier;
+            await m_UserManager.UpdateAsync(user);
+
+            // Generate the payment receipt
+            string message = PlanSuite.Controllers.Api.PaymentController.GetPaymentReceiptString(sale, 0);
+            await m_EmailSender.SendEmailAsync(user.Email, "PlanSuite Payment Receipt", message);
             return true;
         }
 

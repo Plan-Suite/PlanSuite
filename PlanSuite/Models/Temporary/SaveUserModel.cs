@@ -16,4 +16,10 @@
     {
         public string Id { get; set; }
     }
+
+    public class SetRoleModel
+    {
+        public string Id { get; set; }
+        public int Role { get; set; }
+    }
 }
