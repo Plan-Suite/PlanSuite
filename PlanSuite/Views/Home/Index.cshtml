@@ -65,14 +65,14 @@
 
         @if (Model.CurrentOrganisationMembership != null)
         {
-            if(Model.CurrentOrganisationMembership.Role >= ProjectRole.Admin)
+            if (Model.CurrentOrganisationMembership.Role >= ProjectRole.Admin)
             {
                 <button type="button" class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal"><i class="bi bi-journal-plus"></i> @Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</button>
             }
         }
         else
         {
-            <button type="button" class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal"><i class="bi bi-journal-plus"></i> @Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</button>    
+            <button type="button" class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal"><i class="bi bi-journal-plus"></i> @Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</button>
         }
 
         @if (user.PaymentTier >= PaymentTier.Plus)
@@ -184,30 +184,30 @@
 
         @* Delete Existing Project *@
         <div class="modal fade" id="deleteProjectModal" tabindex="-1" aria-labelledby="deleteProjectLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteProjectLabel">DELETE_PROJECT</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <form method="post" asp-controller="Home" asp-action="Delete">
-                    @Html.HiddenFor(model => model.DeleteProject.Id)
-                    @Html.HiddenFor(model => model.DeleteProject.Name)
-                    <div class="modal-body">
-                        <div class="form-floating">
-                            @Html.EditorFor(model => model.DeleteProject.Name, new { htmlAttributes = new { @class = "form-control", id = "confirmDeleteProjName", onkeyup = "onDeleteInput('deleteButton', 'DeleteProject_Name', 'confirmDeleteProjName')" } })
-                            @Html.LabelFor(model => model.DeleteProject.Name, "Enter the project name to be able to delete it", new { htmlAttributes = new { @class = "form-label" } })
-                            @Html.ValidationMessageFor(model => model.DeleteProject.Name, "", new { @class = "text-danger" })
-                            <br>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
-                            <button type="submit" class="btn ps-btn-danger" id="deleteButton" disabled>@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
-                        </div>
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteProjectLabel">DELETE_PROJECT</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                </form>
+                    <form method="post" asp-controller="Home" asp-action="Delete">
+                        @Html.HiddenFor(model => model.DeleteProject.Id)
+                        @Html.HiddenFor(model => model.DeleteProject.Name)
+                        <div class="modal-body">
+                            <div class="form-floating">
+                                @Html.EditorFor(model => model.DeleteProject.Name, new { htmlAttributes = new { @class = "form-control", id = "confirmDeleteProjName", onkeyup = "onDeleteInput('deleteButton', 'DeleteProject_Name', 'confirmDeleteProjName')" } })
+                                @Html.LabelFor(model => model.DeleteProject.Name, "Enter the project name to be able to delete it", new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.ValidationMessageFor(model => model.DeleteProject.Name, "", new { @class = "text-danger" })
+                                <br>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
+                                <button type="submit" class="btn ps-btn-danger" id="deleteButton" disabled>@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-           </div>
         </div>
 
         <div class="container">
@@ -295,6 +295,10 @@
     </div>
 }
 else
-            {
+{
+    <environment exclude="Development">
+        <!-- Event snippet for Website traffic conversion page -->
+        <script>gtag('event', 'conversion', { 'send_to': 'AW-1061717470/vqxnCNPjmNsDEN6LovoD' });</script>
+    </environment>
     <partial name="SubViews/Landing" />
 }
