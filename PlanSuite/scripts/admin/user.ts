@@ -1,9 +1,9 @@
-﻿import { isBlank, intToTier, arrayToString } from "site.js";
+﻿import { isBlank, intToTier, arrayToString } from "../site.js";
 
 $(function () {
 
     $("#giveAdminBtn").on("click", giveAdmin);
-    //$("#sendPasswordResetBtn").on("click", sendPasswordReset);
+    $("#sendPasswordResetBtn").on("click", sendPasswordReset);
     $("#saveChangesBtn").on("click", saveChanges);
     $("#onSearchBtn").on("click", onSearch);
 });

@@ -23,31 +23,35 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form>
-            <input type="hidden" id="EditUserId" value=""/>
-            <div class="mb-3">
-                <label for="editUsername" class="form-label">Username</label>
-                <input type="text" class="form-control" id="editUsername" aria-describedby="editUsernameHelp">
-                <div id="editUsernameHelp" class="form-text">Make sure the username is correct.</div>
-            </div>
-            <div class="mb-3">
-                <label for="editEmail" class="form-label">Email</label>
-                <input type="email" class="form-control" id="editEmail" aria-describedby="editEmailHelp">
-                <div id="editEmailHelp" class="form-text">Make sure the email is correct.</div>
-            </div>
-            <div class="mb-3">
-                <label for="giveAdmin" class="form-label">Give Administrator</label><br />
-                <button type="button" class="btn ps-btn-secondary btn-sm" id="giveAdminBtn">Give Administrator Powers</button>
-            </div>
-            @*<div class="mb-3">
-                <label for="passwordReset" class="form-label">Password Reset</label><br />
-                <button type="button" class="btn ps-btn-secondary btn-sm" id="sendPasswordResetBtn">Send Password Reset</button>
-            </div>*@
-            <div class="modal-footer">
-                <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn ps-btn-primary" data-bs-dismiss="modal" id="saveChangesBtn">Save changes</button>
-            </div>
-        </form>
+          <form>
+              <input type="hidden" id="EditUserId" value="" />
+              <div class="mb-3">
+                  <label for="editUsername" class="form-label">Username</label>
+                  <input type="text" class="form-control" id="editUsername" aria-describedby="editUsernameHelp">
+                  <div id="editUsernameHelp" class="form-text">Make sure the username is correct.</div>
+              </div>
+              <div class="mb-3">
+                  <label for="editEmail" class="form-label">Email</label>
+                  <input type="email" class="form-control" id="editEmail" aria-describedby="editEmailHelp">
+                  <div id="editEmailHelp" class="form-text">Make sure the email is correct.</div>
+              </div>
+              <div class="mb-3">
+                  <label for="giveAdmin" class="form-label">Give Administrator</label><br />
+                  <button type="button" class="btn ps-btn-secondary btn-sm" id="giveAdminBtn">Give Administrator Powers</button>
+              </div>
+              <div class="mb-3">
+                  <label for="giveAdmin" class="form-label">Remove Administrator</label><br />
+                  <button type="button" class="btn ps-btn-secondary btn-sm" id="giveAdminBtn">Remove Administrator Powers</button>
+              </div>
+              @*<div class="mb-3">
+            <label for="passwordReset" class="form-label">Password Reset</label><br />
+            <button type="button" class="btn ps-btn-secondary btn-sm" id="sendPasswordResetBtn">Send Password Reset</button>
+        </div>*@
+              <div class="modal-footer">
+                  <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
+                  <button type="button" class="btn ps-btn-primary" data-bs-dismiss="modal" id="saveChangesBtn">Save changes</button>
+              </div>
+          </form>
       </div>
     </div>
   </div>
