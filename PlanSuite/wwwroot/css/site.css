@@ -299,3 +299,13 @@ input.input-validation-error {
     background-color: var(--green);
     color: var(--white);
 }
+
+.horizontal-scroll {
+    overflow: auto;
+    white-space: nowrap;
+}
+
+.horizontal-scroll-item {
+    display: inline-block;
+    vertical-align: top;
+}

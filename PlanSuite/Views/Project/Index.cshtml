@@ -104,51 +104,47 @@
     }
 
     @* Project Navbar *@
-    <div class="row">
-        <div class="col col-sm-10">
-            <button type="button" class="btn m-1 ps-btn-success float-start" data-bs-toggle="modal" data-bs-target="#addColumnModal" id="addColumnBtn">Add Column</button>
-            @if(Model.PaymentTier >= PaymentTier.Plus)
-            {
-                <button type="button" class="btn m-1 ps-btn-secondary" data-bs-toggle="modal" data-bs-target="#milestonesModal" id="listMilestonesBtn">Milestones</button>
-            }
-            <div class="btn-group" role="group">
-                <button id="btnGroupDrop1" type="button" class="btn m-1 ps-btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">More</button>
-                <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#projectMembersModal" id="seeMembersBtn">See Members</a></li>
-                    @if(Model.ProjectRole >= PlanSuite.Enums.ProjectRole.Admin)
-                    {
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addMemberModal">Add Member</a></li>
-                    }
-                    @if(Model.ProjectRole != PlanSuite.Enums.ProjectRole.Owner)
-                    {
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#leaveProjectModal">Leave Project</a></li>
-                    }
-                </ul>
-            </div>
+    <div class="col col-sm-10">
+        <button type="button" class="btn m-1 ps-btn-success float-start" data-bs-toggle="modal" data-bs-target="#addColumnModal" id="addColumnBtn">Add Column</button>
+        @if(Model.PaymentTier >= PaymentTier.Plus)
+        {
+            <button type="button" class="btn m-1 ps-btn-secondary" data-bs-toggle="modal" data-bs-target="#milestonesModal" id="listMilestonesBtn">Milestones</button>
+        }
+        <div class="btn-group" role="group">
+            <button id="btnGroupDrop1" type="button" class="btn m-1 ps-btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">More</button>
+            <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#projectMembersModal" id="seeMembersBtn">See Members</a></li>
+                @if(Model.ProjectRole >= PlanSuite.Enums.ProjectRole.Admin)
+                {
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addMemberModal">Add Member</a></li>
+                }
+                @if(Model.ProjectRole != PlanSuite.Enums.ProjectRole.Owner)
+                {
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#leaveProjectModal">Leave Project</a></li>
+                }
+            </ul>
         </div>
     </div>
 
-    <div class="row">
-        <partial name="SubViews/_CardView" />
-        <div class="card d-none" id="createCardDiv">
-            <div class="card-body">
-                <div class="d-grid gap-2">
-                    <div class="btn btn-outline-dark">
-                        <form method="post" asp-controller="Project" asp-action="addcard">
-                            @Html.HiddenFor(model => model.AddCard.ColumnId)
-                            @Html.HiddenFor(model => model.AddCard.ProjectId)
-                            <div class="row">
-                                <div class="col-sm-10">
-                                    @Html.EditorFor(model => model.AddCard.Name, new { htmlAttributes = new { @class = "form-control form-control-sm", id = "cardNameField", placeholder = "Card Name" } })
-                                </div>
-                                <div class="col-sm-2">
-                                    <button type="submit" class="btn ps-btn-primary btn-sm">Submit</button>
-                                </div>
+    <partial name="SubViews/_CardView" />
+    <div class="card d-none" id="createCardDiv">
+        <div class="card-body">
+            <div class="d-grid gap-2">
+                <div class="btn btn-outline-dark">
+                    <form method="post" asp-controller="Project" asp-action="addcard">
+                        @Html.HiddenFor(model => model.AddCard.ColumnId)
+                        @Html.HiddenFor(model => model.AddCard.ProjectId)
+                        <div class="row">
+                            <div class="col-sm-10">
+                                @Html.EditorFor(model => model.AddCard.Name, new { htmlAttributes = new { @class = "form-control form-control-sm", id = "cardNameField", placeholder = "Card Name" } })
                             </div>
-                        </form>
-                    </div>
+                            <div class="col-sm-2">
+                                <button type="submit" class="btn ps-btn-primary btn-sm">Submit</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
