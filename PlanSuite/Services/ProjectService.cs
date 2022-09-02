@@ -538,7 +538,10 @@ namespace PlanSuite.Services
             {
                 card.CardDueDate = dueDate;
                 card.CardPriority = (Priority)model.Priority;
-                card.CardAssignee = Guid.Parse(model.AssigneeId);
+                if(Guid.TryParse(model.AssigneeId, out Guid result))
+                {
+                    card.CardAssignee = result;
+                }
                 card.CardMilestone = model.MilestoneId;
                 await m_Database.SaveChangesAsync();
                 Console.WriteLine($"Saved card {model.CardId}");
