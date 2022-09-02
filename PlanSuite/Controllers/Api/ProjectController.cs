@@ -213,5 +213,13 @@ namespace PlanSuite.Controllers.Api
             Console.WriteLine($"GetMilestones: {id}");
             return m_ProjectService.GetMilestones(id);
         }
+
+        // GET: GetArchivedCards
+        [HttpGet("GetArchivedCards")]
+        public ActionResult<GetArchivedCardsModel> GetArchivedCards(int projectId)
+        {
+            Console.WriteLine($"GetArchivedCards: {projectId}");
+            return m_ProjectService.GetArchivedCardsAsync(projectId);
+        }
     }
 }

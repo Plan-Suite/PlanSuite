@@ -1,0 +1,42 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Enums
+@using PlanSuite.Models.Persistent
+@inject UserManager<ApplicationUser> UserManager
+@model PlanSuite.Models.Temporary.ProjectViewModel
+@{
+    int projectId = Model.Project.Id;
+    int columnCount = Model.Columns.Count;
+    int cardCount = Model.Cards.Count;
+    ApplicationUser user = await UserManager.GetUserAsync(User);
+}
+
+<script type="module" src="~/js/project/archive.js" asp-append-version="true"></script>
+
+<div class="modal fade" id="cardArchiveModal" tabindex="-1" aria-labelledby="cardArchiveLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="cardArchiveLabel">@Model.Localisation.Get(user, "ARCHIVED_CARDS")</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="cardArchiveBody mb-3">
+                    <div class="d-flex justify-content-center" id="archiveSpinner">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </div>
+                    <span class="d-none" id="noArchivedCardsInfo"><i class="bi bi-info-circle"></i> No archived cards found.</span>
+                    <div class="card mb-1" id="card_x">
+                        <div class="d-grid gap-2" style="height:60px;">
+                            <a class="btn ps-btn-white" style="text-align:left;" href="#" id="viewCardName_x" data-bs-toggle="modal" data-bs-target="#viewCardModal">Card Name</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

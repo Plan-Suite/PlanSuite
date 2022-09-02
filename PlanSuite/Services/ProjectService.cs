@@ -670,5 +670,23 @@ namespace PlanSuite.Services
 
             m_Database.SaveChanges();
         }
+
+        public GetArchivedCardsModel GetArchivedCardsAsync(int projectId)
+        {
+            Console.WriteLine($"Getting archived cards for {projectId}");
+            List<Card> cards = new List<Card>();
+
+            var columns = m_Database.Columns.Where(column => column.ProjectId == projectId).ToList();
+            foreach(var column in columns)
+            {
+                var cardList = m_Database.Cards.Where(card => card.ColumnId == column.Id && card.IsClosed == true).ToList();
+                cards.AddRange(cardList);
+            }
+            Console.WriteLine($"Grabbed {cards.Count} archived cards for {projectId}");
+
+            GetArchivedCardsModel model = new GetArchivedCardsModel();
+            model.Cards = cards;
+            return model;
+        }
     }
 }

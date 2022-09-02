@@ -333,4 +333,13 @@
   <data name="TRANSFER_TO_ORG" xml:space="preserve">
     <value>Transfer to organisation</value>
   </data>
+  <data name="ARCHIVED_CARDS" xml:space="preserve">
+    <value>Archived Cards</value>
+  </data>
+  <data name="ARCHIVE" xml:space="preserve">
+    <value>Archive</value>
+  </data>
+  <data name="RESTORE" xml:space="preserve">
+    <value>Restore</value>
+  </data>
 </root>

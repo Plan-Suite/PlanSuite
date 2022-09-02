@@ -8,6 +8,7 @@ const localisation = new Localisation();
 var projectId: number;
 var columnCount: number;
 var userId: number;
+let archiveButton: JQuery<HTMLElement>;
 
 enum Priority {
     None,
@@ -64,6 +65,8 @@ $(function () {
     $("#addChecklistBtn").on("click", onAddChecklist);
     $("#editCardSaveContentBtn").on("click", onEditCardSaveContent);
     $("#editCardBtn").on("click", onEditCard);
+    archiveButton = $("#archiveCardBtn");
+    archiveButton.on("click", onArchiveCard);
 
     $.ajax({
         type: "GET",
@@ -300,6 +303,7 @@ function viewCardButton(dbId) {
             $('#viewCardPriority').html(`<strong>${localisation.Get("VIEW_CARD_PRIORITY")}</strong> ${priority}`);
             $('#viewCardAssignee').html(`<strong>${localisation.Get("VIEW_CARD_ASSIGNEE")}</strong> ${assignee}`);
             $('#viewCardMilestone').html(`<strong>${localisation.Get("VIEW_CARD_MILESTONE")}</strong> ${milestone}`);
+            archiveButton.text(`<i class="bi bi-archive"></i> ${localisation.Get("ARCHIVE")}`);
         },
     });
 }

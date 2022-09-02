@@ -31,5 +31,8 @@ namespace PlanSuite.Models.Persistent
 
         [Column("card_milestone")]
         public int CardMilestone { get; set; }
+
+        [Column("is_closed")]
+        public bool IsClosed { get; set; }
     }
 }

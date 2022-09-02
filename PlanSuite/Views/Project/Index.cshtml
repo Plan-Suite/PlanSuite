@@ -22,9 +22,9 @@
 
 <div class="container">
 
-    <input type="hidden" 
+    <input type="hidden"
            id="RequestVerificationToken"
-           name="RequestVerificationToken" 
+           name="RequestVerificationToken"
            value="@GetAntiXsrfRequestToken()">
 
     <h1 class="text-center">@Model.Project.Name</h1>
@@ -32,21 +32,22 @@
     <div class="alert alert-success d-none" id="addUserSuccess" role="alert">Sucessfully added new user to project.</div>
     <div class="alert alert-danger d-none" id="addUserFail" role="alert">Failed to add user to project.</div>
     <h4 class="text-muted">@Model.Project.Description</h4>
-    <p class="text-muted"><strong>Project Created:</strong> @Model.Project.CreatedDate<br /><strong>Project Due Date:</strong>
-        @if(Model.Project.DueDate != null)
+    <p class="text-muted">
+        <strong>Project Created:</strong> @Model.Project.CreatedDate<br /><strong>Project Due Date:</strong>
+        @if (Model.Project.DueDate != null)
         {
-             @Model.Project.DueDate
+            @Model.Project.DueDate
         }
-        else 
+        else
         {
             <text>N/A</text>
         }
-    <br /><strong>Project Organisation:</strong>
-        @if(Model.Organisation != null)
+        <br /><strong>Project Organisation:</strong>
+        @if (Model.Organisation != null)
         {
-             @Model.Organisation.Name
+            @Model.Organisation.Name
         }
-        else 
+        else
         {
             <text>N/A</text>
         }
@@ -55,32 +56,35 @@
     @* Add Column *@
     <div class="modal fade" id="addColumnModal" tabindex="-1" aria-labelledby="addColumnLabel" aria-hidden="true">
         <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-            <h5 class="modal-title" id="editProjectLabel"><strong>Add Column:</strong> Name Here</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="post" asp-controller="Project" asp-action="AddColumn">
-                @Html.HiddenFor(model => model.AddColumn.ProjectId)
-                <div class="modal-body">
-                    <div class="form-floating">
-                        @Html.EditorFor(model => model.AddColumn.Name, new { htmlAttributes = new { @class = "form-control", id = "editProjName" } })
-                        @Html.LabelFor(model => model.AddColumn.Name, new { htmlAttributes = new { @class = "form-label" } })
-                        @Html.ValidationMessageFor(model => model.AddColumn.Name, "", new { @class = "text-danger" })
-                        <br>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn ps-btn-primary">Save Column</button>
-                    </div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProjectLabel"><strong>Add Column:</strong> Name Here</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-            </form>
-        </div>
+                <form method="post" asp-controller="Project" asp-action="AddColumn">
+                    @Html.HiddenFor(model => model.AddColumn.ProjectId)
+                    <div class="modal-body">
+                        <div class="form-floating">
+                            @Html.EditorFor(model => model.AddColumn.Name, new { htmlAttributes = new { @class = "form-control", id = "editProjName" } })
+                            @Html.LabelFor(model => model.AddColumn.Name, new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.ValidationMessageFor(model => model.AddColumn.Name, "", new { @class = "text-danger" })
+                            <br>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn ps-btn-primary">Save Column</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
-    <input type="hidden" id="projectId" value="@Model.Project.Id"/>
-    <input type="hidden" id="userId" value="@Model.UserId"/>
+    <input type="hidden" id="projectId" value="@Model.Project.Id" />
+    <input type="hidden" id="userId" value="@Model.UserId" />
+
+    @* Card Archive *@
+    <partial name="SubViews/_Archive" />
 
     @* View Card *@
     <partial name="SubViews/_ViewCard" />
@@ -95,7 +99,7 @@
     <partial name="SubViews/_AddMember" />
 
     @* Milestones *@
-    @if(Model.PaymentTier >= PaymentTier.Plus)
+    @if (Model.PaymentTier >= PaymentTier.Plus)
     {
         <partial name="SubViews/_ListMilestones" />
         <partial name="SubViews/_AddMilestone" />
@@ -107,20 +111,21 @@
     <div class="row">
         <div class="col col-sm-10">
             <button type="button" class="btn m-1 ps-btn-success float-start" data-bs-toggle="modal" data-bs-target="#addColumnModal" id="addColumnBtn">Add Column</button>
-            @if(Model.PaymentTier >= PaymentTier.Plus)
+            @if (Model.PaymentTier >= PaymentTier.Plus)
             {
                 <button type="button" class="btn m-1 ps-btn-secondary" data-bs-toggle="modal" data-bs-target="#milestonesModal" id="listMilestonesBtn">Milestones</button>
             }
             <div class="btn-group" role="group">
                 <button id="btnGroupDrop1" type="button" class="btn m-1 ps-btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">More</button>
                 <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#cardArchiveModal" id="cardArchiveBtn">Archived Cards</a></li>
                     <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#projectMembersModal" id="seeMembersBtn">See Members</a></li>
-                    @if(Model.ProjectRole >= PlanSuite.Enums.ProjectRole.Admin)
+                    @if (Model.ProjectRole >= PlanSuite.Enums.ProjectRole.Admin)
                     {
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addMemberModal">Add Member</a></li>
                     }
-                    @if(Model.ProjectRole != PlanSuite.Enums.ProjectRole.Owner)
+                    @if (Model.ProjectRole != PlanSuite.Enums.ProjectRole.Owner)
                     {
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#leaveProjectModal">Leave Project</a></li>
