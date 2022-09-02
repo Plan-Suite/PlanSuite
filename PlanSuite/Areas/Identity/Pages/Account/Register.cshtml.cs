@@ -123,6 +123,35 @@ namespace PlanSuite.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
+                ApplicationUser existingUser = null;
+                try
+                {
+                    existingUser = await _userManager.FindByEmailAsync(Input.Email);
+                    if (existingUser != null)
+                    {
+                        // Email already exists
+                        return Redirect("~/Identity/Account/Register?error=1");
+                    }
+                }
+                catch(Exception e)
+                {
+                    return Redirect("~/Identity/Account/Register?error=1");
+                }
+
+                try
+                {
+                    existingUser = await _userManager.FindByNameAsync(Input.UserName);
+                    if (existingUser != null)
+                    {
+                        // Name already exists
+                        return Redirect("~/Identity/Account/Register?error=2");
+                    }
+                }
+                catch (Exception e)
+                {
+                    return Redirect("~/Identity/Account/Register?error=2");
+                }
+
                 var user = CreateUser();
 
                 await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
