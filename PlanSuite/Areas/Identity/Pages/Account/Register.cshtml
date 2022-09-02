@@ -1,10 +1,28 @@
 ﻿@page
+@using Microsoft.AspNetCore.Http.Extensions
+@using PlanSuite.Utility
 @model RegisterModel
 @{
     ViewData["Title"] = "Register";
+    int errorCode = UrlUtility.GetUrlRouteInt(HttpContext.Request, "error");
 }
 
 <div class="container">
+    @if (errorCode > 0)
+    {
+        string errorMessage = "An unknown error has occured.";
+        switch (errorCode)
+        {
+            case 1:
+                errorMessage = "The email you entered is already in use.";
+                break;
+            case 2:
+                errorMessage = "The username you entered is already in use.";
+                break;
+        }
+        <div class="ps-alert ps-alert-error mt-3"><i class="bi bi-exclamation-triangle"></i> @errorMessage</div>
+    }
+
     <div class="register-card">
         <div class="row">
             <div class="col">
@@ -33,7 +51,7 @@
                         <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
                     </div>
                     <div class="form-check mb-4">
-                        <input asp-for="Input.EndUserLicenseAgreement" class="form-check-input" required/>
+                        <input asp-for="Input.EndUserLicenseAgreement" class="form-check-input" required />
                         <label asp-for="Input.EndUserLicenseAgreement"></label>
                         <span asp-validation-for="Input.EndUserLicenseAgreement" class="text-danger"></span>
                     </div>
@@ -50,7 +68,7 @@
                                     {
                                         string style = string.Empty;
                                         string icon = string.Empty;
-                                        if(provider.Name == "Facebook")
+                                        if (provider.Name == "Facebook")
                                         {
                                             icon = "<i class=\"bi bi-facebook\"></i>";
                                             style = "background-color: #4267b2; color: #FFF;";
@@ -65,35 +83,35 @@
                 <p class="text-center mt-4">Already have an account? <a class="ps-link-primary" href="/Identity/Account/Login">Sign in.</a></p>
             </div>
             @*<div class="col-md-6 col-md-offset-2">
-                <section>
-                    <h3>Use another service to register.</h3>
-                    <hr />
-                    @{
-                        if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                        {
-                            <div>
-                                <p>
-                                    There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                                    about setting up this ASP.NET application to support logging in via external services</a>.
-                                </p>
-                            </div>
-                        }
-                        else
-                        {
-                            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                    <section>
+                        <h3>Use another service to register.</h3>
+                        <hr />
+                        @{
+                            if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                            {
                                 <div>
                                     <p>
-                                        @foreach (var provider in Model.ExternalLogins)
-                                        {
-                                            <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                        }
+                                        There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
+                                        about setting up this ASP.NET application to support logging in via external services</a>.
                                     </p>
                                 </div>
-                            </form>
+                            }
+                            else
+                            {
+                                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                                    <div>
+                                        <p>
+                                            @foreach (var provider in Model.ExternalLogins)
+                                            {
+                                                <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
+                                            }
+                                        </p>
+                                    </div>
+                                </form>
+                            }
                         }
-                    }
-                </section>
-            </div>*@
+                    </section>
+                </div>*@
         </div>
     </div>
 </div>
