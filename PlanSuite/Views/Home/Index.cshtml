@@ -75,7 +75,7 @@
             <button type="button" class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal"><i class="bi bi-journal-plus"></i> @Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</button>
         }
 
-        @if (user.PaymentTier >= PaymentTier.Plus)
+        @if (user != null && user.PaymentTier >= PaymentTier.Plus)
         {
             @if (Model.ViewingOrganisation == null)
             {

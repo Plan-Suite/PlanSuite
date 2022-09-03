@@ -125,9 +125,11 @@ namespace PlanSuite.Areas.Identity.Pages.Account
             }
             else
             {
-                // If the user does not have an account, then ask the user to create an account.
+                // If the user does not have an account, then ask the user to confirm if they want to create an account.
+                // We should also skip email confirmation for external login users
                 ReturnUrl = returnUrl;
                 ProviderDisplayName = info.ProviderDisplayName;
+
                 if (info.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
                 {
                     Input = new InputModel
@@ -135,6 +137,67 @@ namespace PlanSuite.Areas.Identity.Pages.Account
                         Email = info.Principal.FindFirstValue(ClaimTypes.Email)
                     };
                 }
+
+                string username = Input.Email;
+                if (info.Principal.HasClaim(c => c.Type == ClaimTypes.Name))
+                {
+                    username = info.Principal.FindFirstValue(ClaimTypes.Name);
+                }
+
+                ApplicationUser existingUser = null;
+                try
+                {
+                    existingUser = await _userManager.FindByEmailAsync(Input.Email);
+                    if (existingUser != null)
+                    {
+                        // Email already exists
+                        return Redirect("~/Identity/Account/Register?error=1");
+                    }
+                }
+                catch (Exception e)
+                {
+                    return Redirect("~/Identity/Account/Register?error=1");
+                }
+
+                try
+                {
+                    existingUser = await _userManager.FindByNameAsync(username);
+                    if (existingUser != null)
+                    {
+                        // Name already exists
+                        return Redirect("~/Identity/Account/Register?error=2");
+                    }
+                }
+                catch (Exception e)
+                {
+                    return Redirect("~/Identity/Account/Register?error=2");
+                }
+
+                var user = CreateUser();
+                await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+                await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+                var registerResult = await _userManager.CreateAsync(user);
+                if (registerResult.Succeeded)
+                {
+                    registerResult = await _userManager.AddLoginAsync(user, info);
+                    if (registerResult.Succeeded)
+                    {
+                        _logger.LogInformation($"{Input.Email} created an account using {info.LoginProvider} provider.");
+
+                        var userId = await _userManager.GetUserIdAsync(user);
+                        var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+                        await _userManager.ConfirmEmailAsync(user, code);
+
+                        await _signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
+                        return LocalRedirect(returnUrl);
+                    }
+                }
+                foreach (var error in registerResult.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
+                }
+
                 return Page();
             }
         }

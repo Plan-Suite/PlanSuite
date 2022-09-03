@@ -1,7 +1,11 @@
+using System.Security.Claims;
+using Facebook;
+using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using PlanSuite.Data;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Services;
@@ -19,15 +23,32 @@ builder.Services.AddScoped<OrganisationService>();
 var configuration = System.Environment.GetEnvironmentVariables();
 builder.Services.AddTransient<IEmailSender, EmailService>();
 
-if (builder.Environment.IsProduction())
-{
+//if (builder.Environment.IsProduction())
+//{
     builder.Services.AddAuthentication().AddFacebook(facebookOptions =>
     {
         facebookOptions.AppId = configuration["FacebookId"].ToString();
         facebookOptions.AppSecret = configuration["FacebookSecret"].ToString();
         facebookOptions.AccessDeniedPath = "/Home/AuthError";
+
+        facebookOptions.Scope.Add("public_profile");
+        facebookOptions.Scope.Add("email");
+
+        facebookOptions.Events = new OAuthEvents
+        {
+            OnCreatingTicket = context => {
+                // Use the Facebook Graph Api to get the user's email address
+                // and add it to the email claim
+
+                var client = new FacebookClient(context.AccessToken);
+                dynamic info = client.Get("me", new { fields = "name,id,email" });
+
+                context.Identity.AddClaim(new Claim(ClaimTypes.Email, info.email));
+                return Task.FromResult(0);
+            }
+        };
     });
-}
+//}
 
 // Add database connection
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
