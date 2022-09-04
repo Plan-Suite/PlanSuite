@@ -27,7 +27,7 @@
         public const int VERSION_MINOR = 10;
 
         // Increment this when we fix bugs, update dependencies or other non-noticable features
-        public const int VERSION_PATCH = 1;
+        public const int VERSION_PATCH = 2;
 
         public static bool IsProduction { get; private set; }
         public static string EnvironmentName { get; private set; }
