@@ -17,19 +17,28 @@ namespace PlanSuite.Services
             m_UserManager = userManager;
         }
 
-        public async Task InsertLogAsync(AuditLogType logType, ClaimsPrincipal user, string message)
+        public async Task InsertLogAsync(AuditLogCategory logCat, ClaimsPrincipal user, AuditLogType logType, string targetId)
+        {
+            var appUser = await m_UserManager.GetUserAsync(user);
+            await InsertLogAsync(logCat, appUser, logType, targetId);
+        }
+
+        public async Task InsertLogAsync(AuditLogCategory logCat, ApplicationUser user, AuditLogType logType, string targetId)
         {
             AuditLog auditLog = new AuditLog();
             auditLog.LogType = logType;
-
-            var appUser = await m_UserManager.GetUserAsync(user);
-            auditLog.UserID = Guid.Parse(appUser.Id);
+            auditLog.UserID = Guid.Parse(user.Id);
             auditLog.Timestamp = DateTime.Now;
-            auditLog.Message = message;
+            auditLog.LogCategory = logCat;
+            auditLog.TargetID = targetId;
 
             await m_Database.AuditLogs.AddAsync(auditLog);
             await m_Database.SaveChangesAsync();
-            Console.WriteLine($"[{auditLog.Timestamp}] {auditLog.LogType} #{auditLog.Id} (target: {auditLog.TargetID}): {message}");
+
+            string logMsg = $"[{auditLog.Timestamp}] {auditLog.LogCategory} #{auditLog.Id} #{auditLog.TargetID} was {auditLog.LogType} by {user.UserName}";
+            Console.WriteLine(logMsg);
+            DateTime now = DateTime.Now;
+            await File.AppendAllTextAsync($"/var/log/plansuite/audit_{now.Day}-{now.Month}-{now.Year}.log", logMsg);
         }
     }
 }

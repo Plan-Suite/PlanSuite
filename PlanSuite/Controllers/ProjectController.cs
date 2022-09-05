@@ -133,7 +133,7 @@ namespace PlanSuite.Controllers
         }
 
         [HttpPost("addcard")]
-        public IActionResult AddCard(AddCardModel addCard)
+        public Task<IActionResult> AddCard(AddCardModel addCard)
         {
             if (!_signInManager.IsSignedIn(User))
             {
@@ -151,7 +151,7 @@ namespace PlanSuite.Controllers
 
             Console.WriteLine($"Account {_userManager.GetUserId(User)} successfully added a card to column {column.Id}");
 
-            m_ProjectService.AddCard(addCard);
+            await m_ProjectService.AddCard(addCard);
 
             return RedirectToAction(nameof(Index), "Project", new { id = column.ProjectId });
         }

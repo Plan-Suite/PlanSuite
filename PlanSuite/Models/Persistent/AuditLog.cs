@@ -14,16 +14,16 @@ namespace PlanSuite.Models.Persistent
         [Column("timestamp")]
         public DateTime Timestamp { get; set; }
 
-        [Column("log_type")]
-        public AuditLogType LogType { get; set; }
+        [Column("log_category")]
+        public AuditLogCategory LogCategory { get; set; }
 
         [Column("user_id")]
         public Guid UserID { get; set; }
 
         [Column("target_id")]
-        public int TargetID { get; set; }
+        public string TargetID { get; set; }
 
-        [Column("message")]
-        public string Message { get; set; }
+        [Column("log_type")]
+        public AuditLogType LogType { get; set; }
     }
 }
