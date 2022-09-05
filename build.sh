@@ -34,7 +34,11 @@ then
     cd ~/build/PlanSuite/PlanSuite
     cp ~/build/appsettings.json ~/build/PlanSuite/PlanSuite/appsettings.json
     dotnet ef migrations bundle --self-contained -r linux-x64
-   ~/build/PlanSuite/PlanSuite/efbundle
+    ~/build/PlanSuite/PlanSuite/efbundle
+
+    echo "-> Applying correct permissions"
+    sudo mkdir -p /var/log/plansuite
+    sudo chown www-data /var/log/plansuite
 
     echo "-> Restarting website"
     sudo service plansuite restart
