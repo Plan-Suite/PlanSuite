@@ -40,5 +40,10 @@ namespace PlanSuite.Services
             DateTime now = DateTime.Now;
             await File.AppendAllTextAsync($"/var/log/plansuite/audit_{now.Day}-{now.Month}-{now.Year}.log", logMsg);
         }
+
+        internal Task InsertLogAsync(AuditLogCategory organisation, ApplicationUser user, object makeAdmin, object id)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

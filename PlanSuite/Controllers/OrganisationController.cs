@@ -15,14 +15,16 @@ namespace PlanSuite.Controllers
         private readonly UserManager<ApplicationUser> m_UserManager;
         private readonly ApplicationDbContext m_Database;
         private readonly SignInManager<ApplicationUser> m_SigninManager;
+        private readonly AuditService m_AuditService;
 
-        public OrganisationController(OrganisationService organisationService, ILogger<OrganisationController> logger, UserManager<ApplicationUser> userManager, ApplicationDbContext database, SignInManager<ApplicationUser> signInManager)
+        public OrganisationController(OrganisationService organisationService, ILogger<OrganisationController> logger, UserManager<ApplicationUser> userManager, ApplicationDbContext database, SignInManager<ApplicationUser> signInManager, AuditService auditService)
         {
             m_OrganisationService = organisationService;
             m_Logger = logger;
             m_UserManager = userManager;
             m_Database = database;
             m_SigninManager = signInManager;
+            m_AuditService = auditService;
         }
 
         [HttpPost]
@@ -276,6 +278,7 @@ namespace PlanSuite.Controllers
                 await m_Database.SaveChangesAsync();
                 m_Logger.LogInformation($"Added {membership.UserId} to organisation {membership.OrganisationId}");
                 routeValues.Add("success", 1);
+                await m_AuditService.InsertLogAsync(AuditLogCategory.Organisation, user, AuditLogType.AddedMember, newMember.Id);
             }
             else
             {
@@ -312,6 +315,7 @@ namespace PlanSuite.Controllers
 
             membership.Role = ProjectRole.Admin;
             await m_Database.SaveChangesAsync();
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Organisation, user, AuditLogType.MakeAdmin, membership.UserId.ToString());
 
             routeValues.Add("success", 2);
             return RedirectToAction(nameof(SeeMembers), routeValues);
@@ -353,6 +357,7 @@ namespace PlanSuite.Controllers
 
             m_Database.OrganizationsMembership.Remove(membership);
             await m_Database.SaveChangesAsync();
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Organisation, user, AuditLogType.RemovedMember, membership.UserId.ToString());
 
             routeValues.Add("success", 3);
             return RedirectToAction(nameof(SeeMembers), routeValues);

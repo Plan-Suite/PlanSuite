@@ -25,6 +25,9 @@
         ModifiedTickState,
         Added,
         Left,
-        ModifiedCard
+        ModifiedCard,
+        AddedMember,
+        MakeAdmin,
+        RemovedMember
     }
 }
