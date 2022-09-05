@@ -19,6 +19,7 @@ namespace PlanSuite.Data
         public DbSet<ProjectMilestone> ProjectMilestones { get; set; }
         public DbSet<Organisation> Organizations { get; set; }
         public DbSet<OrganisationMembership> OrganizationsMembership { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)

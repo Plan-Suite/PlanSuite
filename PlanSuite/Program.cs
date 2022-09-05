@@ -19,6 +19,7 @@ WebsiteVersion.Init(builder.Environment.EnvironmentName);
 builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<OrganisationService>();
+builder.Services.AddScoped<AuditService>();
 
 var configuration = System.Environment.GetEnvironmentVariables();
 builder.Services.AddTransient<IEmailSender, EmailService>();
