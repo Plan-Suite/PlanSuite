@@ -5,6 +5,7 @@ using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
+using Stripe;
 
 namespace PlanSuite.Controllers
 {
@@ -162,6 +163,7 @@ namespace PlanSuite.Controllers
 
             EditOrganisationViewModel model = new EditOrganisationViewModel();
             model.Organisation = organisation;
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Organisation, user, AuditLogType.Modified, organisation.Id);
 
             return View(model);
         }

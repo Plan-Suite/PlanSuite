@@ -17,20 +17,20 @@ namespace PlanSuite.Services
             m_UserManager = userManager;
         }
 
-        public async Task InsertLogAsync(AuditLogCategory logCat, ClaimsPrincipal user, AuditLogType logType, string targetId)
+        public async Task InsertLogAsync(AuditLogCategory logCat, ClaimsPrincipal user, AuditLogType logType, object targetId)
         {
             var appUser = await m_UserManager.GetUserAsync(user);
             await InsertLogAsync(logCat, appUser, logType, targetId);
         }
 
-        public async Task InsertLogAsync(AuditLogCategory logCat, ApplicationUser user, AuditLogType logType, string targetId)
+        public async Task InsertLogAsync(AuditLogCategory logCat, ApplicationUser user, AuditLogType logType, object targetId)
         {
             AuditLog auditLog = new AuditLog();
             auditLog.LogType = logType;
             auditLog.UserID = Guid.Parse(user.Id);
             auditLog.Timestamp = DateTime.Now;
             auditLog.LogCategory = logCat;
-            auditLog.TargetID = targetId;
+            auditLog.TargetID = targetId.ToString();
 
             await m_Database.AuditLogs.AddAsync(auditLog);
             await m_Database.SaveChangesAsync();

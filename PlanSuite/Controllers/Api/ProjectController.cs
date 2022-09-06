@@ -85,7 +85,7 @@ namespace PlanSuite.Controllers.Api
         [HttpPost("addmember")]
         public async Task<IActionResult> AddMember([FromBody] AddMemberModel model)
         {
-            Console.WriteLine($"LeaveProjectModel: {model.ProjectId} {model.Name}");
+            Console.WriteLine($"AddMemberModel: {model.ProjectId} {model.Name}");
             var result = await m_ProjectService.AddMember(model);
 
             return Ok(new
@@ -127,10 +127,10 @@ namespace PlanSuite.Controllers.Api
         }
 
         [HttpPost("AddChecklistItem")]
-        public ActionResult<ChecklistItem> AddChecklistItem([FromBody] AddChecklistItemModel model)
+        public async Task<ActionResult<ChecklistItem>> AddChecklistItem([FromBody] AddChecklistItemModel model)
         {
             Console.WriteLine($"AddChecklistItem: {model.ChecklistId} {model.ItemText}");
-            return m_ProjectService.AddChecklistItem(model);
+            return await m_ProjectService.AddChecklistItem(model, User);
         }
 
         [HttpPost("EditChecklistItemTickedState")]
@@ -146,10 +146,10 @@ namespace PlanSuite.Controllers.Api
         }
 
         [HttpPost("ConvertChecklistItemToCard")]
-        public IActionResult ConvertChecklistItemToCard([FromBody] ConvertChecklistItemModel model)
+        public async Task<IActionResult> ConvertChecklistItemToCard([FromBody] ConvertChecklistItemModel model)
         {
             Console.WriteLine($"ConvertChecklistItemToCard: {model.ChecklistItemId}");
-            bool result = m_ProjectService.ConvertChecklistItemToCard(model, User);
+            bool result = await m_ProjectService.ConvertChecklistItemToCard(model, User);
 
             return Ok(new
             {
@@ -158,10 +158,10 @@ namespace PlanSuite.Controllers.Api
         }
 
         [HttpPost("DeleteChecklistItem")]
-        public IActionResult DeleteChecklistItem([FromBody] DeleteChecklistItemModel model)
+        public async Task<IActionResult> DeleteChecklistItem([FromBody] DeleteChecklistItemModel model)
         {
             Console.WriteLine($"DeleteChecklistItemModel: {model.ChecklistItemId}");
-            bool result = m_ProjectService.DeleteChecklistItem(model);
+            bool result = await m_ProjectService.DeleteChecklistItem(model, User);
 
             return Ok(new
             {
@@ -171,10 +171,10 @@ namespace PlanSuite.Controllers.Api
 
         // POST: DeleteChecklist
         [HttpPost("DeleteChecklist")]
-        public IActionResult DeleteChecklistItem([FromBody] DeleteChecklistModel model)
+        public async Task<IActionResult> DeleteChecklistItem([FromBody] DeleteChecklistModel model)
         {
             Console.WriteLine($"DeleteChecklist: {model.ChecklistId}");
-            bool result = m_ProjectService.DeleteChecklist(model);
+            bool result = await m_ProjectService.DeleteChecklist(model, User);
 
             return Ok(new
             {
@@ -184,15 +184,15 @@ namespace PlanSuite.Controllers.Api
 
         // POST: AddChecklist
         [HttpPost("AddChecklist")]
-        public ActionResult<CardChecklist> AddChecklist([FromBody] AddChecklistModel model)
+        public async Task<ActionResult<CardChecklist>> AddChecklist([FromBody] AddChecklistModel model)
         {
             Console.WriteLine($"AddChecklist: {model.Id} {model.Name}");
-            return m_ProjectService.AddChecklist(model);
+            return await m_ProjectService.AddChecklist(model, User);
         }
 
         // GET: GetMilestoneInfoForEditing
         [HttpGet("GetMilestoneInfoForEditing")]
-        public ActionResult<GetMilestoneDataForEditingModel> GetMilestoneInfoForEditingAsync(int id)
+        public async Task<ActionResult<GetMilestoneDataForEditingModel>> GetMilestoneInfoForEditingAsync(int id)
         {
             Console.WriteLine($"GetMilestoneInfoForEditing: {id}");
             return m_ProjectService.GetMilestoneInfoForEditingAsync(id);
@@ -203,7 +203,7 @@ namespace PlanSuite.Controllers.Api
         public async Task<ActionResult<GetToggleMilestoneIsClosedModel>> ToggleMilestoneIsClosed([FromBody] ToggleMilestoneIsClosedModel model)
         {
             Console.WriteLine($"ToggleMilestoneIsClosed: {model.MilestoneId}");
-            return await m_ProjectService.ToggleMilestoneIsClosedAsync(model);
+            return await m_ProjectService.ToggleMilestoneIsClosedAsync(model, User);
         }
 
         // GET: GetMilestones

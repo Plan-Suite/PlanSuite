@@ -9,7 +9,8 @@
         Project,
         Organisation,
         Column,
-        Checklist
+        Checklist,
+        Milestone
     }
 
     /// <summary>
@@ -25,9 +26,11 @@
         ModifiedTickState,
         Added,
         Left,
-        ModifiedCard,
+        Modified,
         AddedMember,
         MakeAdmin,
-        RemovedMember
+        RemovedMember,
+        AddedMilestone,
+        AddedChecklist
     }
 }
