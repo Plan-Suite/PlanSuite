@@ -66,7 +66,7 @@ namespace PlanSuite.Services
             await m_Database.OrganizationsMembership.AddAsync(membership);
             m_Logger.LogInformation($"Saving org {organisation.Id}");
             await m_Database.SaveChangesAsync();
-            await m_AuditService.InsertLogAsync(AuditLogCategory.Organisation, owner, AuditLogType.Created, model.Id);
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Organisation, owner, AuditLogType.Created, organisation.Id);
 
             return OrganisationErrorCode.Success;
         }

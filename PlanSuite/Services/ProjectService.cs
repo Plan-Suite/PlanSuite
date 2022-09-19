@@ -284,7 +284,7 @@ namespace PlanSuite.Services
 
             Console.WriteLine($"Milestone {model.MilestoneId} IsClosed = {closedModel.IsClosed}");
             closedModel.IsClosed = milestone.IsClosed;
-            await m_AuditService.InsertLogAsync(AuditLogCategory.Milestone, user, AuditLogType.Added, milestone.);
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Milestone, user, AuditLogType.Closed, milestone.Id);
             return closedModel;
         }
 

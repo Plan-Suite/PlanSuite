@@ -31,6 +31,7 @@
         MakeAdmin,
         RemovedMember,
         AddedMilestone,
-        AddedChecklist
+        AddedChecklist,
+        Closed
     }
 }

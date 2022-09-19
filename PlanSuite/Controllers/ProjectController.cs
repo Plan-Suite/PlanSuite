@@ -100,6 +100,61 @@ namespace PlanSuite.Controllers
             return View(viewModel);
         }
 
+        public async Task<IActionResult> Logs(int projectId, int index = 0)
+        {
+            CommonCookies.ApplyCommonCookies(HttpContext);
+            if (!_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction(nameof(Index), "Home");
+            }
+
+            var project = dbContext.Projects.FirstOrDefault(p => p.Id == projectId);
+            if (project == null)
+            {
+                Console.WriteLine($"No project with id {projectId} found");
+                return RedirectToAction(nameof(Index), "Home");
+            }
+
+            ApplicationUser appUser = await _userManager.GetUserAsync(User);
+            var role = m_ProjectService.GetUserProjectAccess(appUser, project);
+            if (role == ProjectRole.None)
+            {
+                Console.WriteLine($"WARNING: Account {_userManager.GetUserId(User)} tried to access {project.Id} without correct permissions");
+                return RedirectToAction(nameof(Index), "Home");
+            }
+            LogViewModel viewModel = new LogViewModel();
+            viewModel.Project = project;
+            viewModel.AuditLogs = new List<AuditLog>();
+
+            var projectLogs = dbContext.AuditLogs.Where(log => log.LogCategory == AuditLogCategory.Project && log.TargetID == projectId.ToString()).ToList();
+            viewModel.AuditLogs.AddRange(projectLogs);
+
+            var milestones = dbContext.ProjectMilestones.Where(m => m.ProjectId == projectId).ToList();
+            foreach(var milestone in milestones)
+            {
+                var milestoneLogs = dbContext.AuditLogs.Where(log => log.LogCategory == AuditLogCategory.Milestone && log.TargetID == milestone.Id.ToString()).ToList();
+                viewModel.AuditLogs.AddRange(milestoneLogs);
+            }
+
+            var columns = dbContext.Columns.Where(m => m.ProjectId == projectId).ToList();
+            foreach (var column in columns)
+            {
+                var columnLogs = dbContext.AuditLogs.Where(log => log.LogCategory == AuditLogCategory.Column && log.TargetID == column.Id.ToString()).ToList();
+                viewModel.AuditLogs.AddRange(columnLogs);
+
+                var cards = dbContext.Cards.Where(card => card.ColumnId == column.Id).ToList();
+                foreach(var card in cards)
+                {
+                    var cardLogs = dbContext.AuditLogs.Where(log => log.LogCategory == AuditLogCategory.Card && log.TargetID == card.Id.ToString()).ToList();
+                    viewModel.AuditLogs.AddRange(cardLogs);
+                }
+            }
+
+            viewModel.AuditLogs = viewModel.AuditLogs.OrderByDescending(audit => audit.Timestamp).Skip(index - 20).Take(20).ToList();
+
+            return View(viewModel);
+        }
+
         [HttpPost]
         public async Task<IActionResult> AddColumn(ProjectViewModel.AddColumnModel addColumn)
         {
