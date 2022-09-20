@@ -12,7 +12,6 @@ using System.Text.Json;
 
 namespace PlanSuite.Controllers
 {
-    [Route("Project")]
     public class ProjectController : Controller
     {
         private readonly ApplicationDbContext dbContext;
@@ -32,6 +31,7 @@ namespace PlanSuite.Controllers
             m_AuditService = auditService;
         }
 
+        // /Project/Index?id=X
         public async Task<IActionResult> Index(int id)
         {
             CommonCookies.ApplyCommonCookies(HttpContext);
@@ -100,6 +100,7 @@ namespace PlanSuite.Controllers
             return View(viewModel);
         }
 
+        // /Project/Logs/?projectId=X&index=Y
         public async Task<IActionResult> Logs(int projectId, int index = 0)
         {
             CommonCookies.ApplyCommonCookies(HttpContext);
@@ -130,7 +131,7 @@ namespace PlanSuite.Controllers
             viewModel.AuditLogs.AddRange(projectLogs);
 
             var milestones = dbContext.ProjectMilestones.Where(m => m.ProjectId == projectId).ToList();
-            foreach(var milestone in milestones)
+            foreach (var milestone in milestones)
             {
                 var milestoneLogs = dbContext.AuditLogs.Where(log => log.LogCategory == AuditLogCategory.Milestone && log.TargetID == milestone.Id.ToString()).ToList();
                 viewModel.AuditLogs.AddRange(milestoneLogs);
@@ -143,7 +144,7 @@ namespace PlanSuite.Controllers
                 viewModel.AuditLogs.AddRange(columnLogs);
 
                 var cards = dbContext.Cards.Where(card => card.ColumnId == column.Id).ToList();
-                foreach(var card in cards)
+                foreach (var card in cards)
                 {
                     var cardLogs = dbContext.AuditLogs.Where(log => log.LogCategory == AuditLogCategory.Card && log.TargetID == card.Id.ToString()).ToList();
                     viewModel.AuditLogs.AddRange(cardLogs);
@@ -185,7 +186,7 @@ namespace PlanSuite.Controllers
             column.Title = addColumn.Name;
             await dbContext.Columns.AddAsync(column);
             await dbContext.SaveChangesAsync();
-            await m_AuditService.InsertLogAsync(AuditLogCategory.Column, appUser, AuditLogType.Added, column.Id);
+                await m_AuditService.InsertLogAsync(AuditLogCategory.Column, appUser, AuditLogType.Added, column.Id);
 
             return RedirectToAction(nameof(Index), "Project", new { id = project.Id });
         }

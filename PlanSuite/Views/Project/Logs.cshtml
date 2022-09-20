@@ -1,14 +1,46 @@
-﻿@*
+﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Models.Persistent
+@*
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @model PlanSuite.Models.Temporary.LogViewModel
+@inject PlanSuite.Services.AuditService AuditService
+@inject UserManager<ApplicationUser> UserManager
 @{
+    ViewData["Title"] = $"Project Logs - {Model.Project.Name}";
 }
 
 <div class="container">
-    <h5>@Model.Project.Name Audit Logs</h5>
+    <h5 class="mt-2 md-1">@Model.Project.Name Audit Logs</h5>
 
-    <ul class="list-group">
-        <li class="list-group-item"><i class="bi bi-card-list"></i> Card<br />Log Description<br /><small class="text-muted">DD/MM/YYYY HH:MM</small></li>
-    </ul>
+    @if (Model.AuditLogs.Count > 0)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">User Name</th>
+                    <th scope="col">Date & Time</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in Model.AuditLogs)
+                {
+                    var user = await UserManager.FindByIdAsync(log.UserID.ToString());
+
+                    <tr>
+                        <th scope="row">@user.UserName</th>
+                        <td>@log.Timestamp</td>
+                        <td>@await AuditService.AuditLogToHumanReadable(log)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p><i class="bi bi-exclamation-diamond"></i> Uh-oh! There are currently no active log entries.</p>
+    }
+
+    <a class="btn ps-btn-primary" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id"><i class="bi bi-arrow-left-circle"></i> Return to @Model.Project.Name</a>
 </div>
