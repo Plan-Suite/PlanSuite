@@ -18,10 +18,10 @@ namespace PlanSuite.Controllers.Api
         }
 
         [HttpPost("movecard")]
-        public IActionResult MoveCard([FromBody] MoveCardModel model)
+        public async Task<IActionResult> MoveCard([FromBody] MoveCardModel model)
         {
             Console.WriteLine($"MoveCard: {model.CardId} {model.ColumnId}");
-            m_ProjectService.MoveCard(model);
+            await m_ProjectService.MoveCard(model, User);
 
             return Ok(new
             {
@@ -31,10 +31,10 @@ namespace PlanSuite.Controllers.Api
         }
 
         [HttpPost("editcarddesc")]
-        public IActionResult EditCardDesc([FromBody] EditCardDescModel model)
+        public async Task<IActionResult> EditCardDesc([FromBody] EditCardDescModel model)
         {
             Console.WriteLine($"EditCardDescModel: {model.CardId} {model.Description}");
-            m_ProjectService.EditCardDesc(model);
+            await m_ProjectService.EditCardDesc(model, User);
 
             return Ok(new
             {
@@ -44,10 +44,10 @@ namespace PlanSuite.Controllers.Api
         }
 
         [HttpPost("editcardname")]
-        public IActionResult EditCardDesc([FromBody] EditCardNameModel model)
+        public async Task<IActionResult> EditCardDesc([FromBody] EditCardNameModel model)
         {
             Console.WriteLine($"EditCardNameModel: {model.CardId} {model.Name}");
-            m_ProjectService.EditCardName(model);
+            await m_ProjectService.EditCardName(model, User);
 
             return Ok(new
             {
@@ -60,7 +60,7 @@ namespace PlanSuite.Controllers.Api
         public async Task<IActionResult> EditCardAsync([FromBody] EditCardModel model)
         {
             Console.WriteLine($"EditCardModel: {model.CardId} {model.Timestamp} {model.Priority} {model.AssigneeId}");
-            await m_ProjectService.EditCardAsync(model);
+            await m_ProjectService.EditCardAsync(model, User);
 
             return Ok(new
             {
@@ -70,10 +70,10 @@ namespace PlanSuite.Controllers.Api
         }
 
         [HttpPost("leaveproject")]
-        public IActionResult LeaveProject([FromBody] LeaveProjectModel model)
+        public async Task<IActionResult> LeaveProject([FromBody] LeaveProjectModel model)
         {
             Console.WriteLine($"LeaveProjectModel: {model.ProjectId} {model.UserId}");
-            m_ProjectService.LeaveProject(model);
+            await m_ProjectService.LeaveProject(model);
 
             return Ok(new
             {
@@ -83,10 +83,10 @@ namespace PlanSuite.Controllers.Api
         }
 
         [HttpPost("addmember")]
-        public IActionResult AddMember([FromBody] AddMemberModel model)
+        public async Task<IActionResult> AddMember([FromBody] AddMemberModel model)
         {
-            Console.WriteLine($"LeaveProjectModel: {model.ProjectId} {model.Name}");
-            var result = m_ProjectService.AddMember(model);
+            Console.WriteLine($"AddMemberModel: {model.ProjectId} {model.Name}");
+            var result = await m_ProjectService.AddMember(model);
 
             return Ok(new
             {
@@ -114,10 +114,10 @@ namespace PlanSuite.Controllers.Api
         }
 
         [HttpPost("EditColumnName")]
-        public IActionResult EditColumnName([FromBody] EditColumnNameModel model)
+        public async Task<IActionResult> EditColumnName([FromBody] EditColumnNameModel model)
         {
             Console.WriteLine($"EditColumnName: {model.ColumnId} {model.ColumnText}");
-            m_ProjectService.EditColumnTitle(model);
+            await m_ProjectService.EditColumnTitle(model, User);
 
             return Ok(new
             {
@@ -127,17 +127,17 @@ namespace PlanSuite.Controllers.Api
         }
 
         [HttpPost("AddChecklistItem")]
-        public ActionResult<ChecklistItem> AddChecklistItem([FromBody] AddChecklistItemModel model)
+        public async Task<ActionResult<ChecklistItem>> AddChecklistItem([FromBody] AddChecklistItemModel model)
         {
             Console.WriteLine($"AddChecklistItem: {model.ChecklistId} {model.ItemText}");
-            return m_ProjectService.AddChecklistItem(model);
+            return await m_ProjectService.AddChecklistItem(model, User);
         }
 
         [HttpPost("EditChecklistItemTickedState")]
-        public IActionResult EditChecklistItemTickedState([FromBody] EditChecklistItemTickedStateModel model)
+        public async Task<IActionResult> EditChecklistItemTickedState([FromBody] EditChecklistItemTickedStateModel model)
         {
             Console.WriteLine($"EditChecklistItemTickedState: {model.ChecklistItemId} {model.TickedState}");
-            m_ProjectService.EditChecklistItemTickedState(model);
+            await m_ProjectService.EditChecklistItemTickedState(model, User);
 
             return Ok(new
             {
@@ -146,10 +146,10 @@ namespace PlanSuite.Controllers.Api
         }
 
         [HttpPost("ConvertChecklistItemToCard")]
-        public IActionResult ConvertChecklistItemToCard([FromBody] ConvertChecklistItemModel model)
+        public async Task<IActionResult> ConvertChecklistItemToCard([FromBody] ConvertChecklistItemModel model)
         {
             Console.WriteLine($"ConvertChecklistItemToCard: {model.ChecklistItemId}");
-            bool result = m_ProjectService.ConvertChecklistItemToCard(model);
+            bool result = await m_ProjectService.ConvertChecklistItemToCard(model, User);
 
             return Ok(new
             {
@@ -158,10 +158,10 @@ namespace PlanSuite.Controllers.Api
         }
 
         [HttpPost("DeleteChecklistItem")]
-        public IActionResult DeleteChecklistItem([FromBody] DeleteChecklistItemModel model)
+        public async Task<IActionResult> DeleteChecklistItem([FromBody] DeleteChecklistItemModel model)
         {
             Console.WriteLine($"DeleteChecklistItemModel: {model.ChecklistItemId}");
-            bool result = m_ProjectService.DeleteChecklistItem(model);
+            bool result = await m_ProjectService.DeleteChecklistItem(model, User);
 
             return Ok(new
             {
@@ -171,10 +171,10 @@ namespace PlanSuite.Controllers.Api
 
         // POST: DeleteChecklist
         [HttpPost("DeleteChecklist")]
-        public IActionResult DeleteChecklistItem([FromBody] DeleteChecklistModel model)
+        public async Task<IActionResult> DeleteChecklistItem([FromBody] DeleteChecklistModel model)
         {
             Console.WriteLine($"DeleteChecklist: {model.ChecklistId}");
-            bool result = m_ProjectService.DeleteChecklist(model);
+            bool result = await m_ProjectService.DeleteChecklist(model, User);
 
             return Ok(new
             {
@@ -184,15 +184,15 @@ namespace PlanSuite.Controllers.Api
 
         // POST: AddChecklist
         [HttpPost("AddChecklist")]
-        public ActionResult<CardChecklist> AddChecklist([FromBody] AddChecklistModel model)
+        public async Task<ActionResult<CardChecklist>> AddChecklist([FromBody] AddChecklistModel model)
         {
             Console.WriteLine($"AddChecklist: {model.Id} {model.Name}");
-            return m_ProjectService.AddChecklist(model);
+            return await m_ProjectService.AddChecklist(model, User);
         }
 
         // GET: GetMilestoneInfoForEditing
         [HttpGet("GetMilestoneInfoForEditing")]
-        public ActionResult<GetMilestoneDataForEditingModel> GetMilestoneInfoForEditingAsync(int id)
+        public async Task<ActionResult<GetMilestoneDataForEditingModel>> GetMilestoneInfoForEditingAsync(int id)
         {
             Console.WriteLine($"GetMilestoneInfoForEditing: {id}");
             return m_ProjectService.GetMilestoneInfoForEditingAsync(id);
@@ -203,7 +203,7 @@ namespace PlanSuite.Controllers.Api
         public async Task<ActionResult<GetToggleMilestoneIsClosedModel>> ToggleMilestoneIsClosed([FromBody] ToggleMilestoneIsClosedModel model)
         {
             Console.WriteLine($"ToggleMilestoneIsClosed: {model.MilestoneId}");
-            return await m_ProjectService.ToggleMilestoneIsClosedAsync(model);
+            return await m_ProjectService.ToggleMilestoneIsClosedAsync(model, User);
         }
 
         // GET: GetMilestones

@@ -38,5 +38,37 @@ namespace PlanSuite.Utility
             Console.WriteLine($"No route key for {routeKey} in {url}");
             return string.Empty;
         }
+
+        public static string TimestampToLastUpdated(DateTime timestamp)
+        {
+            string format = string.Empty;
+            DateTime when = timestamp;
+            TimeSpan ts = DateTime.Now.Subtract(when);
+            if (ts.TotalMinutes < 1)
+            {
+                format = $"{(int)ts.TotalSeconds} seconds ago";
+            }
+            else if (ts.TotalHours < 1)
+            {
+                format = $"{(int)ts.TotalMinutes} minutes ago";
+            }
+            else if (ts.TotalDays < 1)
+            {
+                format = $"{(int)ts.TotalHours} hours ago";
+            }
+            else if (ts.TotalDays < 2)
+            {
+                format = "yesterday";
+            }
+            else if (ts.TotalDays < 5)
+            {
+                format = $"on {when.DayOfWeek}";
+            }
+            else
+            {
+                format = $"{(int)ts.TotalDays} days ago";
+            }
+            return format;
+        }
     }
 }

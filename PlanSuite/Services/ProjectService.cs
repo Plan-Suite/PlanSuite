@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PlanSuite.Data;
 using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
@@ -12,40 +15,45 @@ namespace PlanSuite.Services
     {
         private readonly ApplicationDbContext m_Database;
         private readonly UserManager<ApplicationUser> m_UserManager;
+        private readonly AuditService m_AuditService;
 
-        public ProjectService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager)
+        public ProjectService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, AuditService auditService)
         {
             m_Database = dbContext;
             m_UserManager = userManager;
+            m_AuditService = auditService;
         }
 
-        public void MoveCard(MoveCardModel model)
+        public async Task MoveCard(MoveCardModel model, ClaimsPrincipal user)
         {
             var card = m_Database.Cards.Where(card => card.Id == model.CardId).FirstOrDefault();
             if(card != null)
             {
                 card.ColumnId = model.ColumnId;
-                m_Database.SaveChanges();
+                await m_Database.SaveChangesAsync();
+                await m_AuditService.InsertLogAsync(AuditLogCategory.Card, user, AuditLogType.Moved, card.Id);
             }
         }
 
-        public void EditCardDesc(EditCardDescModel model)
+        public async Task EditCardDesc(EditCardDescModel model, ClaimsPrincipal user)
         {
             var card = m_Database.Cards.Where(card => card.Id == model.CardId).FirstOrDefault();
             if (card != null)
             {
                 card.CardDescription = model.Description;
-                m_Database.SaveChanges();
+                await m_AuditService.InsertLogAsync(AuditLogCategory.Card, user, AuditLogType.ModifiedDescription, card.Id);
+                await m_Database.SaveChangesAsync();
             }
         }
 
-        public void EditCardName(EditCardNameModel model)
+        public async Task EditCardName(EditCardNameModel model, ClaimsPrincipal user)
         {
             var card = m_Database.Cards.Where(card => card.Id == model.CardId).FirstOrDefault();
             if (card != null)
             {
                 card.CardName = model.Name;
-                m_Database.SaveChanges();
+                await m_AuditService.InsertLogAsync(AuditLogCategory.Card, user, AuditLogType.ModifiedDescription, card.Id);
+                await m_Database.SaveChangesAsync();
             }
         }
 
@@ -156,6 +164,19 @@ namespace PlanSuite.Services
                     }
                 }
 
+                // get last 5 card audit logs
+                List<AuditLogJsonModel> auditLogs = new List<AuditLogJsonModel>();
+                var cardAuditLogs = m_Database.AuditLogs.Where(m => m.LogCategory == AuditLogCategory.Card && m.TargetID == card.Id.ToString()).ToList().TakeLast(5);
+                foreach(var auditLog in cardAuditLogs)
+                {
+                    var auditUser = await m_UserManager.FindByIdAsync(auditLog.UserID.ToString());
+                    AuditLogJsonModel auditLogModel = new AuditLogJsonModel();
+                    auditLogModel.Message = await m_AuditService.AuditLogToHumanReadable(auditLog);
+                    auditLogModel.Created = UrlUtility.TimestampToLastUpdated(auditLog.Timestamp);
+                    auditLogModel.Username = auditUser.UserName;
+                    auditLogs.Add(auditLogModel);
+                }
+
                 // return
                 GetCardReturnJson json = new GetCardReturnJson()
                 {
@@ -171,14 +192,15 @@ namespace PlanSuite.Services
                     ChecklistItems = items,
                     ProjectMilestones = milestones,
                     MilestoneId = currentMilestoneId,
-                    MilestoneName = currentMilestoneName
+                    MilestoneName = currentMilestoneName,
+                    AuditLogs = auditLogs
                 };
                 return json;
             }
             return null;
         }
 
-        public bool DeleteChecklistItem(DeleteChecklistItemModel model)
+        public async Task<bool> DeleteChecklistItem(DeleteChecklistItemModel model, ClaimsPrincipal user)
         {
             Console.WriteLine($"Deleting checklistitem {model.ChecklistItemId}");
             // Grab checklist item from database
@@ -188,12 +210,13 @@ namespace PlanSuite.Services
                 return false;
             }
 
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Checklist, user, AuditLogType.Deleted, checklistItem.ChecklistId);
             m_Database.ChecklistItems.Remove(checklistItem);
-            m_Database.SaveChanges();
+            await m_Database.SaveChangesAsync();
             return true;
         }
 
-        public CardChecklist AddChecklist(AddChecklistModel model)
+        public async Task<CardChecklist> AddChecklist(AddChecklistModel model, ClaimsPrincipal user)
         {
             Console.WriteLine($"Adding checklist {model.Name} to card {model.Id}");
             // Add checklist to card
@@ -201,8 +224,9 @@ namespace PlanSuite.Services
             checklist.ChecklistCard = model.Id;
             checklist.ChecklistName = model.Name;
 
-            m_Database.CardChecklists.Add(checklist);
-            m_Database.SaveChanges();
+            await m_Database.CardChecklists.AddAsync(checklist);
+            await m_Database.SaveChangesAsync();
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Checklist, user, AuditLogType.Added, checklist.Id);
             return checklist;
         }
 
@@ -239,7 +263,7 @@ namespace PlanSuite.Services
             return model;
         }
 
-        internal async Task DeleteMilestoneAsync(DeleteMilestoneModel model)
+        internal async Task DeleteMilestoneAsync(DeleteMilestoneModel model, ClaimsPrincipal user)
         {
             Console.WriteLine($"Deleting milestone {model.MilestoneId} 1");
             // Grab checklist item from database
@@ -252,9 +276,10 @@ namespace PlanSuite.Services
             Console.WriteLine($"Deleting milestone {model.MilestoneId} 2");
             m_Database.ProjectMilestones.Remove(milestone);
             await m_Database.SaveChangesAsync();
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Milestone, user, AuditLogType.Modified, milestone.Id);
         }
 
-        public async Task<ActionResult<GetToggleMilestoneIsClosedModel>> ToggleMilestoneIsClosedAsync(ToggleMilestoneIsClosedModel model)
+        public async Task<ActionResult<GetToggleMilestoneIsClosedModel>> ToggleMilestoneIsClosedAsync(ToggleMilestoneIsClosedModel model, ClaimsPrincipal user)
         {
             Console.WriteLine($"Toggling milestone closed state for {model.MilestoneId}");
 
@@ -273,10 +298,11 @@ namespace PlanSuite.Services
 
             Console.WriteLine($"Milestone {model.MilestoneId} IsClosed = {closedModel.IsClosed}");
             closedModel.IsClosed = milestone.IsClosed;
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Milestone, user, AuditLogType.Closed, milestone.Id);
             return closedModel;
         }
 
-        public bool DeleteChecklist(DeleteChecklistModel model)
+        public async Task<bool> DeleteChecklist(DeleteChecklistModel model, ClaimsPrincipal user)
         {
             // Delete all checklist items for checklist we are deleting
             Console.WriteLine($"Deleting checklist items for {model.ChecklistId}");
@@ -294,14 +320,15 @@ namespace PlanSuite.Services
             {
                 return false;
             }
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Checklist, user, AuditLogType.Deleted, checklist.Id);
             m_Database.CardChecklists.Remove(checklist);
 
             // Save changes
-            m_Database.SaveChanges();
+            await m_Database.SaveChangesAsync();
             return true;
         }
 
-        internal async Task EditMilestoneAsync(EditMilestoneModel model)
+        internal async Task EditMilestoneAsync(EditMilestoneModel model, ClaimsPrincipal user)
         {
             Console.WriteLine($"Editing milestone {model.MilestoneId}");
             var milestone = m_Database.ProjectMilestones.FirstOrDefault(p => p.Id == model.MilestoneId);
@@ -325,9 +352,10 @@ namespace PlanSuite.Services
 
             Console.WriteLine($"Saving milestone {model.MilestoneId}");
             await m_Database.SaveChangesAsync();
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Milestone, user, AuditLogType.Modified, milestone.Id);
         }
 
-        internal async Task AddMilestoneAsync(AddMilestoneModel model)
+        internal async Task AddMilestoneAsync(AddMilestoneModel model, ClaimsPrincipal user)
         {
             Console.WriteLine($"Adding milestone \"{model.Title}\" to project {model.ProjectId}");
             var milestone = new ProjectMilestone();
@@ -339,9 +367,10 @@ namespace PlanSuite.Services
 
             await m_Database.ProjectMilestones.AddAsync(milestone);
             await m_Database.SaveChangesAsync();
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Milestone, user, AuditLogType.AddedMilestone, milestone.Id);
         }
 
-        public bool ConvertChecklistItemToCard(ConvertChecklistItemModel model)
+        public async Task<bool> ConvertChecklistItemToCard(ConvertChecklistItemModel model, ClaimsPrincipal user)
         {
             Console.WriteLine($"Converting checklistitem {model.ChecklistItemId} to card");
             // Grab checklist item from database
@@ -375,27 +404,28 @@ namespace PlanSuite.Services
             addCard.ProjectId = column.ProjectId;
             addCard.ColumnId = column.Id;
             addCard.Name = checklistItem.ItemName;
-            AddCard(addCard);
+            await AddCard(addCard, user);
 
             // Delete checklist item
             m_Database.ChecklistItems.Remove(checklistItem);
-            m_Database.SaveChanges();
+            await m_Database.SaveChangesAsync();
 
             return true;
         }
 
-        public void EditChecklistItemTickedState(EditChecklistItemTickedStateModel model)
+        public async Task EditChecklistItemTickedState(EditChecklistItemTickedStateModel model, ClaimsPrincipal user)
         {
             Console.WriteLine($"Editing checklistitem {model.ChecklistItemId} tick state to {model.TickedState}");
             var checklistItem = m_Database.ChecklistItems.Where(item => item.Id == model.ChecklistItemId).FirstOrDefault();
             if (checklistItem != null)
             {
                 checklistItem.ItemTicked = model.TickedState;
-                m_Database.SaveChanges();
+                await m_AuditService.InsertLogAsync(AuditLogCategory.Checklist, user, AuditLogType.ModifiedTickState, checklistItem.ChecklistId.ToString());
+                await m_Database.SaveChangesAsync();
             }
         }
 
-        public ChecklistItem AddChecklistItem(AddChecklistItemModel model)
+        public async Task<ChecklistItem> AddChecklistItem(AddChecklistItemModel model, ClaimsPrincipal user)
         {
             int index = 0;
             var lastChecklistItem = m_Database.ChecklistItems.Where(item => item.ChecklistId == model.ChecklistId).OrderBy(item => item.ItemIndex).LastOrDefault();
@@ -411,18 +441,20 @@ namespace PlanSuite.Services
                 ItemName = model.ItemText,
             };
 
-            m_Database.ChecklistItems.Add(checklistItem);
-            m_Database.SaveChanges();
+            await m_Database.ChecklistItems.AddAsync(checklistItem);
+            await m_Database.SaveChangesAsync();
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Checklist, user, AuditLogType.Added, model.ChecklistId);
             return checklistItem;
         }
 
-        public void EditColumnTitle(EditColumnNameModel model)
+        public async Task EditColumnTitle(EditColumnNameModel model, ClaimsPrincipal user)
         {
             var column = m_Database.Columns.Where(column => column.Id == model.ColumnId).FirstOrDefault();
             if (column != null)
             {
                 column.Title = model.ColumnText;
-                m_Database.SaveChanges();
+                await m_AuditService.InsertLogAsync(AuditLogCategory.Column, user, AuditLogType.ModifiedName, model.ColumnId.ToString());
+                await m_Database.SaveChangesAsync();
             }
         }
 
@@ -454,7 +486,7 @@ namespace PlanSuite.Services
             return members;
         }
 
-        public AddMemberResponse AddMember(AddMemberModel model)
+        public async Task<AddMemberResponse> AddMember(AddMemberModel model)
         {
             var project = m_Database.Projects.Where(project => project.Id == model.ProjectId).FirstOrDefault();
             if (project == null)
@@ -482,7 +514,7 @@ namespace PlanSuite.Services
                         break;
                     case PaymentTier.Pro:
                         // nobody's ever gonna reach this many project members so this is fine
-                        maxMembers = 99999;
+                        maxMembers = int.MaxValue;
                         break;
                 }
             }
@@ -517,13 +549,15 @@ namespace PlanSuite.Services
             access.ProjectRole = ProjectRole.User;
             access.UserId = guid;
 
-            Console.WriteLine($"SECURITY: User {model.UserId} added {user.UserName} to project {model.ProjectId}");
-            m_Database.ProjectsAccess.Add(access);
-            m_Database.SaveChanges();
+            var projOwner = await m_UserManager.FindByIdAsync(model.UserId.ToString());
+
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Project, projOwner, AuditLogType.AddedMember, model.ProjectId);
+            await m_Database.ProjectsAccess.AddAsync(access);
+            await m_Database.SaveChangesAsync();
             return AddMemberResponse.Success;
         }
 
-        public async Task EditCardAsync(EditCardModel model)
+        public async Task EditCardAsync(EditCardModel model, ClaimsPrincipal user)
         {
             Console.WriteLine($"Editing card {model.CardId}");
             // Convert Unix Timestamp to DateTime
@@ -543,13 +577,16 @@ namespace PlanSuite.Services
                     card.CardAssignee = result;
                 }
                 card.CardMilestone = model.MilestoneId;
+
+                var appUser = await m_UserManager.GetUserAsync(user);
+                await m_AuditService.InsertLogAsync(AuditLogCategory.Card, appUser, AuditLogType.Modified, card.Id.ToString());
                 await m_Database.SaveChangesAsync();
                 Console.WriteLine($"Saved card {model.CardId}");
             }
         }
         
 
-        public void LeaveProject(LeaveProjectModel model)
+        public async Task LeaveProject(LeaveProjectModel model)
         {
             var project = m_Database.Projects.Where(project => project.Id == model.ProjectId).FirstOrDefault();
             if (project == null)
@@ -568,9 +605,11 @@ namespace PlanSuite.Services
                 return;
             }
 
+            var user = await m_UserManager.FindByIdAsync(model.UserId.ToString());
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Project, user, AuditLogType.Left, model.ProjectId.ToString());
             Console.WriteLine($"SECURITY: User {model.UserId} left project {model.ProjectId}");
             m_Database.ProjectsAccess.Remove(access);
-            m_Database.SaveChanges();
+            await m_Database.SaveChangesAsync();
         }
 
         public GetProjectMembers GetProjectMembers(int cardId)
@@ -660,15 +699,15 @@ namespace PlanSuite.Services
             return projectAccess.ProjectRole;
         }
 
-        public void AddCard(AddCardModel model)
+        public async Task AddCard(AddCardModel model, ClaimsPrincipal user)
         {
             Console.WriteLine($"Adding card {model.Name} to project {model.ProjectId}");
             var card = new Card();
             card.ColumnId = model.ColumnId;
             card.CardName = model.Name;
-            m_Database.Cards.Add(card);
-
-            m_Database.SaveChanges();
+            await m_Database.Cards.AddAsync(card);
+            await m_Database.SaveChangesAsync();
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Card, user, AuditLogType.Added, card.Id);
         }
     }
 }

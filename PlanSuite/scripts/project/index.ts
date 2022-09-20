@@ -293,6 +293,15 @@ function viewCardButton(dbId) {
                 checklistHolder.addClass("d-none");
             }
 
+
+            var logHolder = $("#logHolder");
+            logHolder.empty();
+            logHolder.append("<hr/>");
+
+            response.auditLogs.forEach(function (log) {
+                logHolder.append(`<div class="ps-card-log"><strong>${log.username}</strong><br />${log.message}<br /><small class="text-muted">${log.created}</small></div>`);
+            });
+
             $('#viewCardLabel').text(response.name);
             $('#viewCardText').html(response.markdownContent);
             $('#viewCardEditTextEditor').val(response.rawContent);

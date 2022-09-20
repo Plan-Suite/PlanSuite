@@ -11,12 +11,14 @@ namespace PlanSuite.Services
         private readonly ApplicationDbContext m_Database;
         private readonly UserManager<ApplicationUser> m_UserManager;
         private readonly ILogger<OrganisationService> m_Logger;
+        private readonly AuditService m_AuditService;
 
-        public OrganisationService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, ILogger<OrganisationService> logger)
+        public OrganisationService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, ILogger<OrganisationService> logger, AuditService auditService)
         {
             m_Database = dbContext;
             m_UserManager = userManager;
             m_Logger = logger;
+            m_AuditService = auditService;
         }
 
         public async Task<OrganisationErrorCode> OnCreateOrganisation(CreateOrganisationModel model)
@@ -64,6 +66,7 @@ namespace PlanSuite.Services
             await m_Database.OrganizationsMembership.AddAsync(membership);
             m_Logger.LogInformation($"Saving org {organisation.Id}");
             await m_Database.SaveChangesAsync();
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Organisation, owner, AuditLogType.Created, organisation.Id);
 
             return OrganisationErrorCode.Success;
         }
@@ -115,6 +118,7 @@ namespace PlanSuite.Services
 
             m_Logger.LogInformation($"Saving organisation deletion to database");
             await m_Database.SaveChangesAsync();
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Organisation, owner, AuditLogType.Deleted, model.Id);
 
             return OrganisationErrorCode.Success;
         }

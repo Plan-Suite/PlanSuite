@@ -27,14 +27,12 @@ function saveChanges() {
             newEmail: $("#editEmail").val(),
         }),
         success: function (result) {
-            console.log(result);
             location.reload();
         }
     });
 }
 
 function onEdit(id) {
-    console.log(id);
     editIdInput.val(id);
 }
 
@@ -48,7 +46,6 @@ function giveAdmin() {
             id: $("#EditUserId").val(),
         }),
         success: function (result) {
-            console.log(result);
             location.reload();
         }
     });
@@ -65,7 +62,6 @@ function setRole(role: number) {
             role: role,
         }),
         success: function (result) {
-            console.log(result);
             location.reload();
         }
     });
@@ -81,7 +77,6 @@ function sendPasswordReset() {
             id: $("#EditUserId").val(),
         }),
         success: function (result) {
-            console.log(result);
             location.reload();
         }
     });
@@ -89,13 +84,11 @@ function sendPasswordReset() {
 
 function onSearch() {
     var username = $("#username").val();
-    console.log(username);
     if (isBlank(username)) {
         username = "null";
     }
 
     var email = $("#email").val();
-    console.log(email);
     if (isBlank(email)) {
         email = "null";
     }

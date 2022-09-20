@@ -67,19 +67,19 @@
         {
             if (Model.CurrentOrganisationMembership.Role >= ProjectRole.Admin)
             {
-                <button type="button" class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal"><i class="bi bi-journal-plus"></i> @Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</button>
+                <button type="button" class="btn ps-btn-primary mb-1" data-bs-toggle="modal" data-bs-target="#createProjectModal"><i class="bi bi-journal-plus"></i> @Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</button>
             }
         }
         else
         {
-            <button type="button" class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal"><i class="bi bi-journal-plus"></i> @Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</button>
+            <button type="button" class="btn ps-btn-primary mb-1" data-bs-toggle="modal" data-bs-target="#createProjectModal"><i class="bi bi-journal-plus"></i> @Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</button>
         }
 
         @if (user != null && user.PaymentTier >= PaymentTier.Plus)
         {
             @if (Model.ViewingOrganisation == null)
             {
-                <button type="button" class="btn ps-btn-primary" data-bs-toggle="modal" data-bs-target="#createOrganisationModal"><i class="bi bi-people"></i> @Model.Localisation.Get(user, "CREATE_NEW_ORGANISATION")</button>
+                <button type="button" class="btn ps-btn-primary mb-1" data-bs-toggle="modal" data-bs-target="#createOrganisationModal"><i class="bi bi-people"></i> @Model.Localisation.Get(user, "CREATE_NEW_ORGANISATION")</button>
             }
             <partial name="SubViews/_CreateOrganisation" />
         }

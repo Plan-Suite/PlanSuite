@@ -20,14 +20,16 @@ namespace PlanSuite.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly LocalisationService m_Localisation;
+        private readonly AuditService m_AuditService;
 
-        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AuditService auditService)
         {
             m_Database = context;
             m_Logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
             m_Localisation = LocalisationService.Instance;
+            m_AuditService = auditService;
         }
 
         public async Task<IActionResult> Index(int orgId = 0)
@@ -182,7 +184,7 @@ namespace PlanSuite.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(HomeViewModel.CreateProjectModel createProject)
+        public async Task<IActionResult> Create(HomeViewModel.CreateProjectModel createProject)
         {
             if (!_signInManager.IsSignedIn(User))
             {
@@ -201,6 +203,12 @@ namespace PlanSuite.Controllers
                 createProject.Description = createProject.Name;
             }
 
+            var appUser = await _userManager.GetUserAsync(User);
+            if(appUser == null)
+            {
+                return BadRequest();
+            }
+
             var project = new Project();
             project.Name = createProject.Name;
             project.Description = createProject.Description;
@@ -208,11 +216,15 @@ namespace PlanSuite.Controllers
             project.DueDate = createProject.DueDate;
             project.OwnerId = Guid.Parse(_userManager.GetUserId(claimsPrincipal));
             project.OrganisationId = createProject.OrganisationId;
-            m_Database.Projects.Add(project);
-            m_Database.SaveChanges();
+            await m_Database.Projects.AddAsync(project);
+            await m_Database.SaveChangesAsync();
+
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Project, appUser, AuditLogType.Created, project.Id);
+            await m_Database.SaveChangesAsync();
+
             Console.WriteLine($"Account {_userManager.GetUserId(claimsPrincipal)} successfully created {project.Id}");
 
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(ProjectController.Index), "Project", new { id = project.Id });
         }
 
         [HttpPost]
