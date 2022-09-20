@@ -166,7 +166,7 @@ namespace PlanSuite.Services
 
                 // get last 5 card audit logs
                 List<AuditLogJsonModel> auditLogs = new List<AuditLogJsonModel>();
-                var cardAuditLogs = m_Database.AuditLogs.Where(m => m.LogCategory == AuditLogCategory.Card && m.TargetID == card.Id.ToString()).TakeLast(5).ToList();
+                var cardAuditLogs = m_Database.AuditLogs.Where(m => m.LogCategory == AuditLogCategory.Card && m.TargetID == card.Id.ToString()).ToList().TakeLast(5);
                 foreach(var auditLog in cardAuditLogs)
                 {
                     var auditUser = await m_UserManager.FindByIdAsync(auditLog.UserID.ToString());
