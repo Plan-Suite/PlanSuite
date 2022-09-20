@@ -164,6 +164,19 @@ namespace PlanSuite.Services
                     }
                 }
 
+                // get last 5 card audit logs
+                List<AuditLogJsonModel> auditLogs = new List<AuditLogJsonModel>();
+                var cardAuditLogs = m_Database.AuditLogs.Where(m => m.LogCategory == AuditLogCategory.Card && m.TargetID == card.Id.ToString()).TakeLast(5).ToList();
+                foreach(var auditLog in cardAuditLogs)
+                {
+                    var auditUser = await m_UserManager.FindByIdAsync(auditLog.UserID.ToString());
+                    AuditLogJsonModel auditLogModel = new AuditLogJsonModel();
+                    auditLogModel.Message = await m_AuditService.AuditLogToHumanReadable(auditLog);
+                    auditLogModel.Created = UrlUtility.TimestampToLastUpdated(auditLog.Timestamp);
+                    auditLogModel.Username = auditUser.UserName;
+                    auditLogs.Add(auditLogModel);
+                }
+
                 // return
                 GetCardReturnJson json = new GetCardReturnJson()
                 {
@@ -179,7 +192,8 @@ namespace PlanSuite.Services
                     ChecklistItems = items,
                     ProjectMilestones = milestones,
                     MilestoneId = currentMilestoneId,
-                    MilestoneName = currentMilestoneName
+                    MilestoneName = currentMilestoneName,
+                    AuditLogs = auditLogs
                 };
                 return json;
             }

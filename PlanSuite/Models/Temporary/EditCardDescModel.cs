@@ -43,6 +43,25 @@ namespace PlanSuite.Models.Temporary
         public Dictionary<int, string> ProjectMilestones { get; set; } = new Dictionary<int, string>();
         public int MilestoneId { get; set; }
         public string MilestoneName { get; set; }
+        public List<AuditLogJsonModel> AuditLogs { get; set; } = new List<AuditLogJsonModel>();
+    }
+
+    public class AuditLogJsonModel
+    {
+        /// <summary>
+        /// Username who made the audit log
+        /// </summary>
+        public string Username { get; set; }
+
+        /// <summary>
+        /// Localised message of the audit log
+        /// </summary>
+        public string Message { get; set; }
+
+        /// <summary>
+        /// Timestamp of the audit log
+        /// </summary>
+        public string Created { get; set; }
     }
 
     public class EditCardModel
