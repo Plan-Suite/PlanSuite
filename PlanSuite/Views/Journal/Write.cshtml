@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = "Write Journal Entry";
+}
+@model PlanSuite.Models.Temporary.JournalEntryWrite
+
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet"/>
+@*<div id="summernote"></div>*@
+@using (Html.BeginForm("Update", "Journal", FormMethod.Post))
+{
+    @Html.HiddenFor(model => model.JournalEntryUpdate.JournalId)
+    @Html.HiddenFor(model => model.JournalEntryUpdate.OwnerId)
+    <div class="modal-body">
+        <div class="form-floating mb-3">
+            @Html.EditorFor(model => model.JournalEntryUpdate.Name, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.LabelFor(model => model.JournalEntryUpdate.Name, new { htmlAttributes = new { @class = "form-label" } })
+            @Html.ValidationMessageFor(model => model.JournalEntryUpdate.Name, "", new { @class = "text-danger" })
+        </div>
+        <div class="form-floating mb-3">
+            @Html.TextAreaFor(model => model.JournalEntryUpdate.Content, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.JournalEntryUpdate.Content, "", new { @class = "text-danger" })
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal"><i class="bi bi-x-circle"></i> Close</button>
+            <button type="submit" class="btn ps-btn-primary"><i class="bi bi-pencil-square"></i> Save</button>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
+    <script type="module" src="~/js/journal/write.js" asp-append-version="true"></script>
+}
