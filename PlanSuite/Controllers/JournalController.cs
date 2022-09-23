@@ -63,15 +63,69 @@ namespace PlanSuite.Controllers
             if(journalNote != null)
             {
                 viewModel.JournalNote = journalNote;
+                viewModel.JournalEntryUpdate.JournalId = journalNote.Id;
+                viewModel.JournalEntryUpdate.OwnerId = journalNote.OwnerId;
+                viewModel.JournalEntryUpdate.Name = journalNote.Name;
+                viewModel.JournalEntryUpdate.Content = journalNote.Content;
             }
 
             return View(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Update()
+        public async Task<IActionResult> Update(JournalEntryUpdateModel journalEntryUpdate)
         {
+            if (!m_SignInManager.IsSignedIn(User))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            Guid ownerId = Guid.Parse(m_UserManager.GetUserId(User));
+
+            JournalNote? journalEntry;
             // Journal update
+            if (journalEntryUpdate.JournalId > 0 && journalEntryUpdate.OwnerId == ownerId)
+            {
+                m_Logger.LogInformation($"Updating journal entry for {ownerId}: {journalEntryUpdate.Name}");
+                journalEntry = m_Database.JournalNotes.Where(j => j.Id == journalEntryUpdate.JournalId && j.OwnerId == ownerId).FirstOrDefault();
+                journalEntry.Modified = DateTime.Now;
+                journalEntry.Content = journalEntryUpdate.Content;
+                journalEntry.Name = journalEntryUpdate.Name;
+            }
+            else
+            {
+                m_Logger.LogInformation($"Creating journal entry for {ownerId}: {journalEntryUpdate.Name}");
+                journalEntry = new JournalNote();
+                journalEntry.Created = DateTime.Now;
+                journalEntry.Modified = journalEntry.Created;
+                journalEntry.OwnerId = ownerId;
+                journalEntry.Content = journalEntryUpdate.Content;
+                journalEntry.Name = journalEntryUpdate.Name;
+                await m_Database.JournalNotes.AddAsync(journalEntry);
+            }
+            await m_Database.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Delete(int id)
+        {
+            if (!m_SignInManager.IsSignedIn(User))
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            Guid ownerId = Guid.Parse(m_UserManager.GetUserId(User));
+
+            JournalNote? journalEntry = m_Database.JournalNotes.Where(j => j.Id == id && j.OwnerId == ownerId).FirstOrDefault();
+            if(journalEntry == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            m_Database.JournalNotes.Remove(journalEntry);
+            await m_Database.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]

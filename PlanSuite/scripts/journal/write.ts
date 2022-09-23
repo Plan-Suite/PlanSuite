@@ -3,7 +3,14 @@ import * as summernote from 'summernote';
 
 $(document).ready(function () {
 
-    $('#JournalEntryUpdate_JournalId').val("");
+    const queryString = window.location.search;
+    const urlParams = new URLSearchParams(queryString);
+
+    let id: number = urlParams.get("id") as unknown as number;
+    console.log(id);
+    if (id > 0) {
+        $('#JournalEntryUpdate_JournalId').val(id);
+    }
 
     $('#JournalEntryUpdate_Content').summernote({
         placeholder: "Content",
