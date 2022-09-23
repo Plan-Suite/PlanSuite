@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace PlanSuite.Utility
 {
@@ -69,6 +71,39 @@ namespace PlanSuite.Utility
                 format = $"{(int)ts.TotalDays} days ago";
             }
             return format;
+        }
+
+        public static string StripHtml(string text)
+        {
+            List<int> openTagIndexes = Regex.Matches(text, "<").Cast<Match>().Select(m => m.Index).ToList();
+            List<int> closeTagIndexes = Regex.Matches(text, ">").Cast<Match>().Select(m => m.Index).ToList();
+            if (closeTagIndexes.Count > 0)
+            {
+                StringBuilder sb = new StringBuilder();
+                int previousIndex = 0;
+                foreach (int closeTagIndex in closeTagIndexes)
+                {
+                    var openTagsSubset = openTagIndexes.Where(x => x >= previousIndex && x < closeTagIndex);
+                    if (openTagsSubset.Count() > 0 && closeTagIndex - openTagsSubset.Max() > 1)
+                    {
+                        sb.Append(text.Substring(previousIndex, openTagsSubset.Max() - previousIndex));
+                    }
+                    else
+                    {
+                        sb.Append(text.Substring(previousIndex, closeTagIndex - previousIndex + 1));
+                    }
+                    previousIndex = closeTagIndex + 1;
+                }
+                if (closeTagIndexes.Max() < text.Length)
+                {
+                    sb.Append(text.Substring(closeTagIndexes.Max() + 1));
+                }
+                return sb.ToString();
+            }
+            else
+            {
+                return text;
+            }
         }
     }
 }

@@ -1,0 +1,58 @@
+﻿@using Microsoft.AspNetCore.Http.Extensions
+@using PlanSuite.Utility
+@{
+    ViewData["Title"] = "Write Journal Entry";
+    int id = UrlUtility.GetUrlRouteInt(Context.Request, "id");
+}
+@model PlanSuite.Models.Temporary.JournalEntryWrite
+
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet"/>
+
+<div class="container">
+    @using (Html.BeginForm("Update", "Journal", FormMethod.Post))
+    {
+        @Html.HiddenFor(model => model.JournalEntryUpdate.JournalId)
+        @Html.HiddenFor(model => model.JournalEntryUpdate.OwnerId)
+        <div class="modal-body">
+            <div class="form-floating mb-3">
+                @Html.EditorFor(model => model.JournalEntryUpdate.Name, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.LabelFor(model => model.JournalEntryUpdate.Name, new { htmlAttributes = new { @class = "form-label" } })
+                @Html.ValidationMessageFor(model => model.JournalEntryUpdate.Name, "", new { @class = "text-danger" })
+            </div>
+            <div class="form-floating mb-3">
+                @Html.TextAreaFor(model => model.JournalEntryUpdate.Content, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.JournalEntryUpdate.Content, "", new { @class = "text-danger" })
+            </div>
+            <div class="modal-footer">
+                <a class="btn ps-btn-secondary" asp-controller="Journal" asp-action="Index"><i class="bi bi-x-circle"></i> Close</a>
+                <button type="button" class="btn ps-btn-danger" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal"><i class="bi bi-trash"></i> Delete</button>
+                <button type="submit" class="btn ps-btn-primary"><i class="bi bi-pencil-square"></i> Save</button>
+            </div>
+        </div>
+    }
+
+    @* Add Column *@
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteLabel" aria-hidden="true">
+        <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="confirmDeleteLabel">Delete Journal Note</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you wish to delete this journal? This action is irreversible.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a class="btn ps-btn-danger" asp-controller="Journal" asp-action="Delete" asp-route-id="@id"><i class="bi bi-trash"></i> Delete</a>
+            </div>
+        </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
+    <script type="module" src="~/js/journal/write.js" asp-append-version="true"></script>
+    <partial name="_ValidationScriptsPartial" />
+}
