@@ -405,6 +405,40 @@ namespace PlanSuite.Migrations
                     b.ToTable("columns");
                 });
 
+            modelBuilder.Entity("PlanSuite.Models.Persistent.JournalNote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("content");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created");
+
+                    b.Property<DateTime>("Modified")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("modified");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("longtext")
+                        .HasColumnName("name");
+
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("owner_id");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("journal_notes");
+                });
+
             modelBuilder.Entity("PlanSuite.Models.Persistent.Organisation", b =>
                 {
                     b.Property<int>("Id")
