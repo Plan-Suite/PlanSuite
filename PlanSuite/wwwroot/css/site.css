@@ -310,3 +310,23 @@ input.input-validation-error {
     display: inline-block;
     vertical-align: top;
 }
+
+.ps-clickable {
+    margin-bottom: 0.5em;
+}
+
+@media (min-width: 768px) {
+    .ps-clickable {
+        margin: 0.5em;
+    }
+
+    .ps-clickable:hover {
+        box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+        cursor: pointer;
+    }
+}
+
+.nav-active {
+    border: solid;
+    border-width: 0.1em;
+}

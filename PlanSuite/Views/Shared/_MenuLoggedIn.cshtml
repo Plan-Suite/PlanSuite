@@ -6,6 +6,9 @@
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        <a class="nav-link text-light" asp-area="" asp-controller="Organisation" asp-action="SeeOrganisations"><i class="bi bi-building"></i> Organisations</a>
+        <a class="nav-link text-light @Html.ActiveClass("Journal")" asp-area="" asp-controller="Journal" asp-action="Index"><i class="bi bi-journal-text"></i> Journal</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link text-light @Html.ActiveClass("Organisation")" asp-area="" asp-controller="Organisation" asp-action="SeeOrganisations"><i class="bi bi-building"></i> Organisations</a>
     </li>
 }
