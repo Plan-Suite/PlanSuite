@@ -37,13 +37,13 @@ namespace PlanSuite.Services
             await m_Database.SaveChangesAsync();
 
             string auditLogMsg = await AuditLogToHumanReadable(auditLog);
-            string logMsg = $"[{auditLog.Timestamp}] (Category: {auditLog.LogCategory}, Id: #{auditLog.Id}, TargetId: #{auditLog.TargetID}, Action: {auditLog.LogType}, User: {user.UserName}): {auditLogMsg}";
+            string logMsg = $"[{auditLog.Timestamp.ToString("dd/MMM/yyyy HH:mm:ss")}] (Category: {auditLog.LogCategory}, Id: #{auditLog.Id}, TargetId: #{auditLog.TargetID}, Action: {auditLog.LogType}, User: {user.UserName}): {auditLogMsg}";
             Console.WriteLine(logMsg);
             DateTime now = DateTime.Now;
 
             // We're not gonna do this on windows since we don't need to save logs when deving
 #if !DEBUG
-            await File.AppendAllTextAsync($"/var/log/plansuite/audit_{now.Day}-{now.Month}-{now.Year}.log", logMsg);
+            await File.AppendAllTextAsync($"/var/log/plansuite/audit_{now.Day}-{now.Month}-{now.Year}.log", logMsg + "\n");
 #endif
         }
 
