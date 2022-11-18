@@ -58,13 +58,13 @@
                     <button id="registerSubmit" type="submit" class="w-100 btn btn-lg ps-btn-primary">Register</button>
                 </form>
                 @{
-                    <h5 class="text-center mb-3 mt-3">OR</h5>
+                            <h5 class="text-center mb-3 mt-3">OR</h5>
                     if ((Model.ExternalLogins?.Count ?? 0) > 0)
                     {
-                        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                            <div>
-                                <p>
-                                    @foreach (var provider in Model.ExternalLogins)
+                                <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                                    <div>
+                                        <p>
+                                            @foreach (var provider in Model.ExternalLogins)
                                     {
                                         string style = string.Empty;
                                         string icon = string.Empty;
@@ -73,11 +73,11 @@
                                             icon = "<i class=\"bi bi-facebook\"></i>";
                                             style = "background-color: #4267b2; color: #FFF;";
                                         }
-                                        <button type="submit" class="w-100 btn btn-lg ps-btn-primary" name="provider" value="@provider.Name" style="@style">@Html.Raw(icon) Continue with @provider.DisplayName</button>
+                                                <button type="submit" class="w-100 btn btn-lg ps-btn-primary" name="provider" value="@provider.Name" style="@style">@Html.Raw(icon) Continue with @provider.DisplayName</button>
                                     }
-                                </p>
-                            </div>
-                        </form>
+                                        </p>
+                                    </div>
+                                </form>
                     }
                 }
                 <p class="text-center mt-4">Already have an account? <a class="ps-link-primary" href="/Identity/Account/Login">Sign in.</a></p>
@@ -118,8 +118,14 @@
 
 @section Scripts {
     <environment exclude="Development">
-        <!-- Event snippet for Website traffic conversion page -->
-        <script>gtag('event', 'conversion', { 'send_to': 'AW-1061717470/vqxnCNPjmNsDEN6LovoD' });</script>
+    @{
+        int isAd = UrlUtility.GetUrlRouteInt(HttpContext.Request, "ps-gad");
+        if (isAd > 0)
+        {
+            <!-- Event snippet for Website traffic conversion page -->
+            <script>gtag('event', 'conversion', { 'send_to': 'AW-1061717470/vqxnCNPjmNsDEN6LovoD' });</script>
+        }
+    }
     </environment>
     <partial name="_ValidationScriptsPartial" />
 }
