@@ -49,6 +49,29 @@
 
             gtag('config', 'AW-1061717470');</script>
 
+        <!-- Facebook SDK -->
+        <script>
+            window.fbAsyncInit = function () {
+                FB.init({
+                    appId: '822265182087480',
+                    cookie: true,
+                    xfbml: true,
+                    version: 'v15.0'
+                });
+
+                FB.AppEvents.logPageView();
+
+            };
+
+            (function (d, s, id) {
+                var js, fjs = d.getElementsByTagName(s)[0];
+                if (d.getElementById(id)) { return; }
+                js = d.createElement(s); js.id = id;
+                js.src = "https://connect.facebook.net/en_US/sdk.js";
+                fjs.parentNode.insertBefore(js, fjs);
+            }(document, 'script', 'facebook-jssdk'));
+        </script>
+
         @if (user == null || (user != null && user.PaymentTier < PlanSuite.Enums.PaymentTier.Plus))
         {
             <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1119258824927173"
