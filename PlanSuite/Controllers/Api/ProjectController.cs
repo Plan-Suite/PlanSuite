@@ -213,5 +213,13 @@ namespace PlanSuite.Controllers.Api
             Console.WriteLine($"GetMilestones: {id}");
             return m_ProjectService.GetMilestones(id);
         }
+
+        // GET: GetChartData
+        [HttpGet("GetChartData")]
+        public ActionResult<ChartViewModel> GetChartData(int id)
+        {
+            Console.WriteLine($"GetChartData: {id}");
+            return m_ProjectService.GetChartData(id);
+        }
     }
 }

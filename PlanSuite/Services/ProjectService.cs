@@ -263,6 +263,36 @@ namespace PlanSuite.Services
             return model;
         }
 
+        public ActionResult<ChartViewModel> GetChartData(int id)
+        {
+            int lastCol = 0;
+            ChartViewModel model = new ChartViewModel();
+            model.Project = m_Database.Projects.Where(project => project.Id == id).First();
+            if(model.Project == null)
+            {
+                return model;
+            }
+
+            model.Dataset = new List<ChartViewModel.ChartDataset>();
+            foreach(var column in m_Database.Columns.Where(col => col.ProjectId == id).ToList())
+            {
+                int colId = column.Id;
+                int cardCount = 0;
+                foreach(var card in m_Database.Cards.Where(card => card.ColumnId == colId).ToList())
+                {
+                    cardCount++;
+                }
+                ChartViewModel.ChartDataset dataset = new ChartViewModel.ChartDataset(column.Title, cardCount, lastCol);
+                lastCol++;
+                if(lastCol > ChartViewModel.ValidColours.Length)
+                {
+                    lastCol = 0;
+                }
+                model.Dataset.Add(dataset);
+            }
+            return model;
+        }
+
         internal async Task DeleteMilestoneAsync(DeleteMilestoneModel model, ClaimsPrincipal user)
         {
             Console.WriteLine($"Deleting milestone {model.MilestoneId} 1");

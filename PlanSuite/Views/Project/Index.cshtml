@@ -103,6 +103,7 @@
         <partial name="SubViews/_AddMilestone" />
         <partial name="SubViews/_EditMilestone" />
         <partial name="SubViews/_DeleteMilestone" />
+        <partial name="SubViews/_PieChart" />
     }
 
     @* Project Navbar *@
@@ -124,6 +125,10 @@
             <button id="btnGroupDrop1" type="button" class="btn m-1 ps-btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i> More</button>
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
                 <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#projectMembersModal" id="seeMembersBtn"><i class="bi bi-people"></i> See Members</a></li>
+                @if (Model.PaymentTier >= PaymentTier.Plus)
+                {
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#pieChartModel"><i class="bi bi-pie-chart"></i> Data View</a></li>
+                }
                 @if(Model.ProjectRole >= PlanSuite.Enums.ProjectRole.Admin)
                 {
                     <li><hr class="dropdown-divider"></li>
