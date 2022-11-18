@@ -5,6 +5,7 @@
       "wwwroot/lib/bootstrap/dist/css/bootstrap.min.css",
       "wwwroot/lib/jquery-ui/jquery-ui.min.css",
       "wwwroot/lib/summernote/dist/css/summernote-lite.css",
+      "wwwroot/lib/hello-week/dist/hello.week.css",
       "wwwroot/css/site.css",
       "Views/Shared/_Layout.cshtml.css"
     ]
@@ -35,7 +36,8 @@
       "wwwroot/lib/jquery-validation/dist/jquery.validate.js",
       "wwwroot/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js",
       "wwwroot/lib/bootstrap/dist/js/bootstrap.bundle.min.js",
-      "wwwroot/lib/summernote/dist/js/summernote-lite.js"
+      "wwwroot/lib/summernote/dist/js/summernote-lite.js",
+      "wwwroot/lib/hello-week/dist/hello.week.js"
     ],
     "minify": {
       "enabled": true,

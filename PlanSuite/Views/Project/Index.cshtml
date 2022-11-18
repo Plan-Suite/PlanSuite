@@ -1,4 +1,5 @@
-﻿@using Microsoft.AspNetCore.Identity
+﻿@using Microsoft.AspNetCore.Http.Extensions
+@using Microsoft.AspNetCore.Identity
 @using PlanSuite.Enums
 @using PlanSuite.Models.Persistent
 @using PlanSuite.Utility
@@ -8,6 +9,7 @@
 @{
     ViewData["Title"] = Model.Project.Name;
     ApplicationUser user = await UserManager.GetUserAsync(User);
+    ProjectIndexView indexView = (ProjectIndexView)UrlUtility.GetUrlRouteInt(Context.Request, "view");
 }
 
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
@@ -105,31 +107,46 @@
 
     @* Project Navbar *@
     <div class="col col-sm-10">
-        <button type="button" class="btn m-1 ps-btn-success float-start" data-bs-toggle="modal" data-bs-target="#addColumnModal" id="addColumnBtn">Add Column</button>
+        <button type="button" class="btn m-1 ps-btn-success float-start" data-bs-toggle="modal" data-bs-target="#addColumnModal" id="addColumnBtn"><i class="bi bi-layout-three-columns"></i> Add Column</button>
+        @*@if(indexView == ProjectIndexView.Cards)
+        {
+            <a asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Calendar)" class="btn m-1 ps-btn-secondary"><i class="bi bi-calendar-range"></i> Calendar View</a>
+        }
+        else
+        {
+            <a asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Cards)" class="btn m-1 ps-btn-secondary"><i class="bi bi-kanban"></i> Card View</a>
+        }*@
         @if(Model.PaymentTier >= PaymentTier.Plus)
         {
-            <button type="button" class="btn m-1 ps-btn-secondary" data-bs-toggle="modal" data-bs-target="#milestonesModal" id="listMilestonesBtn">Milestones</button>
+            <button type="button" class="btn m-1 ps-btn-secondary" data-bs-toggle="modal" data-bs-target="#milestonesModal" id="listMilestonesBtn"><i class="bi bi-signpost"></i> Milestones</button>
         }
         <div class="btn-group" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn m-1 ps-btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">More</button>
+            <button id="btnGroupDrop1" type="button" class="btn m-1 ps-btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i> More</button>
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#projectMembersModal" id="seeMembersBtn">See Members</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#projectMembersModal" id="seeMembersBtn"><i class="bi bi-people"></i> See Members</a></li>
                 @if(Model.ProjectRole >= PlanSuite.Enums.ProjectRole.Admin)
                 {
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addMemberModal">Add Member</a></li>
-                    <li><a class="dropdown-item" asp-controller="Project" asp-action="Logs" asp-route-projectId="@Model.Project.Id">Audit Logs</a></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addMemberModal"><i class="bi bi-person-plus"></i> Add Member</a></li>
+                    <li><a class="dropdown-item" asp-controller="Project" asp-action="Logs" asp-route-projectId="@Model.Project.Id"><i class="bi bi-clipboard2-check"></i> Audit Logs</a></li>
                 }
                 @if(Model.ProjectRole != PlanSuite.Enums.ProjectRole.Owner)
                 {
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#leaveProjectModal">Leave Project</a></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#leaveProjectModal"><i class="bi bi-box-arrow-left"></i> Leave Project</a></li>
                 }
             </ul>
         </div>
     </div>
 
-    <partial name="SubViews/_CardView" />
+    @if(indexView == ProjectIndexView.Calendar)
+    {
+        <partial name="SubViews/_CalendarView" />
+    }
+    else
+    {
+        <partial name="SubViews/_CardView" />
+    }
     <div class="card d-none" id="createCardDiv">
         <div class="card-body">
             <div class="d-grid gap-2">
