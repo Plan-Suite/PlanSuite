@@ -21,7 +21,7 @@
                 <div class="form-group d-none" id="ColumnEdit_@item.Id">
                     <input class="form-control form-control-sm" type="text" id="ColumnText_@item.Id" value="@item.Title">
                 </div>
-                <div class="column" style="min-height: 600px;" id="@item.Id">
+                <div class="column" id="@item.Id">
                     <div class="card mb-1 script-ignore">
                         <div class="d-grid gap-2">
                             <a class="btn ps-btn-white" style="text-align:left;" href="#" id="addNewCard_@item.Id">@Html.Raw(Model.Localisation.Get(user, "ADD_NEW_CARD"))</a>

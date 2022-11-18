@@ -309,6 +309,15 @@ input.input-validation-error {
 .horizontal-scroll-item {
     display: inline-block;
     vertical-align: top;
+    background-color: var(--bs-gray-200);
+    padding: 1rem;
+    border-radius: 5px;
+}
+
+@media (max-width: 425px) {
+    .horizontal-scroll-item {
+        min-width: 100%;
+    }
 }
 
 .ps-clickable {
@@ -330,3 +339,106 @@ input.input-validation-error {
     border: solid;
     border-width: 0.1em;
 }
+
+.calendar-ul {
+    list-style-type: none;
+}
+
+/* Month header */
+.month {
+    margin-top: 10px;
+    padding: 20px 20px;
+    width: 100%;
+    background: var(--blue);
+    text-align: center;
+}
+
+    /* Month list */
+    .month ul {
+        margin: 0;
+        padding: 0;
+    }
+
+        .month ul li {
+            color: white;
+            font-size: 20px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+    .month .calendarArrowBtn {
+        padding-top: 10px;
+    }
+
+    /* Previous button inside month header */
+    .month #prev {
+        float: left;
+    }
+
+    /* Next button */
+    .month #next {
+        float: right;
+    }
+
+/* Weekdays (Mon-Sun) */
+.weekdays {
+    margin: 0;
+    padding: 10px 0;
+    background-color: #ddd;
+}
+
+    .weekdays li {
+        display: inline-block;
+        width: 13.1%;
+        color: #666;
+        text-align: center;
+    }
+
+/* Days (1-31) */
+.days {
+    padding: 10px 0;
+    background: #eee;
+    margin: 0;
+}
+
+    .days li {
+        list-style-type: none;
+        display: inline-block;
+        width: 14.25%;
+        text-align: center;
+        margin-bottom: 5px;
+        font-size: 12px;
+        color: #777;
+    }
+
+
+    @media (min-width: 425px) {
+        .days li {
+            width: 14%;
+        }
+    }
+
+    @media (min-width: 768px) {
+        .days li {
+            width: 13.7%;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .days li {
+            width: 13.55%;
+        }
+    }
+
+    @media (min-width: 1024px) {
+        .days li {
+            width: 13.4%;
+        }
+    }
+
+        /* Highlight the "current" day */
+        .days li .active {
+            padding: 5px;
+            background: #1abc9c;
+            color: white !important
+        }

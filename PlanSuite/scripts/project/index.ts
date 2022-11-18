@@ -91,13 +91,14 @@ $(function () {
         var colId: number = Number(column.children("input[type='hidden']:first").val().toString().split("_")[1]);
         console.log(`colId = ${colId} index ${i}`);
 
-        var col = $(`#addNewCard_${colId}`);
-
-        $(`#Column_${colId}`).on("click", function () {
-            onClickEditColumnTitle(colId)
+        var column = $(`#Column_${columnCount}`);
+        column.on("click", function () {
+            console.log(`Clicked on ${colId}`);
+            onClickEditColumnTitle(colId);
         });
 
-        col.on("click", function () {
+        var addNewCardBtn = $(`#addNewCard_${colId}`);
+        addNewCardBtn.on("click", function () {
             addNewCard(colId);
         });
 
