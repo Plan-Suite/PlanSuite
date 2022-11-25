@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlanSuite.Data;
 
@@ -10,9 +11,10 @@ using PlanSuite.Data;
 namespace PlanSuite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221120230105_GanttStartDate")]
+    partial class GanttStartDate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -300,14 +302,6 @@ namespace PlanSuite.Migrations
                     b.Property<int>("ColumnId")
                         .HasColumnType("int")
                         .HasColumnName("column_id");
-
-                    b.Property<Guid?>("CreatedBy")
-                        .HasColumnType("char(36)")
-                        .HasColumnName("card_created_by");
-
-                    b.Property<bool>("IsFinished")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("card_is_finished");
 
                     b.HasKey("Id");
 

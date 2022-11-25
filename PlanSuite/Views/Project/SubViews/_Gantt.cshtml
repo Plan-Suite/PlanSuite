@@ -1,0 +1,80 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Models.Persistent
+@inject UserManager<ApplicationUser> UserManager
+@model PlanSuite.Models.Temporary.ProjectViewModel
+@{
+}
+
+<div class="d-flex justify-content-center" id="ganttLoading">
+    <div class="spinner-border" role="status"></div>
+</div>
+
+<div id="chart_div"></div>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="text/javascript">
+	google.charts.load('current', {'packages':['gantt']});
+    google.charts.setOnLoadCallback(onLoad);
+    
+    function onLoad()
+    {
+        var tasks = [];
+        var ganttLoading = $("#ganttLoading");
+        
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json",
+            url: `/api/Project/getcards?projectId=${@Model.Project.Id}`,
+            success: function (result) {
+                if (result.cards != null) {
+                    result.cards.forEach(function (element) {
+                        console.log(element);
+                        var task = {
+                            id: element.id,
+                            name: element.name,
+                            start: element.startDate,
+                            end: element.dueDate
+                        };
+                        tasks.push(task);
+                    });
+
+                    var data = new google.visualization.DataTable();
+                    data.addColumn('string', 'Task ID');
+                    data.addColumn('string', 'Task Name');
+                    data.addColumn('string', 'Resource');
+                    data.addColumn('date', 'Start Date');
+                    data.addColumn('date', 'End Date');
+                    data.addColumn('number', 'Duration');
+                    data.addColumn('number', 'Percent Complete');
+                    data.addColumn('string', 'Dependencies');
+
+                    tasks.forEach(function (element) {
+                        console.log(element.start + ": " + Date.parse(element.start));
+                        data.addRows([
+                            [element.name, element.name, null,
+                            new Date(element.start), new Date(element.end), null, 100, null]
+                        ]);
+                    });
+
+                    let height = screen.height;
+
+                    var options = {
+                        title: '@Model.Project.Name',
+                        height: height - 190
+                    };
+
+                    var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
+
+                    chart.draw(data, options);
+
+                    google.visualization.events.addListener(chart, 'select', function () {
+                        //viewCardButton(chart.getSelection().)
+                        console.log(chart.getSelection()[0].row);
+                    });
+
+                    ganttLoading.addClass("d-none");
+                }
+            }
+        });
+    }
+</script>

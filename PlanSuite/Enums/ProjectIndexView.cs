@@ -3,6 +3,7 @@
     public enum ProjectIndexView
     {
         Cards,
-        Calendar
+        Calendar,
+        Gantt
     }
 }
