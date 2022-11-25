@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
+using PlanSuite.Data;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -104,6 +105,15 @@ namespace PlanSuite.Utility
             {
                 return text;
             }
+        }
+    }
+
+    public static class EventUtility
+    {
+        public static void FireEvent(string eventName)
+        {
+            Console.WriteLine($"Fired {eventName}");
+            // TODO: figure out how to get db context here
         }
     }
 }

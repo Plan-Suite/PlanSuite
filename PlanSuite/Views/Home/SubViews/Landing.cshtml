@@ -1,4 +1,8 @@
-﻿<div class="marketing-header align-content-center">
+﻿@page
+@using Microsoft.AspNetCore.Http.Extensions
+@using PlanSuite.Utility
+
+<div class="marketing-header align-content-center">
     <h1 class="text-center">Plan Suite</h1>
     <h3 class="text-center">Project management solutions for everyone</h3>
     <img class="img-fluid ps-img-centre" src="~/img/boards.png" alt="Kanban View" />
@@ -51,3 +55,20 @@
     <a class="btn ps-btn-primary" href="/Identity/Account/Register">Get started</a>
     <hr />
 </div>
+
+@section Scripts {
+    <environment exclude="Development">
+        @{
+        int googleAd = UrlUtility.GetUrlRouteInt(HttpContext.Request, "ps-gad");
+        int facebookAd = UrlUtility.GetUrlRouteInt(HttpContext.Request, "ps-fad");
+        if (googleAd > 0)
+        {
+            EventUtility.FireEvent("GoogleAdLandingPage");
+        }
+        if (facebookAd > 0)
+        {
+            EventUtility.FireEvent("FacebookAdLandingPage");
+        }
+    }
+    </environment>
+}
