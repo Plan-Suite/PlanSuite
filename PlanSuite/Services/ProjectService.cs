@@ -764,7 +764,7 @@ namespace PlanSuite.Services
             await m_AuditService.InsertLogAsync(AuditLogCategory.Card, user, AuditLogType.Added, card.Id);
         }
 
-        public GetCardsModel GetCards(int projectId)
+        /*public GetCardsModel GetCards(int projectId)
         {
             GetCardsModel model = new GetCardsModel();
             var project = m_Database.Projects.Where(project => project.Id == projectId).FirstOrDefault();
@@ -798,6 +798,6 @@ namespace PlanSuite.Services
                 }
             }
             return model;
-        }
+        }*/
     }
 }
