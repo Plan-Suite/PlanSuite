@@ -111,7 +111,7 @@
         <button type="button" class="btn m-1 ps-btn-success float-start" data-bs-toggle="modal" data-bs-target="#addColumnModal" id="addColumnBtn"><i class="bi bi-layout-three-columns"></i> Add Column</button>
         @*@if(indexView == ProjectIndexView.Cards)
         {
-            <a asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Calendar)" class="btn m-1 ps-btn-secondary"><i class="bi bi-calendar-range"></i> Calendar View</a>
+            <a asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Gantt)" class="btn m-1 ps-btn-secondary"><i class="bi bi-calendar-range"></i> Gantt Chart</a>
         }
         else
         {
@@ -144,14 +144,19 @@
         </div>
     </div>
 
-    @if(indexView == ProjectIndexView.Calendar)
+    @*@if(indexView == ProjectIndexView.Calendar)
     {
         <partial name="SubViews/_CalendarView" />
+    }
+    else @if(indexView == ProjectIndexView.Gantt)
+    {
+        <partial name="SubViews/_Gantt" />
     }
     else
     {
         <partial name="SubViews/_CardView" />
-    }
+    }*@
+    <partial name="SubViews/_CardView" />
     <div class="card d-none" id="createCardDiv">
         <div class="card-body">
             <div class="d-grid gap-2">

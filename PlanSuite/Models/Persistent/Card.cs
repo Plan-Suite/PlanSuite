@@ -20,6 +20,9 @@ namespace PlanSuite.Models.Persistent
         [Column("card_description")]
         public string? CardDescription { get; set; }
 
+        [Column("card_start_date")]
+        public DateTime? CardStartDate { get; set; }
+
         [Column("card_due_date")]
         public DateTime? CardDueDate { get; set; }
 
@@ -31,5 +34,11 @@ namespace PlanSuite.Models.Persistent
 
         [Column("card_milestone")]
         public int CardMilestone { get; set; }
+
+        [Column("card_created_by")]
+        public Guid? CreatedBy { get; set; }
+
+        [Column("card_is_finished")]
+        public bool IsFinished { get; set; }
     }
 }

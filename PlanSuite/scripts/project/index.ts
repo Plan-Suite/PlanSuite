@@ -179,6 +179,7 @@ function removeEditLabel() {
 
 function removeDateEditor() {
     var input: string = $("#viewCardDueDateDateTime").val() as string;
+    var startInput: string = $("#viewCardStartDateDateTime").val() as string;
     var dbId: number = $('#viewCardId').val() as number;
     $("#viewCardDueDateDateTime").off();
     $("#viewCardDueDateEditor").addClass("d-none");
@@ -200,6 +201,20 @@ function removeDateEditor() {
     }
 
     $("#viewCardDueDate").text(`<strong>Due By:</strong> ${dateString}`);
+
+    if (isBlank(startInput)) {
+        dateEntered = 0;
+    }
+    else {
+        dateEntered = new Date(startInput).getTime() / 1000;
+    }
+
+    var startDateString: string = "None";
+    if (dateEntered > 0) {
+        startDateString = `${new Date(dateEntered).toDateString()}`;
+    }
+
+    $("#viewCardStartDate").text(`<strong>Start Date:</strong> ${startDateString}`);
 
     $.ajax({
         type: "POST",
@@ -252,10 +267,14 @@ function viewCardButton(dbId) {
             request.setRequestHeader("RequestVerificationToken", verificationToken);
         },
         success: function (response) {
-            var dateString = "None";
+            var endDate = "None";
+            var startDate = "NULL";
             if (response.unixTimestamp > 0) {
                 // I have to multiply by 1000 for some reason here idk why
-                dateString = new Date(response.unixTimestamp * 1000).toDateString();
+                endDate = new Date(response.unixTimestamp * 1000).toDateString();
+            }
+            if (response.StartDate > 0) {
+                startDate = new Date(response.StartDate * 1000).toDateString();
             }
             
             var priority: string = localisation.Get("NONE");
@@ -306,7 +325,8 @@ function viewCardButton(dbId) {
             $('#viewCardLabel').text(response.name);
             $('#viewCardText').html(response.markdownContent);
             $('#viewCardEditTextEditor').val(response.rawContent);
-            $('#viewCardDueDate').html(`<strong>${localisation.Get("VIEW_CARD_DUE_DATE")}</strong> ${dateString}`);
+            $('#viewCardStartDate').html(`<strong>${localisation.Get("VIEW_CARD_START_DATE")}</strong> ${startDate}`);
+            $('#viewCardDueDate').html(`<strong>${localisation.Get("VIEW_CARD_DUE_DATE")}</strong> ${endDate}`);
             $('#viewCardPriority').html(`<strong>${localisation.Get("VIEW_CARD_PRIORITY")}</strong> ${priority}`);
             $('#viewCardAssignee').html(`<strong>${localisation.Get("VIEW_CARD_ASSIGNEE")}</strong> ${assignee}`);
             $('#viewCardMilestone').html(`<strong>${localisation.Get("VIEW_CARD_MILESTONE")}</strong> ${milestone}`);
@@ -757,6 +777,14 @@ function onEditCard() {
             }
 
             $("#viewCardDueDateDateTime").val(date);
+
+            var startDate = "";
+            if (response.startDate > 0) {
+                // I have to multiply by 1000 for some reason here idk why
+                date = new Date(response.startDate * 1000).toDateString();
+            }
+
+            $("#viewCardStartDateDateTime").val(startDate);
 
             // get assignee
             $("#assignee").empty();

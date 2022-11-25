@@ -300,6 +300,9 @@
   <data name="VIEW_CARD_ASSIGNEE" xml:space="preserve">
     <value>Assignee:</value>
   </data>
+	<data name="VIEW_CARD_START_DATE" xml:space="preserve">
+    <value>Start Date:</value>
+  </data>
   <data name="VIEW_CARD_DUE_DATE" xml:space="preserve">
     <value>Due By:</value>
   </data>

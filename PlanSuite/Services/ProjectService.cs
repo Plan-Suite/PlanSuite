@@ -88,11 +88,25 @@ namespace PlanSuite.Services
                     assigneeId = user.Id;
                 }
 
+                string createdBy = "UNKNOWN";
+                string createdById = "0";
+                ApplicationUser creator = await m_UserManager.FindByIdAsync(card.CreatedBy.ToString());
+                if (creator != null)
+                {
+                    createdBy = creator.UserName;
+                    createdById = creator.Id;
+                }
+
                 uint unixTime = 0;
                 if(card.CardDueDate != null)
                 {
                     unixTime = (uint)new DateTimeOffset((DateTime)card.CardDueDate).ToUnixTimeSeconds();
-                    Console.WriteLine(unixTime);
+                }
+
+                uint startTime = 0;
+                if (card.CardStartDate != null)
+                {
+                    startTime = (uint)new DateTimeOffset((DateTime)card.CardStartDate).ToUnixTimeSeconds();
                 }
 
                 // get project members
@@ -184,6 +198,7 @@ namespace PlanSuite.Services
                     MarkdownContent = Markdown.Parse(cardDesc),
                     RawContent = cardDesc,
                     UnixTimestamp = unixTime,
+                    StartDate = startTime,
                     AssigneeName = assignee,
                     AssigneeId = assigneeId,
                     Priority = card.CardPriority,
@@ -193,7 +208,8 @@ namespace PlanSuite.Services
                     ProjectMilestones = milestones,
                     MilestoneId = currentMilestoneId,
                     MilestoneName = currentMilestoneName,
-                    AuditLogs = auditLogs
+                    AuditLogs = auditLogs,
+                    CreatedBy = createdBy
                 };
                 return json;
             }
@@ -731,13 +747,57 @@ namespace PlanSuite.Services
 
         public async Task AddCard(AddCardModel model, ClaimsPrincipal user)
         {
+            var appUser = await m_UserManager.GetUserAsync(user);
+            if(appUser == null)
+            {
+                return;
+            }
+
             Console.WriteLine($"Adding card {model.Name} to project {model.ProjectId}");
             var card = new Card();
             card.ColumnId = model.ColumnId;
             card.CardName = model.Name;
+            card.CardStartDate = DateTime.Now;
+            card.CreatedBy = Guid.Parse(appUser.Id);
             await m_Database.Cards.AddAsync(card);
             await m_Database.SaveChangesAsync();
             await m_AuditService.InsertLogAsync(AuditLogCategory.Card, user, AuditLogType.Added, card.Id);
+        }
+
+        public GetCardsModel GetCards(int projectId)
+        {
+            GetCardsModel model = new GetCardsModel();
+            var project = m_Database.Projects.Where(project => project.Id == projectId).FirstOrDefault();
+            if (project == null)
+            {
+                return model;
+            }
+
+            model.Cards = new List<GetCardModelCardJson>();
+            foreach (var column in m_Database.Columns.Where(col => col.ProjectId == projectId).ToList())
+            {
+                foreach(var card in m_Database.Cards.Where(card => card.ColumnId == column.Id).ToList())
+                {
+                    GetCardModelCardJson json = new GetCardModelCardJson();
+                    json.Id = card.Id;
+
+                    json.Name = card.CardName;
+
+                    DateTime actualStart = (DateTime)card.CardStartDate;
+                    json.StartDate = actualStart;//.ToString("u").Replace(' ', 'T');
+
+                    if(card.CardDueDate == null)
+                    {
+                        card.CardDueDate = (DateTime)card.CardStartDate.GetValueOrDefault().AddDays(7);
+                    }
+
+                    DateTime actualEnd = (DateTime)card.CardDueDate;
+                    json.DueDate = actualEnd;//.ToString("dd MMM yyyy HH:mm:ss");
+
+                    model.Cards.Add(json);
+                }
+            }
+            return model;
         }
     }
 }

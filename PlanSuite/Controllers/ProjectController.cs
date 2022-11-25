@@ -92,6 +92,22 @@ namespace PlanSuite.Controllers
                     var cards = dbContext.Cards.Where(c => c.ColumnId == column.Id).ToList();
                     if (cards != null && cards.Count > 0)
                     {
+                        foreach(var card in cards)
+                        {
+                            if(card.CardStartDate == null)
+                            {
+                                if(card.CardDueDate != null)
+                                {
+                                    DateTime pastTime = (DateTime)card.CardDueDate;
+                                    card.CardStartDate = pastTime.AddDays(-7);
+                                }
+                                else
+                                {
+                                    card.CardStartDate = DateTime.Now;
+                                }
+                                await dbContext.SaveChangesAsync();
+                            }
+                        }
                         viewModel.Cards.AddRange(cards);
                         Console.WriteLine($"Grabbed {cards.Count} cards for project {project.Id}");
                     }

@@ -34,6 +34,7 @@ namespace PlanSuite.Models.Temporary
         public string MarkdownContent { get; set; }
         public string RawContent { get; set; }
         public uint UnixTimestamp { get; set; }
+        public uint StartDate { get; set; }
         public string? AssigneeId { get; set; }
         public string? AssigneeName { get; set; }
         public Priority Priority { get; set; }
@@ -44,6 +45,7 @@ namespace PlanSuite.Models.Temporary
         public int MilestoneId { get; set; }
         public string MilestoneName { get; set; }
         public List<AuditLogJsonModel> AuditLogs { get; set; } = new List<AuditLogJsonModel>();
+        public string CreatedBy { get; set; }
     }
 
     public class AuditLogJsonModel

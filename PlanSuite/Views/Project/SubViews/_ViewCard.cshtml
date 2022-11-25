@@ -28,6 +28,9 @@
                     @* Card Details *@
                     <h6>Card Details</h6>
                     <div class="mt-0">
+                        <small class="text-muted" id="viewCardStartDate">
+                            START_DATE_HERE
+                        </small><br />
                         <small class="text-muted" id="viewCardDueDate">
                             DUE_DATE_HERE
                         </small><br />
@@ -72,6 +75,12 @@
                         <legend class="col-form-label-sm">Assignee</legend>
                         <div class="col-sm-10">
                             <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="assignee"></select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <legend class="col-form-label-sm">Start Date</legend>
+                        <div class="col-sm-10">
+                            <input type="date" id="viewCardStartDateDateTime" class="form-control" />
                         </div>
                     </div>
                     <div class="row mb-3">
