@@ -9,5 +9,7 @@ namespace PlanSuite.Models.Persistent
         public DateTime? PaymentExpiry { get; set; }
         public bool FinishedFirstTimeLogin { get; set; }
         public string? StripeCustomerId { get; set; }
+        public DateTime? RegistrationDate { get; set; }
+        public DateTime? LastVisited { get; set; }
     }
 }

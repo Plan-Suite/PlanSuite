@@ -22,8 +22,8 @@
         public decimal TotalSize { get; set; }
 
         public float MemoryUsed { get; set; }
-        public decimal TotalMemory { get; set; }
-        public string SystemInfo { get; set; }
+        public int TotalTasks { get; set; }
+        public int TotalProjects { get; set; }
 
 
         decimal CalculateChange(decimal previous, decimal current)

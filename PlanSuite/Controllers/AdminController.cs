@@ -50,15 +50,14 @@ namespace PlanSuite.Controllers
             float totalAllocMemInBytes = Process.GetProcesses().Sum(a => a.PrivateMemorySize64) / 1024 / 1024 / 1024;
             model.MemoryUsed = totalAllocMemInBytes;
 
-            var gc = GC.GetGCMemoryInfo();
-            model.TotalMemory = gc.TotalAvailableMemoryBytes / 1024 / 1024 / 1024;
-            model.SystemInfo = $"{System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier}";
+            model.TotalTasks = dbContext.Cards.Count();
+            model.TotalProjects = dbContext.Projects.Count();
 
             decimal plusPrice = 4.99m;
             decimal proPrice = 9.99m;
             
             // We dont want to count the root user
-            model.UserCount = dbContext.Users.Where(user => user.NormalizedUserName != "ROOT").ToList().Count;
+            model.UserCount = dbContext.Users.Where(user => user.NormalizedUserName != "ROOT" && user.LastVisited != null && user.LastVisited >= DateTime.Today.AddDays(-10)).ToList().Count;
             model.ProjectCount = dbContext.Projects.ToList().Count;
             model.CardCount = dbContext.Cards.ToList().Count;
             model.Section = "Index";

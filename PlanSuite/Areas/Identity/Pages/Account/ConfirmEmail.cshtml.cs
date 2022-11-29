@@ -43,6 +43,9 @@ namespace PlanSuite.Areas.Identity.Pages.Account
                 return NotFound($"Unable to load user with ID '{userId}'.");
             }
 
+            user.RegistrationDate = DateTime.Now;
+            await _userManager.UpdateAsync(user);
+
             code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(code));
             var result = await _userManager.ConfirmEmailAsync(user, code);
             if(!result.Succeeded)

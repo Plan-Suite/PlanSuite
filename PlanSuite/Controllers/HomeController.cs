@@ -52,6 +52,12 @@ namespace PlanSuite.Controllers
                     return Redirect("/Join/Welcome");
                 }
 
+                if(user != null)
+                {
+                    user.LastVisited = DateTime.Now;
+                    await _userManager.UpdateAsync(user);
+                }
+
                 if (orgId >= 1)
                 {
                     m_Logger.LogInformation($"Grabbing projects for organisation {orgId} for user {userId}");
