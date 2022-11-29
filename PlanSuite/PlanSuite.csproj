@@ -34,7 +34,6 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\bundles\" />
-    <Folder Include="wwwroot\svg\" />
   </ItemGroup>
 
   <ItemGroup>

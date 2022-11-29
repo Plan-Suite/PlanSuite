@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using PlanSuite.Data;
 using PlanSuite.Enums;
+using PlanSuite.Migrations;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
@@ -39,6 +41,7 @@ namespace PlanSuite.Controllers
             HomeViewModel viewModel = new HomeViewModel();
             if (_signInManager.IsSignedIn(User))
             {
+                viewModel.DueTasks = new List<Models.Persistent.Card>();
                 viewModel.OwnedProjects = new List<Project>();
                 Guid userId = Guid.Parse(_userManager.GetUserId(User));
                 viewModel.CreateOrganisation.OwnerId = userId;
@@ -101,6 +104,29 @@ namespace PlanSuite.Controllers
                 {
                     m_Logger.LogInformation($"Grabbing {ownedProjects.Count} owned projects for user {userId}");
                     viewModel.OwnedProjects.AddRange(ownedProjects);
+
+                    m_Logger.LogInformation($"Grabbing unowned due tasks for user {userId}");
+                    foreach(var project in ownedProjects)
+                    {
+                        var columns = m_Database.Columns.Where(c => c.ProjectId == project.Id).ToList();
+                        if (columns != null && columns.Count > 0)
+                        {
+                            foreach (var column in columns)
+                            {
+                                var cards = m_Database.Cards.Where(card => card.ColumnId == column.Id && card.IsFinished == false).ToList();
+                                if (cards != null && cards.Count > 0)
+                                {
+                                    foreach(var card in cards)
+                                    {
+                                        if(card.CardDueDate != null && card.CardDueDate <= DateTime.Now.AddMonths(1))
+                                        {
+                                            viewModel.DueTasks.Add(card);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
 
                 // Get projects where user is member
@@ -119,6 +145,26 @@ namespace PlanSuite.Controllers
                             }
 
                             viewModel.MemberProjects.Add(project);
+
+                            m_Logger.LogInformation($"Grabbing due tasks for user {userId} for project {project.Id}");
+                            var columns = m_Database.Columns.Where(c => c.ProjectId == project.Id).ToList();
+                            if (columns != null && columns.Count > 0)
+                            {
+                                foreach (var column in columns)
+                                {
+                                    var cards = m_Database.Cards.Where(card => card.ColumnId == column.Id && card.IsFinished == false).ToList();
+                                    if (cards != null && cards.Count > 0)
+                                    {
+                                        foreach (var card in cards)
+                                        {
+                                            if (card.CardDueDate != null && card.CardDueDate <= DateTime.Now.AddMonths(1))
+                                            {
+                                                viewModel.DueTasks.Add(card);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -152,6 +198,26 @@ namespace PlanSuite.Controllers
                                     foreach (var project in organisationProjects)
                                     {
                                         AddToOrganisationMap(viewModel, project);
+
+                                        m_Logger.LogInformation($"Grabbing organisation due tasks for user {userId} for organisation {organisation.Id} project {project.Id}");
+                                        var columns = m_Database.Columns.Where(c => c.ProjectId == project.Id).ToList();
+                                        if (columns != null && columns.Count > 0)
+                                        {
+                                            foreach (var column in columns)
+                                            {
+                                                var cards = m_Database.Cards.Where(card => card.ColumnId == column.Id && card.IsFinished == false).ToList();
+                                                if (cards != null && cards.Count > 0)
+                                                {
+                                                    foreach (var card in cards)
+                                                    {
+                                                        if (card.CardDueDate != null && card.CardDueDate <= DateTime.Now.AddMonths(1))
+                                                        {
+                                                            viewModel.DueTasks.Add(card);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                     viewModel.MemberProjects.AddRange(organisationProjects);
                                 }

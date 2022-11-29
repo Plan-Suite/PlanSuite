@@ -16,6 +16,7 @@ namespace PlanSuite.Models.Temporary
         public Organisation ViewingOrganisation { get; set; }
         public OrganisationMembership CurrentOrganisationMembership { get; set; }
         public List<ItemList> Organisations { get; set; } = new List<ItemList>();
+        public List<Card> DueTasks { get; set; } = new List<Card>();
 
         public class CreateProjectModel
         {

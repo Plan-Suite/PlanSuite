@@ -273,6 +273,9 @@
   <data name="NO_PROJECTS" xml:space="preserve">
     <value>No Projects</value>
   </data>
+	<data name="NO_TASKS" xml:space="preserve">
+    <value>No Tasks</value>
+  </data>
   <data name="ORGANISATION_MEMBERS" xml:space="preserve">
     <value>Organisation Members</value>
   </data>
