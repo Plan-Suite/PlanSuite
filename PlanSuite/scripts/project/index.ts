@@ -64,6 +64,7 @@ $(function () {
     $("#addChecklistBtn").on("click", onAddChecklist);
     $("#editCardSaveContentBtn").on("click", onEditCardSaveContent);
     $("#editCardBtn").on("click", onEditCard);
+    $("#markCompleteBtn").on("click", onMarkComplete);
 
     $.ajax({
         type: "GET",
@@ -268,13 +269,13 @@ function viewCardButton(dbId) {
         },
         success: function (response) {
             var endDate = "None";
-            var startDate = "NULL";
+            var startDate = "None";
             if (response.unixTimestamp > 0) {
                 // I have to multiply by 1000 for some reason here idk why
                 endDate = new Date(response.unixTimestamp * 1000).toDateString();
             }
-            if (response.StartDate > 0) {
-                startDate = new Date(response.StartDate * 1000).toDateString();
+            if (response.startDate > 0) {
+                startDate = new Date(response.startDate * 1000).toDateString();
             }
             
             var priority: string = localisation.Get("NONE");
@@ -753,6 +754,19 @@ function onLeaveProject() {
             window.location.replace("/Home");
         },
     });
+}
+
+function onMarkComplete() {
+    var cardId = $("#viewCardId").val();
+    $.ajax({
+        type: "GET",
+        dataType: "json",
+        url: `/api/Task/ArchiveTask?taskId=${cardId}`,
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", verificationToken);
+        }
+    });
+    $(`.card#${cardId}`).fadeOut(1000);
 }
 
 function onEditCard() {

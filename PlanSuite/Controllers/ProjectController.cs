@@ -89,7 +89,7 @@ namespace PlanSuite.Controllers
                 Console.WriteLine($"Grabbed {columns.Count} columns for project {project.Id}");
                 foreach (var column in columns)
                 {
-                    var cards = dbContext.Cards.Where(c => c.ColumnId == column.Id).ToList();
+                    var cards = dbContext.Cards.Where(c => c.ColumnId == column.Id && c.IsFinished == false).ToList();
                     if (cards != null && cards.Count > 0)
                     {
                         foreach(var card in cards)
