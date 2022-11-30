@@ -1,9 +1,47 @@
+@font-face {
+    font-family: "Alexandria";
+    src: url("/fonts/Alexandria.ttf");
+}
+
+@font-face {
+    font-family: "Source Serif Pro";
+    src: url("/fonts/SourceSerifPro.ttf");
+}
+
+@font-face {
+    font-family: "Ubuntu Mono";
+    src: url("/fonts/UbuntuMono.ttf");
+}
+
 :root {
-    --blue: #3A5FDA;
-    --green: #00A896;
-    --red: #E71D36;
+    /* Colours */
+    --blue-1: #3A5FDA;
+    --blue-2: #3455c4;
+    --blue-3: #2e4cae;
+    --blue-4: #284298;
+    --blue-5: #223982;
+    --green-1: #00A896;
+    --green-2: #009787;
+    --green-3: #008678;
+    --green-4: #007569;
+    --green-5: #00645a;
+    --red-1: #E71D36;
+    --red-2: #cf1a30;
+    --red-3: #b8172b;
+    --red-4: #a11425;
+    --red-5: #8a1120;
+    --grey-1: #424946;
+    --grey-2: #575d5a;
+    --grey-3: #6c716f;
+    --grey-4: #818584;
+    --grey-5: #969a98;
     --black: #2E3532;
     --white: #FFFFFF;
+    
+    /* Fonts */
+    --fontFamilyBase: "Alexandria", "Helvetica Neue", "Helvetica", sans-serif;
+    --fontFamilyPrint: "Source Serif Pro", "Times New Roman", "Times", serif;
+    --fontFamilyMono: "Ubuntu Mono", monospace;
 }
 
 html {
@@ -24,10 +62,11 @@ html {
 body {
     background-color: var(--white);
     min-height: 100vh;
+    font-family: var(--fontFamilyBase);
 }
 
 .navagation-bar {
-    background-color: var(--blue);
+    background-color: var(--blue-1);
     color: var(--white);
 }
 
@@ -37,7 +76,7 @@ body {
 }
 
 .ps-btn-primary {
-    background-color: var(--blue);
+    background-color: var(--blue-1);
     color: var(--white);
 }
 
@@ -57,7 +96,7 @@ body {
     }
 
 .ps-btn-success {
-    background-color: var(--green);
+    background-color: var(--green-1);
     color: var(--white);
 }
 
@@ -67,7 +106,7 @@ body {
     }
 
 .ps-btn-danger {
-    background-color: var(--red);
+    background-color: var(--red-1);
     color: var(--white);
 }
 
@@ -104,7 +143,7 @@ body {
 }
 
 .ps-div-users {
-    background-color: var(--green);
+    background-color: var(--green-1);
 }
 
 .ps-div-projects {
@@ -112,7 +151,7 @@ body {
 }
 
 .ps-div-cards {
-    background-color: var(--red);
+    background-color: var(--red-1);
 }
 
 .ps-text-white {
@@ -183,10 +222,16 @@ img, svg {
     }
 
 .marketing-header {
-    background-image: linear-gradient(#3A5FDA, #2E4CAE);
+    background-image: linear-gradient(var(--blue-1), var(--blue-2));
     min-height: 10rem;
     color: var(--white);
     padding: 10px;
+}
+
+@media (min-width: 375px) {
+    .marketing-header {
+        padding: 0 15px;
+    }
 }
 
 @media (min-width: 425px) {
@@ -218,6 +263,7 @@ img, svg {
     display: block;
     margin-left: auto;
     margin-right: auto;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
 }
 
 .register-card {
@@ -241,17 +287,18 @@ img, svg {
 
 
 .ps-link-primary {
-    color: var(--blue);
+    color: var(--blue-1);
     text-decoration: none;
 }
 
     .ps-link-primary:hover {
-        color: var(--blue);
+        color: var(--blue-1);
         text-decoration: underline;
     }
 
 .register-button {
-    background-color: var(--green);
+    background-color: var(--white);
+    color: var(--blue-1)!important;
 }
 
     .register-button:hover {
@@ -259,11 +306,11 @@ img, svg {
     }
 
 .nav-pills .nav-link.active {
-    background-color: var(--blue);
+    background-color: var(--blue-1);
 }
 
 .nav-pills .nav-link {
-    color: var(--blue);
+    color: var(--blue-1);
 }
 
 .milestone-metadata {
@@ -313,12 +360,12 @@ input.input-validation-error {
 }
 
 .ps-alert-error {
-    background-color: var(--red);
+    background-color: var(--red-1);
     color: var(--white);
 }
 
 .ps-alert-success {
-    background-color: var(--green);
+    background-color: var(--green-1);
     color: var(--white);
 }
 
@@ -370,7 +417,7 @@ input.input-validation-error {
     margin-top: 10px;
     padding: 20px 20px;
     width: 100%;
-    background: var(--blue);
+    background: var(--blue-1);
     text-align: center;
 }
 
@@ -518,7 +565,7 @@ input.input-validation-error {
 
     .ps-task-checkbox:checked {
         background-image: url("/svg/check.svg");
-        background-color: var(--green);
+        background-color: var(--green-1);
         border-color: var(--black);
         border: none;
         color: #6c757d !important;
@@ -560,14 +607,31 @@ input.input-validation-error {
     line-height: 28px;
 }
 
-.ps-btn-get-started {
+.ps-get-started {
     background-color: var(--white);
-    color: var(--blue);
-    padding: 16px 24px;
+    color: var(--blue-1);
     font-size: 16px;
     line-height: 16px;
     font-weight: 500;
     letter-spacing: .5px;
+}
+
+.ps-btn-get-started {
+    padding: 16px 24px;
+}
+
+.ps-navbar-get-started {
+    padding: 10px;
+    position: absolute;
+    right: 75px;
+    top: 5px;
+}
+
+
+@media (min-width: 576px) {
+    .ps-navbar-get-started {
+        display:none;
+    }
 }
 
 .ps-contact-sales-div {
@@ -590,3 +654,32 @@ input.input-validation-error {
     justify-content: flex-start;
     color: var(--white);
 }
+
+/* Hide this on mobile devices */
+#marketing-carousel {
+    display:none;
+}
+
+
+@media (min-width: 1024px) {
+    #marketing-carousel {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+}
+
+/*
+    border-bottom: 1px solid rgba(47, 45, 43, 0.2);
+    list-style-type: none;
+    display: flex;
+    -webkit-box-pack: center;
+    justify-content: center;
+    -webkit-box-align: center;
+    align-items: center;
+    padding-left: 16px;
+    padding-right: 16px;
+    padding-bottom: 15px;
+    margin-bottom: 0px;
+*/

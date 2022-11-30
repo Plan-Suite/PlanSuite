@@ -4,26 +4,43 @@
 @using PlanSuite.Utility
 
 <div class="marketing-header">
-    <h1 class="landing-01">An answer for making projects straightforward. Period.</h1>
-    <h3 class="landing-02">Plan Suite is the project management solution that helps teams work and collaborate more easily.</h3>
-    <a href="/Identity/Account/Register" class="btn ps-btn-get-started">Get Started</a>
-    <div class="ps-contact-sales-div">
-        <a href="#" class="btn ps-btn-contact-sales">Contact Sales <i class="bi bi-arrow-right"></i></a>
+    <div class="row">
+        <div class="col">
+            <h1 class="landing-01">An answer for making projects straightforward. Period.</h1>
+            <h3 class="landing-02">Plan Suite is the project management solution that helps teams work and collaborate more easily.</h3>
+            <a href="/Identity/Account/Register" class="btn ps-get-started ps-btn-get-started">Get Started</a>
+            <div class="ps-contact-sales-div">
+                <a href="#" class="btn ps-btn-contact-sales">Contact Sales <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+        <div class="col-lg">
+            <div id="marketing-carousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        @* List View *@
+                        <img src="~/img/boards.png" class="d-block w-100" alt="List View">
+                    </div>
+                    <div class="carousel-item">
+                        @* Kanban View *@
+                        <img src="~/img/boards.png" class="d-block w-100" alt="Kanban Boards">
+                    </div>
+                    <div class="carousel-item">
+                        @* Personal Journal *@
+                        <img src="~/img/boards.png" class="d-block w-100" alt="Personal Journal">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<div class="marketing-section text-center">
+@*<div class="marketing-section text-center">
     <p>
         "Projects. Nobody enjoys managing them. We get that hence why we created this tool to assist in that endeavour. Project management has never been much easier thanks to our solution."<br />
         <small class="text-muted">Sean McElholm, Creator of Plan Suite</small>
     </p>
     <hr />
-</div>
-
-<div class="marketing-section text-center">
-    <img class="img-fluid ps-img-centre" src="~/img/boards.png" alt="Kanban View" />
-    <hr />
-</div>
+</div>*@
 
 <div class="marketing-section text-center">
     <p>With years of experience in managing projects, we've built you a tool that we think you'll love and we've made it super easy to join.</p>
