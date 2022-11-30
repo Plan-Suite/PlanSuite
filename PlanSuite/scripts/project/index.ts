@@ -86,24 +86,25 @@ $(function () {
     //$("#listMilestonesCloseBtn").on("click", onCloseMilestoneBtn);
 
     for (var i = 0; i < columnCount; i++) {
-        var column: JQuery<HTMLElement> = $(`#colIndex_${i}`) as JQuery<HTMLElement>;
+        let colIdx: JQuery<HTMLElement> = $(`#colIndex_${i}`) as JQuery<HTMLElement>;
 
         // is there not a better way to get the column id?
-        var colId: number = Number(column.children("input[type='hidden']:first").val().toString().split("_")[1]);
+        let colId: number = Number(colIdx.children("input[type='hidden']:first").val().toString().split("_")[1]);
         console.log(`colId = ${colId} index ${i}`);
 
-        var column = $(`#Column_${columnCount}`);
+        let column = $(`#Column_${colId}`);
         column.on("click", function () {
             console.log(`Clicked on ${colId}`);
             onClickEditColumnTitle(colId);
         });
 
-        var addNewCardBtn = $(`#addNewCard_${colId}`);
+        let addNewCardBtn = $(`#addNewCard_${colId}`);
         addNewCardBtn.on("click", function () {
+            console.log(`onclick ${colId}`);
             addNewCard(colId);
         });
 
-        var actualColumn: JQuery<HTMLElement> = $(`#${colId}.column.ui-droppable`) as JQuery<HTMLElement>;
+        let actualColumn: JQuery<HTMLElement> = $(`#${colId}.column.ui-droppable`) as JQuery<HTMLElement>;
 
         actualColumn.children().each(function () {
             var element = $(this);
@@ -340,6 +341,7 @@ function addNewCard(id) {
 
     //removeCard();
 
+    console.log(`appendTo(#Column_${id})`);
     $(name).detach().appendTo(`#Column_${id}`);
     $(name).removeClass("d-none");
 
