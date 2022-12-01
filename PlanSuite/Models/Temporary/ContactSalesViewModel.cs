@@ -45,4 +45,9 @@ namespace PlanSuite.Models.Temporary
             public string Message { get; set; }
         }
     }
+
+    public class SalesContactedModel : BaseViewModel
+    {
+        public string FirstName { get; set; }
+    }
 }

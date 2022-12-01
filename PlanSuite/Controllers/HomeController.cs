@@ -273,6 +273,35 @@ namespace PlanSuite.Controllers
         public async Task<IActionResult> OnSalesContact(ContactSalesViewModel.ContactSalesModel contactSales)
         {
             // Add sales contact to database
+            var salesContact = new SalesContact();
+            salesContact.FirstName = contactSales.FirstName;
+            salesContact.LastName = contactSales.LastName;
+            salesContact.Email = contactSales.Email;
+
+            if(!string.IsNullOrEmpty(salesContact.PhoneNumber))
+            {
+                salesContact.PhoneNumber = contactSales.PhoneNumber;
+            }
+            else
+            {
+                salesContact.PhoneNumber = "N/A";
+            }
+
+            if (!string.IsNullOrEmpty(salesContact.JobTitle))
+            {
+                salesContact.JobTitle = contactSales.JobTitle;
+            }
+            else
+            {
+                salesContact.JobTitle = "N/A";
+            }
+
+            salesContact.Message = contactSales.Message;
+            salesContact.Timestamp = DateTime.Now;
+            salesContact.IsContacted = false;
+
+            await m_Database.SalesContacts.AddAsync(salesContact);
+            await m_Database.SaveChangesAsync();
 
             return RedirectToAction(nameof(SalesContacted));
         }

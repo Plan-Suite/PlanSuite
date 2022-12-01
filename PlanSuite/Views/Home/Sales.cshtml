@@ -3,64 +3,73 @@
     ViewData["Title"] = "Contact our sales team";
 }
 
-<style>
+<style media="(max-width: 767px)">
     main {
         min-height:130vh;
     }
 </style>
 
+<style media="(min-width: 768px)">
+    main {
+        min-height: 100vh;
+    }
+</style>
+
 <div class="sales-background">
+    <h1 class="sales-header">Get in touch with our sales team</h1>
     <div class="row">
         <div class="col-lg">
-            <div id="marketing-carousel">
-                <img src="~/img/person-filling-out-tablet.webp" class="d-block w-100" alt="Person filling out form on tablet">
+            <div id="sales-image">
+                <img src="~/img/people-filling-out-tablet.png" id="sale-image" alt="Person filling out form on tablet">
+            </div>
+            <p class="sales-text">Wish to find out more information, to try one of our paid plans or have a simple question? Submit a query using the form below and a member of our sales team will follow up with you as soon as possible.</p>
+        </div>
+        <div class="col zindex-2">
+            <div class="sales-modal">
+                <form asp-controller="Home" asp-action="OnSalesContact" method="post">
+                    <div class="form-floating mb-3">
+                        <p class="sales-modal-required-info">All forms marked with an asterix (*) are required.</p>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-3 col-md">
+                            <label asp-for="ContactSales.FirstName" class="form-label">First Name <span class="sales-modal-required-info">*</span></label>
+                            <input type="text" asp-for="ContactSales.FirstName" class="form-control" aria-required="true" />
+                            <span asp-validation-for="ContactSales.FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3 col-md">
+                            <label asp-for="ContactSales.LastName" class="form-label">Last Name <span class="sales-modal-required-info">*</span></label>
+                            <input type="text" asp-for="ContactSales.LastName" class="form-control" aria-required="true" />
+                            <span asp-validation-for="ContactSales.LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="mb-3 col-md">
+                            <label asp-for="ContactSales.Email" class="form-label">Company Email <span class="sales-modal-required-info">*</span></label>
+                            <input type="email" asp-for="ContactSales.Email" class="form-control" aria-required="true" />
+                            <span asp-validation-for="ContactSales.Email" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3 col-md">
+                            <label asp-for="ContactSales.PhoneNumber" class="form-label">Phone Number</label>
+                            <input type="tel" asp-for="ContactSales.PhoneNumber" class="form-control" aria-required="true" />
+                            <span asp-validation-for="ContactSales.PhoneNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="ContactSales.JobTitle" class="form-label">Job Title</label>
+                        <input type="text" asp-for="ContactSales.JobTitle" class="form-control" aria-required="true" />
+                        <span asp-validation-for="ContactSales.JobTitle" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="ContactSales.Message" class="form-label">What would you like to discuss? <span class="sales-modal-required-info">*</span></label>
+                        <textarea class="form-control" rows="3" asp-for="ContactSales.Message" placeholder="Tell us about your team and project you would like to keep track of in Plan Suite."></textarea>
+                        <span asp-validation-for="ContactSales.Message" class="text-danger"></span>
+                    </div>
+                    <div class="mb-3">
+                        <button type="submit" class="btn ps-btn-primary">Submit</button>
+                    </div>
+                </form>
             </div>
         </div>
-        <div class="col">
-            <h1 class="sales-header">Get in touch with our sales team</h1>
-            <p class="sales-text">Looking for more information or with to try one of our paid plans? Submit a query using the form below and a member of our sales team will follow up with you as soon as possible. Have a simple question? <a asp-controller="Guide" asp-action="SalesFAQ">Check out our FAQ.</a></p>
-        </div>
-    </div>
-
-    <div class="sales-modal">
-        <form asp-controller="Home" asp-action="OnSalesContact" method="post">
-            <div class="form-floating mb-3">
-                <p class="sales-modal-required-info">All forms marked with an asterix (*) are required.</p>
-            </div>
-
-            <div class="mb-3">
-                <label asp-for="ContactSales.FirstName" class="form-label">First Name <span class="sales-modal-required-info">*</span></label>
-                <input type="text" asp-for="ContactSales.FirstName" class="form-control" aria-required="true" />
-                <span asp-validation-for="ContactSales.FirstName" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="ContactSales.LastName" class="form-label">Last Name <span class="sales-modal-required-info">*</span></label>
-                <input type="text" asp-for="ContactSales.LastName" class="form-control" aria-required="true" />
-                <span asp-validation-for="ContactSales.LastName" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="ContactSales.Email" class="form-label">Company Email <span class="sales-modal-required-info">*</span></label>
-                <input type="email" asp-for="ContactSales.Email" class="form-control" aria-required="true" />
-                <span asp-validation-for="ContactSales.Email" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="ContactSales.JobTitle" class="form-label">Job Title</label>
-                <input type="text" asp-for="ContactSales.JobTitle" class="form-control" aria-required="true" />
-                <span asp-validation-for="ContactSales.JobTitle" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="ContactSales.PhoneNumber" class="form-label">Phone Number</label>
-                <input type="tel" asp-for="ContactSales.PhoneNumber" class="form-control" aria-required="true" />
-                <span asp-validation-for="ContactSales.PhoneNumber" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="ContactSales.Message" class="form-label">What would you like to discuss? <span class="sales-modal-required-info">*</span></label>
-                <textarea class="form-control" rows="3" asp-for="ContactSales.Message" placeholder="Tell us about your team and project you would like to keep track of in Plan Suite."></textarea>
-                <span asp-validation-for="ContactSales.Message" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <button type="submit" class="btn ps-btn-primary">Submit</button>
-            </div>
-        </form>
     </div>
 </div>

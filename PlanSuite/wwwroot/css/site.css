@@ -230,6 +230,10 @@ img, svg {
     padding: 10px;
 }
 
+.sales-header {
+    text-align:center;
+}
+
 .sales-background {
     background-image: linear-gradient(var(--white-3), var(--white));
     color: var(--black);
@@ -682,6 +686,9 @@ input.input-validation-error {
     display:none;
 }
 
+#sales-image {
+    display:none;
+}
 
 @media (min-width: 1024px) {
     #marketing-carousel {
@@ -690,6 +697,30 @@ input.input-validation-error {
         align-items: center;
         height: 100%;
     }
+
+    #sales-image {
+        display:block;
+        position: relative;
+        top: 41px;
+        margin-bottom: 82px;
+        margin-left:auto;
+        margin-right:auto;
+    }
+
+    #sale-image {
+        margin: auto;
+        display: block;
+    }
+}
+
+@media (min-width: 2560px) {
+    .sales-text {
+        font-size:30px;
+    }
+}
+
+.zindex-2 {
+    z-index: 2;
 }
 
 /*
