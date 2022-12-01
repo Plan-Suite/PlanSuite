@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using PlanSuite.Data;
@@ -23,8 +24,9 @@ namespace PlanSuite.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly LocalisationService m_Localisation;
         private readonly AuditService m_AuditService;
+        private readonly IEmailSender m_EmailSender;
 
-        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AuditService auditService)
+        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AuditService auditService, IEmailSender emailSender)
         {
             m_Database = context;
             m_Logger = logger;
@@ -32,6 +34,7 @@ namespace PlanSuite.Controllers
             _signInManager = signInManager;
             m_Localisation = LocalisationService.Instance;
             m_AuditService = auditService;
+            m_EmailSender = emailSender;
         }
 
         public async Task<IActionResult> Index(int orgId = 0)
@@ -253,6 +256,25 @@ namespace PlanSuite.Controllers
         public IActionResult Pricing()
         {
             return View();
+        }
+
+        public IActionResult Sales()
+        {
+            return View();
+        }
+
+
+        public IActionResult SalesContacted()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> OnSalesContact(ContactSalesViewModel.ContactSalesModel contactSales)
+        {
+            // Add sales contact to database
+
+            return RedirectToAction(nameof(SalesContacted));
         }
 
         [HttpPost]

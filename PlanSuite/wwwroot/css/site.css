@@ -37,7 +37,9 @@
     --grey-5: #969a98;
     --black: #2E3532;
     --white: #FFFFFF;
-    
+    --white-2: #FCFCFC;
+    --white-2: #F9F9F9;
+    --white-3: #F7F7F7;
     /* Fonts */
     --fontFamilyBase: "Alexandria", "Helvetica Neue", "Helvetica", sans-serif;
     --fontFamilyPrint: "Source Serif Pro", "Times New Roman", "Times", serif;
@@ -226,6 +228,26 @@ img, svg {
     min-height: 10rem;
     color: var(--white);
     padding: 10px;
+}
+
+.sales-background {
+    background-image: linear-gradient(var(--white-3), var(--white));
+    color: var(--black);
+    height: 100vh;
+    padding: 20px;
+}
+
+.sales-modal {
+    background-color: var(--white);
+    color: var(--black);
+    padding: 32px 22px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 20%), 0 6px 20px 0 rgb(0 0 0 / 19%);
+    margin-bottom:10px;
+}
+
+.sales-modal-required-info {
+    font-weight:500;
 }
 
 @media (min-width: 375px) {
