@@ -52,6 +52,25 @@ namespace PlanSuite.Controllers
             return View(model);
         }
 
+        public async Task<IActionResult> Upgrade()
+        {
+            WelcomePageModel model = new WelcomePageModel();
+            if (!m_SignInManager.IsSignedIn(User))
+            {
+                // Redirect the user to the sign in page.
+                return Redirect("/Identity/Account/Login");
+            }
+
+            var user = await m_UserManager.GetUserAsync(User);
+            if (user == null)
+            {
+                // User has returned null, this should never happen in 99.9% of cases.
+                return NotFound("User returned null, this should not happen.");
+            }
+
+            return View(model);
+        }
+
         public async Task<IActionResult> ContinueWithFree()
         {
             if (!m_SignInManager.IsSignedIn(User))

@@ -1,0 +1,59 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Enums
+@using PlanSuite.Models.Persistent
+@model PlanSuite.Models.Temporary.WelcomePageModel
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@{
+    ViewData["Title"] = "Upgrade";
+    ApplicationUser user = await UserManager.GetUserAsync(User);
+}
+
+<script src="https://js.stripe.com/v3/"></script>
+
+<div class="container py-3">
+    <div class="pricing-header p-3 pb-md-4 mx-auto text-center">
+        <h1 class="text-center">Thinking about upgrading?</h1>
+        <h4>We're glad you're considering upgrading. Here are the plans we offer below.</h4>
+        <h5>Select your plan to continue your upgrade.</h5>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 mb-3 text-center">
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm pricing-card">
+                <div class="card-header py-3" style="background-color: var(--blue-1);">
+                    <h4 class="my-0 fw-normal text-light">Plus</h4>
+                    <span class="badge bg-warning text-dark fs-6 mt-2">Best Value</span>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title">£4.99<span class="text-muted fw-light">/mo</span></h1>
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <partial name="Pricing/_Plus"/>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <form method="post" asp-controller="Join" asp-action="UpgradePlan">
+                        <input type="hidden" name="lookup_key" value="price_1LSNmSJVn9VR77kgkVMJa6PW" />
+                        <button id="btnUpgradePlus" type="submit" class="w-100 btn btn-lg ps-btn-primary"><i class="bi bi-arrow-up-circle"></i> Upgrade to Plus</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card mb-4 rounded-3 shadow-sm pricing-card">
+                <div class="card-header py-3">
+                    <h4 class="my-0 fw-normal">Pro</h4>
+                </div>
+                <div class="card-body">
+                    <h1 class="card-title pricing-card-title">£8.99<span class="text-muted fw-light">/mo</span></h1>
+                    <ul class="list-unstyled mt-3 mb-4">
+                        <partial name="Pricing/_Pro"/>
+                    </ul>
+                </div>
+                <div class="card-footer">
+                    <a class="w-100 btn btn-lg ps-btn-secondary" asp-controller="Join" asp-action="UpgradePlan" asp-route-tier="@((int)PaymentTier.Pro)"><i class="bi bi-arrow-up-circle"></i> Upgrade to Pro</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

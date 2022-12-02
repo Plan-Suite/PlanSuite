@@ -93,7 +93,7 @@
                 }
                 else if (user != null && user.PaymentTier < PlanSuite.Enums.PaymentTier.Plus)
                 {
-                    <a class="btn ps-get-started ps-navbar-get-started" href="/Identity/Account/Register">Upgrade</a>
+                    <a class="btn ps-get-started ps-navbar-get-started" asp-controller="Join" asp-action="Upgrade">Upgrade</a>
                 }
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
