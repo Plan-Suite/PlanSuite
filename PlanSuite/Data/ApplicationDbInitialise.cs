@@ -26,6 +26,30 @@ namespace PlanSuite.Data
                 await roleManager.CreateAsync(role);
             }
 
+            roleExists = await roleManager.RoleExistsAsync(Constants.DevRole);
+            if (!roleExists)
+            {
+                var role = new IdentityRole();
+                role.Name = Constants.DevRole;
+                await roleManager.CreateAsync(role);
+            }
+
+            roleExists = await roleManager.RoleExistsAsync(Constants.SalesRole);
+            if (!roleExists)
+            {
+                var role = new IdentityRole();
+                role.Name = Constants.SalesRole;
+                await roleManager.CreateAsync(role);
+            }
+
+            roleExists = await roleManager.RoleExistsAsync(Constants.SupportRole);
+            if (!roleExists)
+            {
+                var role = new IdentityRole();
+                role.Name = Constants.SupportRole;
+                await roleManager.CreateAsync(role);
+            }
+
             // Create superuser account
             string rootPassword = PasswordReset.GenerateRandomString();
             var root = await userManager.FindByNameAsync("root");

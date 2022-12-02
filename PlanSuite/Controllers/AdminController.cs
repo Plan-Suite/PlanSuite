@@ -79,6 +79,8 @@ namespace PlanSuite.Controllers
             model.TotalSalesThisMonth = model.PlusSalesThisMonth + model.ProSalesThisMonth;
             model.TotalSalesLastMonth = plusSalesLastMonth + proSalesLastMonth;
 
+            GetSalesContactRequests(model);
+
             return View(model);
         }
 
@@ -87,8 +89,63 @@ namespace PlanSuite.Controllers
         {
             AdminIndexViewModel model = new AdminIndexViewModel();
             model.Section = "User";
-
+            GetSalesContactRequests(model);
             return View(model);
+        }
+
+        [Authorize(Roles = "SuperUser,Sales")]
+        public IActionResult ContactRequests()
+        {
+            AdminIndexViewModel model = new AdminIndexViewModel();
+            model.Section = "Contact Requests";
+            GetSalesContactRequests(model);
+            return View(model);
+        }
+
+        [Authorize(Roles = "SuperUser,Sales")]
+        public IActionResult SeeContact(int id)
+        {
+            AdminIndexViewModel model = new AdminIndexViewModel();
+            model.Section = "Contact Requests";
+            GetSalesContactRequests(model);
+
+            var contact = dbContext.SalesContacts.Where(contact => contact.Id == id).FirstOrDefault();
+            if(contact == null)
+            {
+                return NotFound();
+            }
+
+            model.SalesContact = contact;
+            return View(model);
+        }
+
+        public async Task<IActionResult> OnContacted(int id, bool contacted)
+        {
+            var contact = dbContext.SalesContacts.Where(contact => contact.Id == id).FirstOrDefault();
+            if(contact == null)
+            {
+                return BadRequest();
+            }
+
+            if(contacted)
+            {
+                contact.IsContacted = true;
+            }
+            else
+            {
+                dbContext.SalesContacts.Remove(contact);
+            }
+            await dbContext.SaveChangesAsync();
+            return RedirectToAction(nameof(ContactRequests));
+        }
+
+        private void GetSalesContactRequests(AdminIndexViewModel model)
+        {
+            if (User.IsInRole(Constants.AdminRole) || User.IsInRole(Constants.SalesRole))
+            {
+                model.SalesContacts = dbContext.SalesContacts.Where(s => s.IsContacted == false).OrderBy(s => s.Timestamp).ToList();
+                Console.WriteLine($"sales = {model.SalesContacts.Count}");
+            }
         }
     }
 }

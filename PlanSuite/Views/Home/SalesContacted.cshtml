@@ -5,7 +5,8 @@
 }
 @model PlanSuite.Models.Temporary.SalesContactedModel
 
-Thank you for contacting our sales team, @Model.FirstName<text>.</text>
-Someone from our sales team will contact you as soon as possible to discuss your teams needs.
-
-In the mean time, we suggest that you <a>get started</a> on our website and try out Plan Suite.
+<div class="sales-background">
+    <h1 class="sales-header">Thank you for contacting our sales team.</h1>
+    <p class="sales-text">We try to answer all queries within 48 hours. Someone from our sales team will contact you within that time period to discuss your teams needs, usually via an email but if you provided a phone number we might also contact you that way.</p>
+    <p class="sales-text">In the mean time, we suggest that you <a href="/Identity/Account/Register">get started</a> on our website and try out Plan Suite.</p>
+</div>

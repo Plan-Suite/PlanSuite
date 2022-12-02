@@ -272,6 +272,14 @@ namespace PlanSuite.Controllers
         [HttpPost]
         public async Task<IActionResult> OnSalesContact(ContactSalesViewModel.ContactSalesModel contactSales)
         {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            string jsonString = System.Text.Json.JsonSerializer.Serialize(contactSales);
+            Console.WriteLine(jsonString);
+
             // Add sales contact to database
             var salesContact = new SalesContact();
             salesContact.FirstName = contactSales.FirstName;

@@ -1,4 +1,6 @@
-﻿namespace PlanSuite.Models.Temporary
+﻿using PlanSuite.Models.Persistent;
+
+namespace PlanSuite.Models.Temporary
 {
     public class AdminIndexViewModel
     {
@@ -25,6 +27,8 @@
         public int TotalTasks { get; set; }
         public int TotalProjects { get; set; }
 
+        public List<SalesContact> SalesContacts { get; set; }
+        public SalesContact SalesContact { get; set; }
 
         decimal CalculateChange(decimal previous, decimal current)
         {
