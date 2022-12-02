@@ -1,4 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using PlanSuite.Enums;
+using PlanSuite.Models.Persistent;
+using System.Security.Claims;
 
 namespace PlanSuite.Utility
 {

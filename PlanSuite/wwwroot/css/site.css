@@ -723,6 +723,18 @@ input.input-validation-error {
     z-index: 2;
 }
 
+.ps-navbar-upgrade {
+    display:none;
+}
+
+@media (min-width: 768px) {
+    .ps-navbar-upgrade {
+        display: block;
+        padding: 10px;
+        background-image: linear-gradient(0deg, var(--white), var(--white-3));
+    }
+}
+
 /*
     border-bottom: 1px solid rgba(47, 45, 43, 0.2);
     list-style-type: none;
