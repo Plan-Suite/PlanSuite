@@ -26,6 +26,7 @@ namespace PlanSuite.Controllers
             m_Logger = logger;
         }
 
+        [Route("welcome")]
         public async Task<IActionResult> Welcome()
         {
             WelcomePageModel model = new WelcomePageModel();
@@ -52,6 +53,7 @@ namespace PlanSuite.Controllers
             return View(model);
         }
 
+        [Route("upgrade")]
         public async Task<IActionResult> Upgrade()
         {
             WelcomePageModel model = new WelcomePageModel();
@@ -217,6 +219,7 @@ namespace PlanSuite.Controllers
             return customer;
         }
 
+        [Route("upgraded/{saleId}&{amount}")]
         public IActionResult UpgradeSuccess(int saleId, long amount)
         {
             UpgradeSuccessModel model = new UpgradeSuccessModel();

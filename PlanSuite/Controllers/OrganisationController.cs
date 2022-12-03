@@ -68,6 +68,7 @@ namespace PlanSuite.Controllers
             return Redirect($"/Home/Index?orgStatus={(int)errorCode}");
         }
 
+        [Route("organisations")]
         public async Task<IActionResult> SeeOrganisations()
         {
             if (!m_SigninManager.IsSignedIn(User))
@@ -119,6 +120,7 @@ namespace PlanSuite.Controllers
             return View(model);
         }
 
+        [Route("organisations/{orgId}")]
         public async Task<IActionResult> EditOrganisation(int orgId)
         {
             if (!m_SigninManager.IsSignedIn(User))
@@ -168,6 +170,7 @@ namespace PlanSuite.Controllers
             return View(model);
         }
 
+        [Route("organisations/{orgId}/members/{error?}")]
         public async Task<IActionResult> SeeMembers(int orgId, int error = 0)
         {
             if (!m_SigninManager.IsSignedIn(User))

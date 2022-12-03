@@ -7,6 +7,7 @@ using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
 using PlanSuite.Utility;
+using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -32,6 +33,7 @@ namespace PlanSuite.Controllers
         }
 
         // /Project/Index?id=X
+        [Route("projects/{id}")]
         public async Task<IActionResult> Index(int id)
         {
             CommonCookies.ApplyCommonCookies(HttpContext);
@@ -117,6 +119,7 @@ namespace PlanSuite.Controllers
         }
 
         // /Project/Logs/?projectId=X&index=Y
+        [Route("projects/{projectId}/logs/{index?}")]
         public async Task<IActionResult> Logs(int projectId, int index = 0)
         {
             CommonCookies.ApplyCommonCookies(HttpContext);
