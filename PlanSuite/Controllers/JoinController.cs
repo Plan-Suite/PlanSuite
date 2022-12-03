@@ -233,5 +233,29 @@ namespace PlanSuite.Controllers
 
             return View(model);
         }
+
+        public async Task<IActionResult> ContinueRegistration([FromForm] Areas.Identity.Pages.Account.ConfirmEmailModel.InputModel input)
+        {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest("ModelState invalid");
+            }
+
+            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(input));
+
+            var user = await m_UserManager.FindByIdAsync(input.User.ToString());
+            if(user == null)
+            {
+                return BadRequest("User was null during registration");
+            }
+
+            var result = await m_UserManager.AddPasswordAsync(user, input.Password);
+            if(!result.Succeeded)
+            {
+                return BadRequest("Cannot assign password");
+            }
+
+            return RedirectToAction(nameof(Welcome));
+        }
     }
 }

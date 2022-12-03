@@ -4,15 +4,10 @@
     ViewData["Title"] = "Verify your email";
 }
 
-<div class="container">
-    <div class="register-card">
-        <h4 class="text-center">Almost done...</h4>
-        <div class="row">
-            <div class="col">
-                <section>
-                    <p>We'll send an email to @Model.Email within the next 5 minutes, usually instantly. Please click on the link that has been sent to your email account to verify your email and continue the registration process.</p>
-                </section>
-            </div>
-        </div>
-    </div>
+<div class="container register-div">
+    <h1 class="register-header text-center">Please verify your email address</h1>
+    <p class="register-subheading-2">Please verify your email to get started with Plan Suite.</p>
+    <p class="register-subheading-2">The email is usually sent instantly but in some cases may take up to 5 minutes to arrive.</p>
+    <p class="register-subheading-2 text-muted">Be sure to also check your spam box too!</p>
+    @*<p class="text-center mt-4">Didn't receive an email? <a class="ps-link-primary" asp-area="Identity" asp-page="RegisterConfirmation" as>Resend email.</a></p>*@
 </div>

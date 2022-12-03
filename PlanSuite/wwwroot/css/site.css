@@ -735,6 +735,25 @@ input.input-validation-error {
     }
 }
 
+.register-div {
+    margin: 100px auto 100px auto;
+}
+
+.register-subheading {
+    text-align:center;
+    font-size:12px;
+}
+
+.register-subheading-2 {
+    text-align: center;
+    font-size: 16px;
+}
+
+.register-subheading-3 {
+    font-size: 16px;
+}
+
+
 /*
     border-bottom: 1px solid rgba(47, 45, 43, 0.2);
     list-style-type: none;
