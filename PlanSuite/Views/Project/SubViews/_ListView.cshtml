@@ -1,0 +1,99 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Models.Persistent
+@inject UserManager<ApplicationUser> UserManager
+@model PlanSuite.Models.Temporary.ProjectViewModel
+@{
+    int projectId = Model.Project.Id;
+    int columnCount = Model.Columns.Count;
+    int cardCount = Model.Cards.Count;
+    ApplicationUser user = await UserManager.GetUserAsync(User);
+}
+@if(columnCount > 0)
+{
+    @*Complete list view*@
+    <p>Click on the text of a task to view more information about the task.</p>
+    <input type="hidden" id="columnCount" value="@Model.Columns.Count" />
+    <div class="horizontal-scroll" id="taskListHolder">
+        @foreach(var item in Model.Columns)
+        {
+            bool foundCard = false;
+            <div class="task-list-col" id="colIndex_@Model.Columns.IndexOf(item)">
+                <input type="hidden" value="ColumnTitle_@item.Id" />
+                <span class="task-list-name">@item.Title</span>
+                @foreach (var card in Model.Cards)
+                {
+                    if (card.ColumnId == item.Id)
+                    {
+                        string overdue = string.Empty;
+                        if (card.CardDueDate != null && card.CardDueDate < DateTime.Now && card.IsFinished == false)
+                        {
+                            overdue = $"<span class=\"badge bg-danger\">{Model.Localisation.Get(user, "OVERDUE")}</span>";
+                        }
+                        string priority = string.Empty;
+                        if (card.CardPriority > PlanSuite.Enums.Priority.None && card.IsFinished == false)
+                        {
+                            switch (card.CardPriority)
+                            {
+                                case PlanSuite.Enums.Priority.Low:
+                                    priority += "<span class=\"badge bg-success\">";
+                                    priority += Model.Localisation.Get(user, "LOW");
+                                    priority += "</span>";
+                                    break;
+                                case PlanSuite.Enums.Priority.Medium:
+                                    priority += "<span class=\"badge bg-warning\">";
+                                    priority += Model.Localisation.Get(user, "MEDIUM");
+                                    priority += "</span>";
+                                    break;
+                                case PlanSuite.Enums.Priority.High:
+                                    priority += "<span class=\"badge bg-danger\">";
+                                    priority += Model.Localisation.Get(user, "HIGH");
+                                    priority += "</span>";
+                                    break;
+                            }
+                        }
+
+                        string milestone = string.Empty;
+                        if (Model.PaymentTier >= PlanSuite.Enums.PaymentTier.Plus && card.CardMilestone > 0)
+                        {
+                            var _milestone = Model.Milestones.Where(m => m.Id == card.CardMilestone).FirstOrDefault();
+                            if (_milestone != null)
+                            {
+                                milestone += $"<span class=\"fw-bold\"><i class=\"bi bi-signpost\"></i> {_milestone.Title}</span>";
+                            }
+                        }
+
+                        if (!string.IsNullOrEmpty(priority) || !string.IsNullOrEmpty(overdue))
+                        {
+                            priority += "<br/>";
+                        }
+
+                        string cardName = card.CardName.ReplaceLineEndings("");
+
+                        foundCard = true;
+                        <div class="ps-task-item" id="DueTask_@card.Id">
+                            <input type="hidden" id="TaskId" value="@card.Id" />
+                            @if(card.IsFinished == false)
+                            {
+                                <input class="form-check-input ps-task-checkbox" type="checkbox" id="TaskCheckbox_@card.Id">
+                            }
+                            else
+                            {
+                                <input class="form-check-input ps-task-checkbox" type="checkbox" id="TaskCheckbox_@card.Id" checked>
+                            }
+                            <span class="cursor-pointer" id="DueTaskText_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal">@Html.Raw(milestone) @card.CardName @Html.Raw(overdue) @Html.Raw(priority)</span>
+                        </div>
+                    }
+                }
+                <div class="ps-add-task cursor-pointer" id="addTask_@item.Id" data-bs-toggle="modal" data-bs-target="#addTaskModal">Add task...</div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="col m4">
+        <p class="text-muted text-center m-1">No columns on this project, select <a class="link-primary" href="#" data-bs-toggle="modal" data-bs-target="#addColumnModal">Add Column</a> to add one.</p>
+    </div>
+}
+
+<script type="module" src="~/js/project/listView.js" asp-append-version="true"></script>

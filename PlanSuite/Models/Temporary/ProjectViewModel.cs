@@ -1,5 +1,6 @@
 ﻿using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
+using System.ComponentModel;
 
 namespace PlanSuite.Models.Temporary
 {
@@ -19,6 +20,8 @@ namespace PlanSuite.Models.Temporary
         public EditMilestoneModel EditMilestone = new EditMilestoneModel();
         public DeleteMilestoneModel DeleteMilestone = new DeleteMilestoneModel();
         public PaymentTier PaymentTier = PaymentTier.Free;
+        public Dictionary<Guid, string> ProjectMembers { get; set; } = new Dictionary<Guid, string>();
+        public AddTaskModel AddTask { get; set; } = new AddTaskModel();
 
         public class AddColumnModel
         {
@@ -31,6 +34,29 @@ namespace PlanSuite.Models.Temporary
             public int CardId { get; set; }
             public string Name { get; set; }
             public string Description { get; set; }
+        }
+
+        public class AddTaskModel
+        {
+            public int ColumnId { get; set; }
+
+            [DisplayName("Name")]
+            public string Name { get; set; }
+
+            [DisplayName("Content")]
+            public string Content { get; set; }
+
+            [DisplayName("Assignee")]
+            public Guid Assignee { get; set; }
+
+            [DisplayName("Due Date")]
+            public DateTime DueDate { get; set; }
+
+            [DisplayName("Priority")]
+            public Priority Priority { get; set; }
+
+            [DisplayName("Milestone")]
+            public int MilestoneId { get; set; }
         }
     }
 

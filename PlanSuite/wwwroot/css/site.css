@@ -571,21 +571,30 @@ input.input-validation-error {
 
 .ps-task-item {
     text-align: left;
-    font-size: 1.25em;
-    background: var(--bs-gray-400);
+    font-size: 1em;
     padding-top: 10px;
     padding-bottom: 10px;
+    padding-left: 5px;
     width: 100%;
     border-bottom-color: var(--black);
     border-bottom-style: solid;
     border-bottom-width: 1px;
 }
 
+.ps-add-task {
+    text-align: left;
+    font-size: 1.25em;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    width: 100%;
+    color: var(--bs-gray-600);
+}
+
 .ps-task-checkbox {
     border-radius: 25px !important;
     background-image: url("/svg/check.svg");
     background-color: var(--white);
-    border: none;
+    border: solid 1px;
     color: #6c757d !important;
 }
 
@@ -767,3 +776,17 @@ input.input-validation-error {
     padding-bottom: 15px;
     margin-bottom: 0px;
 */
+
+.task-list-col {
+    padding: 10px;
+
+}
+
+.task-list-name {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.cursor-pointer {
+    cursor:pointer;
+}

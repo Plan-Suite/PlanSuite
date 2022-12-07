@@ -246,7 +246,7 @@ namespace PlanSuite.Controllers
 
             Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(input));
 
-            var user = await m_UserManager.FindByIdAsync(input.User.ToString());
+            ApplicationUser user = await m_UserManager.FindByIdAsync(input.User.ToString());
             if(user == null)
             {
                 return BadRequest("User was null during registration");
@@ -257,6 +257,10 @@ namespace PlanSuite.Controllers
             {
                 return BadRequest("Cannot assign password");
             }
+
+            user.FirstName = input.FirstName;
+            user.LastName = input.LastName;
+            await m_UserManager.UpdateAsync(user);
 
             return RedirectToAction(nameof(Welcome));
         }
