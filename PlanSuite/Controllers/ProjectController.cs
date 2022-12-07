@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using PlanSuite.Data;
 using PlanSuite.Enums;
 using PlanSuite.Migrations;
@@ -7,6 +8,8 @@ using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
 using PlanSuite.Utility;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.Metrics;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -32,6 +35,7 @@ namespace PlanSuite.Controllers
         }
 
         // /Project/Index?id=X
+        [Route("projects/{id}")]
         public async Task<IActionResult> Index(int id)
         {
             CommonCookies.ApplyCommonCookies(HttpContext);
@@ -113,10 +117,41 @@ namespace PlanSuite.Controllers
                     }
                 }
             }
+
+            // TODO: All users will soon be in an organisation, either one they own or their teams organisation.
+
+            // Get project members
+            var owner = await _userManager.FindByIdAsync(project.OwnerId.ToString());
+            if (owner != null)
+            {
+                string userName = owner.Email;
+                if (!string.IsNullOrEmpty(owner.FirstName))
+                {
+                    userName = owner.FullName;
+                }
+                viewModel.ProjectMembers.Add(project.OwnerId, userName);
+            }
+
+            var members = dbContext.ProjectsAccess.Where(projAccess => projAccess.ProjectId == project.Id).ToList();
+            foreach(var member in members)
+            {
+                var projMember = await _userManager.FindByIdAsync(member.UserId.ToString());
+                if(projMember != null)
+                {
+                    string userName = projMember.Email;
+                    if(!string.IsNullOrEmpty(projMember.FirstName))
+                    {
+                        userName = projMember.FullName;
+                    }
+                    viewModel.ProjectMembers.Add(member.UserId, userName);
+                }
+
+            }
             return View(viewModel);
         }
 
         // /Project/Logs/?projectId=X&index=Y
+        [Route("projects/{projectId}/logs/{index?}")]
         public async Task<IActionResult> Logs(int projectId, int index = 0)
         {
             CommonCookies.ApplyCommonCookies(HttpContext);
@@ -227,6 +262,30 @@ namespace PlanSuite.Controllers
             Console.WriteLine($"Account {_userManager.GetUserId(User)} successfully added a card to column {column.Id}");
 
             await m_ProjectService.AddCard(addCard, User);
+
+            return RedirectToAction(nameof(Index), "Project", new { id = column.ProjectId });
+        }
+
+        [HttpPost("AddTask")]
+        public async Task<IActionResult> AddTask(ProjectViewModel.AddTaskModel addTask)
+        {
+            if (!_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction(nameof(Index), "Home");
+            }
+
+            Console.WriteLine(JsonSerializer.Serialize(addTask));
+
+            var column = dbContext.Columns.FirstOrDefault(p => p.Id == addTask.ColumnId);
+            if (column == null)
+            {
+                Console.WriteLine($"No column with id {addTask.ColumnId} found");
+                return RedirectToAction(nameof(Index), "Home");
+            }
+
+            Console.WriteLine($"Account {_userManager.GetUserId(User)} successfully added a card to column {column.Id}");
+
+            await m_ProjectService.AddTask(addTask, User);
 
             return RedirectToAction(nameof(Index), "Project", new { id = column.ProjectId });
         }

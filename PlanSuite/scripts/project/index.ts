@@ -2,19 +2,12 @@
 import { Localisation } from "../localisation.js";
 import { isBlank } from '../site.js'
 import { TimeSpan } from "../timespan.js";
+import { ProjectCommon } from "./projectCommon.js"
 
-const verificationToken: string = $("#RequestVerificationToken").val() as string;
 const localisation = new Localisation();
 var projectId: number;
 var columnCount: number;
 var userId: number;
-
-enum Priority {
-    None,
-    Low,
-    Medium,
-    High
-};
 
 enum AddMemberResponse {
     Success = 0,
@@ -48,7 +41,7 @@ $(function () {
                 contentType: "application/json",
                 url: "/api/Project/movecard",
                 beforeSend: function (request) {
-                    request.setRequestHeader("RequestVerificationToken", verificationToken);
+                    request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
                 },
                 data: JSON.stringify({ cardId: dropped[0].id, columnId: droppedOn[0].id }),
             });
@@ -64,13 +57,14 @@ $(function () {
     $("#addChecklistBtn").on("click", onAddChecklist);
     $("#editCardSaveContentBtn").on("click", onEditCardSaveContent);
     $("#editCardBtn").on("click", onEditCard);
+    $("#markCompleteBtn").on("click", onMarkComplete);
 
     $.ajax({
         type: "GET",
         dataType: "json",
         url: `/api/Project/GetMilestones?id=${projectId}`,
         beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", verificationToken);
+            request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
         },
         success: function (response) {
             response.milestones.forEach(function (value) {
@@ -85,30 +79,31 @@ $(function () {
     //$("#listMilestonesCloseBtn").on("click", onCloseMilestoneBtn);
 
     for (var i = 0; i < columnCount; i++) {
-        var column: JQuery<HTMLElement> = $(`#colIndex_${i}`) as JQuery<HTMLElement>;
+        let colIdx: JQuery<HTMLElement> = $(`#colIndex_${i}`) as JQuery<HTMLElement>;
 
         // is there not a better way to get the column id?
-        var colId: number = Number(column.children("input[type='hidden']:first").val().toString().split("_")[1]);
+        let colId: number = Number(colIdx.children("input[type='hidden']:first").val().toString().split("_")[1]);
         console.log(`colId = ${colId} index ${i}`);
 
-        var column = $(`#Column_${columnCount}`);
+        let column = $(`#Column_${colId}`);
         column.on("click", function () {
             console.log(`Clicked on ${colId}`);
             onClickEditColumnTitle(colId);
         });
 
-        var addNewCardBtn = $(`#addNewCard_${colId}`);
+        let addNewCardBtn = $(`#addNewCard_${colId}`);
         addNewCardBtn.on("click", function () {
+            console.log(`onclick ${colId}`);
             addNewCard(colId);
         });
 
-        var actualColumn: JQuery<HTMLElement> = $(`#${colId}.column.ui-droppable`) as JQuery<HTMLElement>;
+        let actualColumn: JQuery<HTMLElement> = $(`#${colId}.column.ui-droppable`) as JQuery<HTMLElement>;
 
         actualColumn.children().each(function () {
             var element = $(this);
             if (!element.hasClass("script-ignore") && !element.is("input")) {
                 var id: number = element.attr("id") as unknown as number;
-                $(`#viewCardName_${id}`).on("click", function () { viewCardButton(id) });
+                $(`#viewCardName_${id}`).on("click", function () { ProjectCommon.viewCardButton(id) });
             }
         });
     }
@@ -140,7 +135,7 @@ function removeEditForm() {
         contentType: "application/json",
         url: "/api/Project/editcarddesc",
         beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", verificationToken);
+            request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
         },
         data: JSON.stringify({ cardId: dbId, description: text }),
     });
@@ -162,7 +157,7 @@ function removeEditLabel() {
     $("#viewCardLabel").text(text);
     $(`#viewCardName_${dbId}`).text(text);
     $(`#viewCardName_${dbId}`).attr("onclick", function () {
-        viewCardButton(dbId);
+        ProjectCommon.viewCardButton(dbId);
     });
 
     $.ajax({
@@ -171,7 +166,7 @@ function removeEditLabel() {
         contentType: "application/json",
         url: "/api/Project/editcardname",
         beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", verificationToken);
+            request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
         },
         data: JSON.stringify({ cardId: dbId, name: text }),
     });
@@ -222,7 +217,7 @@ function removeDateEditor() {
         contentType: "application/json",
         url: "/api/Project/EditCardDueDate",
         beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", verificationToken);
+            request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
         },
         data: JSON.stringify({ cardId: dbId, timestamp: dateEntered }),
     });
@@ -255,90 +250,12 @@ function editDescription(): void {
     });
 }
 
-function viewCardButton(dbId) {
-    $('#viewCardId').val(dbId);
-
-    $.ajax({
-        type: "GET",
-        dataType: "json",
-        contentType: "application/json",
-        url: `/api/Project/getcard?cardId=${dbId}`,
-        beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", verificationToken);
-        },
-        success: function (response) {
-            var endDate = "None";
-            var startDate = "NULL";
-            if (response.unixTimestamp > 0) {
-                // I have to multiply by 1000 for some reason here idk why
-                endDate = new Date(response.unixTimestamp * 1000).toDateString();
-            }
-            if (response.StartDate > 0) {
-                startDate = new Date(response.StartDate * 1000).toDateString();
-            }
-            
-            var priority: string = localisation.Get("NONE");
-            if (response.priority == Priority.Low.valueOf())
-            {
-                priority = `<span class="badge bg-success">${localisation.Get("LOW")}</span>`;
-            }
-            else if (response.priority == Priority.Medium.valueOf())
-            {
-                priority = `<span class="badge bg-warning">${localisation.Get("MEDIUM")}</span>`;
-            }
-            else if (response.priority == Priority.High.valueOf())
-            {
-                priority = `<span class="badge bg-danger">${localisation.Get("HIGH")}</span>`;
-            }
-
-            var assignee: string = localisation.Get("NOBODY");
-            if (response.assigneeName != "NOBODY") {
-                assignee = response.assigneeName;
-            }
-
-            var milestone: string = "None";
-            if (response.milestoneId > 0) {
-                milestone = response.milestoneName;
-            }
-
-            var checklistHolder = $("#checklistHolder");
-            if (response.cardChecklists.length > 0) {
-                checklistHolder.removeClass("d-none");
-                checklistHolder.empty();
-                response.cardChecklists.forEach(function (element) {
-                    addChecklist(element.id, element.checklistName, response.checklistItems);
-                })
-            }
-            else {
-                checklistHolder.addClass("d-none");
-            }
-
-
-            var logHolder = $("#logHolder");
-            logHolder.empty();
-            logHolder.append("<hr/>");
-
-            response.auditLogs.forEach(function (log) {
-                logHolder.append(`<div class="ps-card-log"><strong>${log.username}</strong><br />${log.message}<br /><small class="text-muted">${log.created}</small></div>`);
-            });
-
-            $('#viewCardLabel').text(response.name);
-            $('#viewCardText').html(response.markdownContent);
-            $('#viewCardEditTextEditor').val(response.rawContent);
-            $('#viewCardStartDate').html(`<strong>${localisation.Get("VIEW_CARD_START_DATE")}</strong> ${startDate}`);
-            $('#viewCardDueDate').html(`<strong>${localisation.Get("VIEW_CARD_DUE_DATE")}</strong> ${endDate}`);
-            $('#viewCardPriority').html(`<strong>${localisation.Get("VIEW_CARD_PRIORITY")}</strong> ${priority}`);
-            $('#viewCardAssignee').html(`<strong>${localisation.Get("VIEW_CARD_ASSIGNEE")}</strong> ${assignee}`);
-            $('#viewCardMilestone').html(`<strong>${localisation.Get("VIEW_CARD_MILESTONE")}</strong> ${milestone}`);
-        },
-    });
-}
-
 function addNewCard(id) {
     const name = "#createCardDiv";
 
     //removeCard();
 
+    console.log(`appendTo(#Column_${id})`);
     $(name).detach().appendTo(`#Column_${id}`);
     $(name).removeClass("d-none");
 
@@ -352,182 +269,6 @@ function addNewCard(id) {
 function addColumnBtn(dbId) {
     console.log(dbId);
     $("#AddColumn_ProjectId").val(dbId);
-}
-
-// Add mini-form for adding checklist item
-function onAddChecklistItem(dbId, divId) {
-    var checklistDiv = $(`#${divId}`);
-    var inputName = `ChecklistItemInput`;
-    var buttonName = `ChecklistItemButton`;
-
-    var input = $(`#${inputName}`);
-
-    if (input.length > 0) {
-        input.focus();
-        return;
-    }
-
-    $(`<div class="row g-2 mb-2" id="insertGroup">\
-    <div class="col-auto"><input class="form-control form-control-sm me-0" type="text" name="${inputName}" id="${inputName}"></div>\
-    <div class="col-auto"><button type="button" class="btn ps-btn-primary btn-sm ms-0" id="${buttonName}">Insert</button></div>\
-    </div>`).insertBefore(`#addItemBtn_${dbId}`);
-
-    input = $(`#${inputName}`);
-    console.log(input.attr("id"));
-    var button = $(`#${buttonName}`);
-
-    button.click(function () {
-        onInsert(dbId, input.val());
-    });
-
-    input.keyup(function (event) {
-        var id = event.key || event.which || event.keyCode || 0;
-        if (id == "Enter" || id == 13) {
-            onInsert(dbId, input.val());
-        }
-    });
-
-    input.focus();
-}
-
-function onInsert(dbId, input) {
-    $.ajax({
-        type: "POST",
-        dataType: "json",
-        contentType: "application/json",
-        url: "/api/Project/AddChecklistItem",
-        beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", verificationToken);
-        },
-        success: function (response) {
-            console.log(response.checklistId == dbId);
-            insertChecklistItem(dbId, false, response.id, response.itemName, true);
-        },
-        data: JSON.stringify({ checklistId: dbId, itemText: input }),
-    });
-}
-
-function insertChecklistItem(elementId, ticked, id, name, insertBefore = false) {
-    var checklistDiv = $(`#Checklist_${elementId}`);
-    if (!checklistDiv.length) {
-        return;
-    }
-
-    var btnGroup = `<div class="btn-group">
-    <button class="btn ps-btn-white btn-sm dropdown-toggle ms-1" type="button" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i></button>\
-    <ul class="dropdown-menu">\
-    <li><a class="dropdown-item" href="#" id="convertChecklistItemToCardBtn_${id}">Convert to card</a></li>\
-    <li><a class="dropdown-item" href="#" id="deleteChecklistItem_${id}">Delete</a></li>\
-    </ul>\
-    </div>`;
-
-    $(document).on('click', `#convertChecklistItemToCardBtn_${id}`, function () { convertChecklistItemToCard(id); });
-    $(document).on('click', `#deleteChecklistItem_${id}`, function () { deleteChecklistItem(id); });
-
-    var string = `<div class="form-check mb-1" id="checklistItemFormCheck_${id}">`;
-    if (ticked == false) {
-        string += `<input class="form-check-input" type="checkbox" name="ChecklistItem_${id}" id="ChecklistItem_${id}"><label class="form-check-label" for="ChecklistItem_${id}" id="ChecklistItemLabel_${id}">${name} ${btnGroup}</label>`;
-    }
-    else {
-        string += `<input class="form-check-input" type="checkbox" name="ChecklistItem_${id}" id="ChecklistItem_${id}" checked><label class="form-check-label" for="ChecklistItem_${id}" id="ChecklistItemLabel_${id}"><s>${name}</s> ${btnGroup}</label>`;
-    }
-    string += "</div>";
-    if (!insertBefore) {
-        checklistDiv.append(string);
-    }
-    else {
-        $(string).insertBefore(`#addItemBtn_${elementId}`);
-    }
-
-    var insertGroup = $("#insertGroup");
-    if (insertGroup.length) {
-        insertGroup.remove();
-    }
-
-    var item = $(`#ChecklistItemLabel_${id}`);
-    $(`input[type=checkbox][name=ChecklistItem_${id}]`).change(function () {
-        if ($(this).is(':checked')) {
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                contentType: "application/json",
-                url: "/api/Project/EditChecklistItemTickedState",
-                beforeSend: function (request) {
-                    request.setRequestHeader("RequestVerificationToken", verificationToken);
-                },
-                success: function (response) {
-                    item.html(`<s>${name}</s>`);
-                },
-                data: JSON.stringify({ checklistItemId: id, tickedState: true }),
-            });
-        }
-        else {
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                contentType: "application/json",
-                url: "/api/Project/EditChecklistItemTickedState",
-                beforeSend: function (request) {
-                    request.setRequestHeader("RequestVerificationToken", verificationToken);
-                },
-                success: function (response) {
-                    item.html(`${name}`);
-                },
-                data: JSON.stringify({ checklistItemId: id, tickedState: false }),
-            });
-        }
-    });
-}
-
-function convertChecklistItemToCard(dbId) {
-    $.ajax({
-        type: "POST",
-        dataType: "json",
-        contentType: "application/json",
-        url: "/api/Project/ConvertChecklistItemToCard",
-        beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", verificationToken);
-        },
-        success: function (response) {
-            $(`#checklistItemFormCheck_${dbId}`).remove();
-            location.reload();
-        },
-        data: JSON.stringify({ checklistItemId: dbId }),
-    });
-}
-
-function deleteChecklistItem(dbId) {
-    console.log(dbId);
-    $.ajax({
-        type: "POST",
-        dataType: "json",
-        contentType: "application/json",
-        url: "/api/Project/DeleteChecklistItem",
-        beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", verificationToken);
-        },
-        success: function (response) {
-            console.log(response);
-            $(`#checklistItemFormCheck_${dbId}`).remove();
-        },
-        data: JSON.stringify({ checklistItemId: dbId }),
-    });
-}
-
-function deleteChecklist(dbId) {
-    $.ajax({
-        type: "POST",
-        dataType: "json",
-        contentType: "application/json",
-        url: "/api/Project/DeleteChecklist",
-        beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", verificationToken);
-        },
-        success: function (response) {
-            $(`#Checklist_${dbId}`).remove();
-        },
-        data: JSON.stringify({ checklistId: dbId }),
-    });
 }
 
 function onAddChecklist() {
@@ -555,11 +296,11 @@ function onAddChecklist() {
             contentType: "application/json",
             url: "/api/Project/AddChecklist",
             beforeSend: function (request) {
-                request.setRequestHeader("RequestVerificationToken", verificationToken);
+                request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
             },
             data: JSON.stringify({ id: dbId, name: text }),
             success: function (response) {
-                addChecklist(response.id, response.checklistName, null);
+                ProjectCommon.addChecklist(response.id, response.checklistName, null);
             },
         });
 
@@ -567,31 +308,7 @@ function onAddChecklist() {
     });
 }
 
-function addChecklist(id, name, checklistItems) {
-    var checklistHolder = $("#checklistHolder");
-    checklistHolder.removeClass("d-none");
 
-    checklistHolder.append(`<div class="ps-card-checklist mb-1" id="Checklist_${id}">
-        <h6 id="ChecklistName_${id}">${name} <button id="ChecklistNameDeleteBtn_${id}" type="button" class="btn ps-btn-white btn-sm")">Delete</button></h6>`);
-
-    $(`#ChecklistNameDeleteBtn_${id}`).on("click", function () { deleteChecklist(id); });
-
-    checklistHolder.append(`<div id="ChecklistHolder_${id}">`);
-
-    var checklistDiv = $(`#Checklist_${id}`);
-    if (checklistItems != null && checklistItems.length) {
-        checklistItems.forEach(function (checklistItem) {
-            if (checklistItem.checklistId == id) {
-                insertChecklistItem(id, checklistItem.itemTicked, checklistItem.id, checklistItem.itemName);
-            }
-        });
-    }
-
-    checklistDiv.append(`<button class="btn ps-btn-white" type="button" id="addItemBtn_${id}"><i class="bi bi-plus-circle"></i> Add an item</button>`);
-    $(`#addItemBtn_${id}`).on("click", function () { onAddChecklistItem(id, checklistDiv.attr("id")); });
-
-    checklistHolder.append(`</div>`);
-}
 
 function viewProjectMembers() {
     $("#memberList").empty();
@@ -601,7 +318,7 @@ function viewProjectMembers() {
         contentType: "application/json",
         url: `/api/Project/getprojectmembers?projectId=` + projectId,
         beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", verificationToken);
+            request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
         },
         success: function (response) {
             console.log(response);
@@ -654,7 +371,7 @@ function onAddMember()
         contentType: "application/json",
         url: `/api/Project/addmember`,
         beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", verificationToken);
+            request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
         },
         data: JSON.stringify({ projectId: projectId, userId: userId, name: `${input}` }),
         success: function(response) {
@@ -726,7 +443,7 @@ function sendEditColumnNameEvent(dbId, oldTitle) {
             contentType: "application/json",
             url: "/api/Project/EditColumnName",
             beforeSend: function (request) {
-                request.setRequestHeader("RequestVerificationToken", verificationToken);
+                request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
             },
             data: JSON.stringify({ columnId: dbId, columnText: text }),
             success: function (response) {
@@ -746,13 +463,26 @@ function onLeaveProject() {
         contentType: "application/json",
         url: `/api/Project/leaveproject`,
         beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", verificationToken);
+            request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
         },
         data: JSON.stringify({ projectId: projectId, userId: userId }),
         success: function(response) {
             window.location.replace("/Home");
         },
     });
+}
+
+function onMarkComplete() {
+    var cardId = $("#viewCardId").val();
+    $.ajax({
+        type: "GET",
+        dataType: "json",
+        url: `/api/Task/ArchiveTask?taskId=${cardId}`,
+        beforeSend: function (request) {
+            request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
+        }
+    });
+    $(`.card#${cardId}`).fadeOut(1000);
 }
 
 function onEditCard() {
@@ -837,11 +567,11 @@ function onEditCardSaveContent() {
         contentType: "application/json",
         url: "/api/Project/EditCard",
         beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", verificationToken);
+            request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
         },
         data: JSON.stringify({ cardId: dbId, timestamp: dateEntered, priority: radioValue, assigneeId: assigneeId, milestoneId: milestoneId }),
         success: function (response) {
-            viewCardButton(dbId);
+            ProjectCommon.viewCardButton(dbId);
         },
     });
 }
@@ -867,7 +597,7 @@ function onEditMilestoneBtn(id) {
         dataType: "json",
         url: `/api/Project/GetMilestoneInfoForEditing?id=${milestoneId}`,
         beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", verificationToken);
+            request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
         },
         success: function (response) {
             $("#EditMilestone_Title").val(response.title);
@@ -894,7 +624,7 @@ function onCloseMilestoneBtn(id) {
         dataType: "json",
         url: `/api/Project/ToggleMilestoneIsClosed`,
         beforeSend: function (request) {
-            request.setRequestHeader("RequestVerificationToken", verificationToken);
+            request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
         },
         data: JSON.stringify({ milestoneId: milestoneId }),
         success: function (response) {

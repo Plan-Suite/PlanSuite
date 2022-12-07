@@ -1,13 +1,11 @@
-﻿using System;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PlanSuite.Data;
 using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Utility;
+using System.Security.Claims;
 
 namespace PlanSuite.Services
 {
@@ -745,6 +743,7 @@ namespace PlanSuite.Services
             return projectAccess.ProjectRole;
         }
 
+        [Obsolete]
         public async Task AddCard(AddCardModel model, ClaimsPrincipal user)
         {
             var appUser = await m_UserManager.GetUserAsync(user);
@@ -759,6 +758,32 @@ namespace PlanSuite.Services
             card.CardName = model.Name;
             card.CardStartDate = DateTime.Now;
             card.CreatedBy = Guid.Parse(appUser.Id);
+            await m_Database.Cards.AddAsync(card);
+            await m_Database.SaveChangesAsync();
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Card, user, AuditLogType.Added, card.Id);
+        }
+
+        internal async Task AddTask(ProjectViewModel.AddTaskModel model, ClaimsPrincipal user)
+        {
+            var appUser = await m_UserManager.GetUserAsync(user);
+            if (appUser == null)
+            {
+                return;
+            }
+
+            Console.WriteLine($"Adding task {model.Name} to column {model.ColumnId}");
+            var card = new Card();
+            card.ColumnId = model.ColumnId;
+            card.CardStartDate = DateTime.Now;
+            card.CreatedBy = Guid.Parse(appUser.Id);
+
+            card.CardName = model.Name;
+            card.CardDescription = model.Content;
+            card.CardAssignee = model.Assignee;
+            card.CardDueDate = model.DueDate;
+            card.CardPriority = model.Priority;
+            card.CardMilestone = model.MilestoneId;
+
             await m_Database.Cards.AddAsync(card);
             await m_Database.SaveChangesAsync();
             await m_AuditService.InsertLogAsync(AuditLogCategory.Card, user, AuditLogType.Added, card.Id);

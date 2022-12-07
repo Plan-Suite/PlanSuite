@@ -21,6 +21,7 @@ namespace PlanSuite.Data
         public DbSet<OrganisationMembership> OrganizationsMembership { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
         public DbSet<JournalNote> JournalNotes { get; set; }
+        public DbSet<SalesContact> SalesContacts { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -30,7 +31,7 @@ namespace PlanSuite.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly()).UseCollation("latin1_swedish_ci");
+            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly()).UseCollation("latin1_general_ci");
         }
     }
 }

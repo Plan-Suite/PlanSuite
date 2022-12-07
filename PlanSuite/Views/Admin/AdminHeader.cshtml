@@ -1,9 +1,11 @@
-﻿@model PlanSuite.Models.Temporary.AdminIndexViewModel
+﻿@using PlanSuite.Utility
+@model PlanSuite.Models.Temporary.AdminIndexViewModel
 @{
     string dashboardClass = "btn btn-link";
     string userClass = "btn btn-link";
     string projectClass = "btn btn-link";
     string changelogClass = "btn btn-link";
+    string contactsClass = "btn btn-link";
 
     if(Model.Section.Equals("Index", StringComparison.InvariantCultureIgnoreCase))
     {
@@ -21,14 +23,49 @@
     {
         changelogClass = "btn ps-btn-primary";
     }
+    if (Model.Section.Equals("Contact Requests", StringComparison.InvariantCultureIgnoreCase))
+    {
+        contactsClass = "btn ps-btn-primary";
+    }
 }
 <div class="container">
     <h1 class="text-center">Admin Control Panel</h1>
 
     <nav class="ps-nav">
-      <a class="@dashboardClass" asp-action="Index" asp-controller="Admin">Dashboard</a>
-      <a class="@userClass" asp-action="UserManager" asp-controller="Admin">User Management</a>
-      @*<a class="@projectClass" asp-action="Project" asp-controller="Admin">Project Management</a>
-      <a class="@changelogClass" asp-action="Changelog" asp-controller="Admin">Changelog Management</a>*@
+        <a class="@dashboardClass" asp-action="Index" asp-controller="Admin">Dashboard</a>
+        @if (User.IsInRole(Constants.AdminRole) || User.IsInRole(Constants.SupportRole))
+        {
+            <a class="@userClass" asp-action="UserManager" asp-controller="Admin">User Management</a>
+            @*<a class="@projectClass" asp-action="Project" asp-controller="Admin">Project Management</a>*@
+        }
+        @if (User.IsInRole(Constants.AdminRole) || User.IsInRole(Constants.DevRole))
+        {
+            @*<a class="@changelogClass" asp-action="Changelog" asp-controller="Admin">Changelog Management</a>*@
+        }
+        @if (User.IsInRole(Constants.AdminRole) || User.IsInRole(Constants.SalesRole))
+        {
+            <a class="@contactsClass position-relative" asp-action="ContactRequests" asp-controller="Admin">
+                Contact Requests
+                @{
+                    int contactCount = 0;
+                    Console.WriteLine("contactCount = " + contactCount);
+                    if (Model.SalesContacts != null)
+                    {
+                        contactCount = Model.SalesContacts.Count;
+                    }
+                    if (contactCount > 99)
+                    {
+                        contactCount = 99;
+                    }
+                }
+                @if (contactCount > 0)
+                {
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                        @contactCount
+                        <span class="visually-hidden">unread messages</span>
+                    </span>
+                }
+            </a>
+        }
     </nav>
 </div>

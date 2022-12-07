@@ -34,7 +34,7 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\bundles\" />
-    <Folder Include="wwwroot\svg\" />
+    <Folder Include="wwwroot\fonts\" />
   </ItemGroup>
 
   <ItemGroup>

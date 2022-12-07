@@ -29,6 +29,7 @@ namespace PlanSuite.Controllers
             m_Environment = environment;
         }
 
+        [Route("journal/list")]
         public async Task<IActionResult> Index()
         {
             if(!m_SignInManager.IsSignedIn(User))
@@ -47,6 +48,7 @@ namespace PlanSuite.Controllers
             return View(viewModel);
         }
 
+        [Route("journal/{id?}")]
         public async Task<IActionResult> Write(int id = 0)
         {
             if (!m_SignInManager.IsSignedIn(User))

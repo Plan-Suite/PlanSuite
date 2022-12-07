@@ -26,6 +26,7 @@ namespace PlanSuite.Controllers
             m_Logger = logger;
         }
 
+        [Route("welcome")]
         public async Task<IActionResult> Welcome()
         {
             WelcomePageModel model = new WelcomePageModel();
@@ -47,6 +48,26 @@ namespace PlanSuite.Controllers
             {
                 // User has already completed their first time login, so we're just gonna redirect them to the index page.
                 return Redirect("/Home/Index");
+            }
+
+            return View(model);
+        }
+
+        [Route("upgrade")]
+        public async Task<IActionResult> Upgrade()
+        {
+            WelcomePageModel model = new WelcomePageModel();
+            if (!m_SignInManager.IsSignedIn(User))
+            {
+                // Redirect the user to the sign in page.
+                return Redirect("/Identity/Account/Login");
+            }
+
+            var user = await m_UserManager.GetUserAsync(User);
+            if (user == null)
+            {
+                // User has returned null, this should never happen in 99.9% of cases.
+                return NotFound("User returned null, this should not happen.");
             }
 
             return View(model);
@@ -198,6 +219,7 @@ namespace PlanSuite.Controllers
             return customer;
         }
 
+        [Route("upgraded/{saleId}&{amount}")]
         public IActionResult UpgradeSuccess(int saleId, long amount)
         {
             UpgradeSuccessModel model = new UpgradeSuccessModel();
@@ -213,6 +235,67 @@ namespace PlanSuite.Controllers
             model.Amount = (int)amount;
 
             return View(model);
+        }
+
+        public async Task<IActionResult> ContinueRegistration(FinishRegistrationModel.FinishRegistrationInputModel input)
+        {
+            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(input));
+            if(!ModelState.IsValid)
+            {
+                return BadRequest("ModelState invalid");
+            }
+
+
+            ApplicationUser user = await m_UserManager.FindByIdAsync(input.UserId.ToString());
+            if(user == null)
+            {
+                return BadRequest("User was null during registration");
+            }
+
+            bool hasPassword = await m_UserManager.HasPasswordAsync(user);
+            if (hasPassword == false)
+            {
+                var result = await m_UserManager.AddPasswordAsync(user, input.Password);
+                if (!result.Succeeded)
+                {
+                    return BadRequest("Cannot assign password");
+                }
+            }
+            else
+            {
+                string token = await m_UserManager.GeneratePasswordResetTokenAsync(user);
+                await m_UserManager.ResetPasswordAsync(user, token, input.Password);
+            }
+
+
+            user.FirstName = input.FirstName;
+            user.LastName = input.LastName;
+            await m_UserManager.UpdateAsync(user);
+
+            return RedirectToAction(nameof(Welcome));
+        }
+
+        public async Task<IActionResult> FinishRegistration()
+        {
+            ApplicationUser user = await m_UserManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return BadRequest("User was null during registration");
+            }
+
+            FinishRegistrationModel viewModel = new FinishRegistrationModel();
+            viewModel.UserId = Guid.Parse(user.Id);
+            viewModel.Email = user.Email;
+
+            return View(viewModel);
+        }
+
+        public static void DoFinishedRegistrationChecks(ControllerBase controllerBase, ApplicationUser user)
+        {
+            if (string.IsNullOrEmpty(user.FirstName))
+            {
+                controllerBase.Redirect("/Join/FinishRegistration");
+            }
         }
     }
 }

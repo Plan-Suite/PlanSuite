@@ -1,0 +1,39 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model PlanSuite.Models.Temporary.AdminIndexViewModel
+@{
+    ViewData["Title"] = "Contact Requests";
+
+    var now = DateTime.Now;
+    var firstDayCurrentMonth = new DateTime(now.Year, now.Month, 1);
+    var lastDayLastMonth = firstDayCurrentMonth.AddDays(-1);
+}
+<partial name="AdminHeader" />
+
+<div class="container">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Timestamp</th>
+                <th scope="col">First</th>
+                <th scope="col">Last</th>
+                <th scope="col">View</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var sale in Model.SalesContacts)
+            {
+                <tr>
+                    <th scope="row">@sale.Timestamp.ToString("dd/MMM/yyyy HH:mm:ss")</th>
+                    <td>@sale.FirstName</td>
+                    <td>@sale.LastName</td>
+                    <td><a class="btn ps-btn-success" asp-controller="Admin" asp-action="SeeContact" asp-route-id="@sale.Id">View</a></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>

@@ -1,15 +1,14 @@
-using System.Security.Claims;
 using Facebook;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using PlanSuite.Data;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Services;
 using PlanSuite.Utility;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,6 +19,7 @@ builder.Services.AddScoped<ProjectService>();
 builder.Services.AddScoped<AdminService>();
 builder.Services.AddScoped<OrganisationService>();
 builder.Services.AddScoped<AuditService>();
+builder.Services.AddScoped<TaskService>();
 
 var configuration = System.Environment.GetEnvironmentVariables();
 builder.Services.AddTransient<IEmailSender, EmailService>();

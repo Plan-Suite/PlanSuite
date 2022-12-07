@@ -50,15 +50,14 @@ namespace PlanSuite.Controllers
             float totalAllocMemInBytes = Process.GetProcesses().Sum(a => a.PrivateMemorySize64) / 1024 / 1024 / 1024;
             model.MemoryUsed = totalAllocMemInBytes;
 
-            var gc = GC.GetGCMemoryInfo();
-            model.TotalMemory = gc.TotalAvailableMemoryBytes / 1024 / 1024 / 1024;
-            model.SystemInfo = $"{System.Runtime.InteropServices.RuntimeInformation.RuntimeIdentifier}";
+            model.TotalTasks = dbContext.Cards.Count();
+            model.TotalProjects = dbContext.Projects.Count();
 
             decimal plusPrice = 4.99m;
             decimal proPrice = 9.99m;
             
             // We dont want to count the root user
-            model.UserCount = dbContext.Users.Where(user => user.NormalizedUserName != "ROOT").ToList().Count;
+            model.UserCount = dbContext.Users.Where(user => user.NormalizedUserName != "ROOT" && user.LastVisited != null && user.LastVisited >= DateTime.Today.AddDays(-10)).ToList().Count;
             model.ProjectCount = dbContext.Projects.ToList().Count;
             model.CardCount = dbContext.Cards.ToList().Count;
             model.Section = "Index";
@@ -80,6 +79,8 @@ namespace PlanSuite.Controllers
             model.TotalSalesThisMonth = model.PlusSalesThisMonth + model.ProSalesThisMonth;
             model.TotalSalesLastMonth = plusSalesLastMonth + proSalesLastMonth;
 
+            GetSalesContactRequests(model);
+
             return View(model);
         }
 
@@ -88,8 +89,63 @@ namespace PlanSuite.Controllers
         {
             AdminIndexViewModel model = new AdminIndexViewModel();
             model.Section = "User";
-
+            GetSalesContactRequests(model);
             return View(model);
+        }
+
+        [Authorize(Roles = "SuperUser,Sales")]
+        public IActionResult ContactRequests()
+        {
+            AdminIndexViewModel model = new AdminIndexViewModel();
+            model.Section = "Contact Requests";
+            GetSalesContactRequests(model);
+            return View(model);
+        }
+
+        [Authorize(Roles = "SuperUser,Sales")]
+        public IActionResult SeeContact(int id)
+        {
+            AdminIndexViewModel model = new AdminIndexViewModel();
+            model.Section = "Contact Requests";
+            GetSalesContactRequests(model);
+
+            var contact = dbContext.SalesContacts.Where(contact => contact.Id == id).FirstOrDefault();
+            if(contact == null)
+            {
+                return NotFound();
+            }
+
+            model.SalesContact = contact;
+            return View(model);
+        }
+
+        public async Task<IActionResult> OnContacted(int id, bool contacted)
+        {
+            var contact = dbContext.SalesContacts.Where(contact => contact.Id == id).FirstOrDefault();
+            if(contact == null)
+            {
+                return BadRequest();
+            }
+
+            if(contacted)
+            {
+                contact.IsContacted = true;
+            }
+            else
+            {
+                dbContext.SalesContacts.Remove(contact);
+            }
+            await dbContext.SaveChangesAsync();
+            return RedirectToAction(nameof(ContactRequests));
+        }
+
+        private void GetSalesContactRequests(AdminIndexViewModel model)
+        {
+            if (User.IsInRole(Constants.AdminRole) || User.IsInRole(Constants.SalesRole))
+            {
+                model.SalesContacts = dbContext.SalesContacts.Where(s => s.IsContacted == false).OrderBy(s => s.Timestamp).ToList();
+                Console.WriteLine($"sales = {model.SalesContacts.Count}");
+            }
         }
     }
 }

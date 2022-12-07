@@ -3,18 +3,35 @@
 @using PlanSuite.Utility
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
+@{
+    var user = await UserManager.GetUserAsync(User);
+}
 
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
+    if(user.PaymentTier == PlanSuite.Enums.PaymentTier.Free)
+    {
+        <li class="nav-item">
+                <a class="btn ps-get-started ps-navbar-upgrade" asp-controller="Join" asp-action="Upgrade" class="nav-link text-light">Upgrade</a>
+        </li>
+    }
+
     @if(User.IsInRole(Constants.AdminRole))
     {
         <li class="nav-item">
             <a asp-controller="Admin" asp-action="Index" class="nav-link text-light">ACP</a>
         </li>
     }
-    <li class="nav-item">
-        <a  class="nav-link text-light" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @User.Identity?.Name!</a>
+        <li class="nav-item">
+        @{
+            string navActive = string.Empty;
+            if (Context.Request.Path.StartsWithSegments("/Identity/Account/Manage", StringComparison.InvariantCultureIgnoreCase))
+            {
+                navActive = "nav-active";
+            }
+        }
+        <a class="nav-link text-light @navActive" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Profile</a>
     </li>
     <li class="nav-item">
         <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">

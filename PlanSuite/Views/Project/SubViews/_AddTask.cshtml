@@ -1,0 +1,116 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Enums
+@using PlanSuite.Models.Persistent
+@inject UserManager<ApplicationUser> UserManager
+@model PlanSuite.Models.Temporary.ProjectViewModel
+@{
+    int projectId = Model.Project.Id;
+    int columnCount = Model.Columns.Count;
+    int cardCount = Model.Cards.Count;
+    ApplicationUser user = await UserManager.GetUserAsync(User);
+}
+<div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskLabel" aria-hidden="true">
+    <input type="hidden" value="0" id="#addTaskColId"/>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addTaskLabel">Add Task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            @using (Html.BeginForm("AddTask", "Project", FormMethod.Post))
+            {
+                @Html.HiddenFor(model => model.AddTask.ColumnId)
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        @Html.LabelFor(model => model.AddTask.Name, new { htmlAttributes = new { @class = "col-form-label-sm" } })
+                        <div class="col-sm-10">
+                            @Html.EditorFor(model => model.AddTask.Name, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.ValidationMessageFor(model => model.AddTask.Name, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        @Html.LabelFor(model => model.AddTask.Content, new { htmlAttributes = new { @class = "col-form-label-sm" } })
+                        <div class="col-sm-10">
+                            @Html.TextAreaFor(model => model.AddTask.Content, 3, 3, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(model => model.AddTask.Content, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        @Html.LabelFor(model => model.AddTask.Assignee, new { htmlAttributes = new { @class = "col-form-label-sm" } })
+                        <div class="col-sm-10">
+
+                            @{
+                                List<SelectListItem> projectMembers = new List<SelectListItem>();
+                                foreach (var member in Model.ProjectMembers)
+                                {
+                                    projectMembers.Add(new SelectListItem()
+                    {
+                        Text = member.Value,
+                        Value = member.Key.ToString()
+                    });
+                                }
+                            }
+
+                            @Html.DropDownListFor(model => model.AddTask.Assignee, projectMembers.ToArray(), "Assignee", new { @class="form-select form-select-sm" })
+                            @Html.ValidationMessageFor(model => model.AddTask.Content, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        @Html.LabelFor(model => model.AddTask.DueDate, new { htmlAttributes = new { @class = "col-form-label-sm" } })
+                        <div class="col-sm-10">
+                            <input class="form-control form-control-sm" type="date" asp-for="AddTask.DueDate" value="" />
+                        </div>
+                    </div>
+                    <fieldset class="row mb-3">
+                        @Html.LabelFor(model => model.AddTask.Priority, new { htmlAttributes = new { @class = "col-form-label-sm" } })
+                        <div class="col-sm-10">
+                            <div class="form-check-sm">
+                                @Html.RadioButtonFor(model => model.AddTask.Priority, Priority.None, new { @class = "form-check-input"})
+                                <label class="form-check-label" asp-for="AddTask.Priority">None</label>
+                            </div>
+                            <div class="form-check-sm">
+                                @Html.RadioButtonFor(model => model.AddTask.Priority, Priority.Low, new { @class = "form-check-input"})
+                                <label class="form-check-label" asp-for="AddTask.Priority">Low</label>
+                            </div>
+                            <div class="form-check-sm">
+                                @Html.RadioButtonFor(model => model.AddTask.Priority, Priority.Medium, new { @class = "form-check-input"})
+                                <label class="form-check-label" asp-for="AddTask.Priority">Medium</label>
+                            </div>
+                            <div class="form-check-sm">
+                                @Html.RadioButtonFor(model => model.AddTask.Priority, Priority.High, new { @class = "form-check-input"})
+                                <label class="form-check-label" asp-for="AddTask.Priority">High</label>
+                            </div>
+                        </div>
+                    </fieldset>
+                    @if (Model.PaymentTier >= PaymentTier.Plus)
+                    {
+                        <div class="row mb-3">
+                            @Html.LabelFor(model => model.AddTask.MilestoneId, new { htmlAttributes = new { @class = "col-form-label-sm" } })
+                            <div class="col-sm-10">
+                                @{
+                                    List<SelectListItem> projectMilestones = new List<SelectListItem>();
+                                    foreach (var milestone in Model.Milestones)
+                                    {
+                                        projectMilestones.Add(new SelectListItem()
+                        {
+                            Text = milestone.Title,
+                            Value = milestone.Id.ToString()
+                        });
+                                    }
+                                }
+
+                                @Html.DropDownListFor(model => model.AddTask.MilestoneId, projectMilestones.ToArray(), "Milestone", new { @class="form-select form-select-sm" })
+                                @Html.ValidationMessageFor(model => model.AddTask.MilestoneId, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                    }
+                    <br>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn ps-btn-primary" data-bs-dismiss="modal">Create Task</button>
+                        <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CANCEL")</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

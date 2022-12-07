@@ -1,5 +1,7 @@
 ﻿import { onDeleteInput } from "../site.js";
 
+const verificationToken: string = $("#RequestVerificationToken").val() as string;
+
 $(function () {
 
     $("#MyProjects").children().each(function () {
@@ -15,6 +17,29 @@ $(function () {
             $(`#passDeleteButtonInfoBtn_${id}`).on("click", function () { passDeleteButtonInfo(id, name); });
         }
     });
+
+    $("#MyTask").children().each(function () {
+        var element = $(this);
+        if (element.attr("id").startsWith("DueTask_"))
+        {
+            var id: number = element.children("#TaskId").val() as number;
+            $(`#TaskCheckbox_${id}`).on("click", function ()
+            {
+                if ($(this).is(':checked')) {
+                    $.ajax({
+                        type: "GET",
+                        dataType: "json",
+                        url: `/api/Task/ArchiveTask?taskId=${id}`,
+                        beforeSend: function (request) {
+                            request.setRequestHeader("RequestVerificationToken", verificationToken);
+                        }
+                    });
+                    $(`#DueTask_${id}`).fadeOut(1000);
+                }
+            });
+        }
+    });
+
     $(function () {
         $("#confirmDeleteProjName").on("keyup", function () { onDeleteInput('deleteButton', 'DeleteProject_Name', 'confirmDeleteProjName') });
     });

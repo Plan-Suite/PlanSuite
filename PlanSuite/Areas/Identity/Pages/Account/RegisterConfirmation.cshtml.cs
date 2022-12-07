@@ -33,6 +33,8 @@ namespace PlanSuite.Areas.Identity.Pages.Account
         /// </summary>
         public string Email { get; set; }
 
+        public ApplicationUser User { get; set; }
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -59,8 +61,22 @@ namespace PlanSuite.Areas.Identity.Pages.Account
                 return NotFound($"Unable to load user with email '{email}'.");
             }
 
+            User = user;
+
             Email = email;
             return Page();
+        }
+
+        public async Task<IActionResult> ResendEmail(string email, string returnUrl = null)
+        {
+            if(User == null)
+            {
+                return BadRequest("User was null");
+            }
+
+            await RegisterCommon.SendRegisterEmail(User, _userManager, _sender, this);
+
+            return await OnGetAsync(email, returnUrl);
         }
     }
 }

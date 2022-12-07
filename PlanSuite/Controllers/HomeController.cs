@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using PlanSuite.Data;
 using PlanSuite.Enums;
+using PlanSuite.Migrations;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
@@ -21,8 +24,9 @@ namespace PlanSuite.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly LocalisationService m_Localisation;
         private readonly AuditService m_AuditService;
+        private readonly IEmailSender m_EmailSender;
 
-        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AuditService auditService)
+        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AuditService auditService, IEmailSender emailSender)
         {
             m_Database = context;
             m_Logger = logger;
@@ -30,6 +34,7 @@ namespace PlanSuite.Controllers
             _signInManager = signInManager;
             m_Localisation = LocalisationService.Instance;
             m_AuditService = auditService;
+            m_EmailSender = emailSender;
         }
 
         public async Task<IActionResult> Index(int orgId = 0)
@@ -39,14 +44,17 @@ namespace PlanSuite.Controllers
             HomeViewModel viewModel = new HomeViewModel();
             if (_signInManager.IsSignedIn(User))
             {
+                viewModel.DueTasks = new List<Models.Persistent.Card>();
                 viewModel.OwnedProjects = new List<Project>();
                 Guid userId = Guid.Parse(_userManager.GetUserId(User));
                 viewModel.CreateOrganisation.OwnerId = userId;
 
                 var user = await _userManager.FindByIdAsync(userId.ToString());
-                if(user != null && user.FinishedFirstTimeLogin == false)
+                if(user != null)
                 {
-                    return Redirect("/Join/Welcome");
+                    JoinController.DoFinishedRegistrationChecks(this, user);
+                    user.LastVisited = DateTime.Now;
+                    await _userManager.UpdateAsync(user);
                 }
 
                 if (orgId >= 1)
@@ -101,6 +109,29 @@ namespace PlanSuite.Controllers
                 {
                     m_Logger.LogInformation($"Grabbing {ownedProjects.Count} owned projects for user {userId}");
                     viewModel.OwnedProjects.AddRange(ownedProjects);
+
+                    m_Logger.LogInformation($"Grabbing unowned due tasks for user {userId}");
+                    foreach(var project in ownedProjects)
+                    {
+                        var columns = m_Database.Columns.Where(c => c.ProjectId == project.Id).ToList();
+                        if (columns != null && columns.Count > 0)
+                        {
+                            foreach (var column in columns)
+                            {
+                                var cards = m_Database.Cards.Where(card => card.ColumnId == column.Id && card.IsFinished == false).ToList();
+                                if (cards != null && cards.Count > 0)
+                                {
+                                    foreach(var card in cards)
+                                    {
+                                        if(card.CardDueDate != null && card.CardDueDate <= DateTime.Now.AddMonths(1))
+                                        {
+                                            viewModel.DueTasks.Add(card);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
 
                 // Get projects where user is member
@@ -119,6 +150,26 @@ namespace PlanSuite.Controllers
                             }
 
                             viewModel.MemberProjects.Add(project);
+
+                            m_Logger.LogInformation($"Grabbing due tasks for user {userId} for project {project.Id}");
+                            var columns = m_Database.Columns.Where(c => c.ProjectId == project.Id).ToList();
+                            if (columns != null && columns.Count > 0)
+                            {
+                                foreach (var column in columns)
+                                {
+                                    var cards = m_Database.Cards.Where(card => card.ColumnId == column.Id && card.IsFinished == false).ToList();
+                                    if (cards != null && cards.Count > 0)
+                                    {
+                                        foreach (var card in cards)
+                                        {
+                                            if (card.CardDueDate != null && card.CardDueDate <= DateTime.Now.AddMonths(1))
+                                            {
+                                                viewModel.DueTasks.Add(card);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -152,6 +203,26 @@ namespace PlanSuite.Controllers
                                     foreach (var project in organisationProjects)
                                     {
                                         AddToOrganisationMap(viewModel, project);
+
+                                        m_Logger.LogInformation($"Grabbing organisation due tasks for user {userId} for organisation {organisation.Id} project {project.Id}");
+                                        var columns = m_Database.Columns.Where(c => c.ProjectId == project.Id).ToList();
+                                        if (columns != null && columns.Count > 0)
+                                        {
+                                            foreach (var column in columns)
+                                            {
+                                                var cards = m_Database.Cards.Where(card => card.ColumnId == column.Id && card.IsFinished == false).ToList();
+                                                if (cards != null && cards.Count > 0)
+                                                {
+                                                    foreach (var card in cards)
+                                                    {
+                                                        if (card.CardDueDate != null && card.CardDueDate <= DateTime.Now.AddMonths(1))
+                                                        {
+                                                            viewModel.DueTasks.Add(card);
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                     viewModel.MemberProjects.AddRange(organisationProjects);
                                 }
@@ -178,9 +249,77 @@ namespace PlanSuite.Controllers
             return View();
         }
 
+        [Route("pricing")]
         public IActionResult Pricing()
         {
             return View();
+        }
+
+        public IActionResult Sales()
+        {
+            return View();
+        }
+
+        public IActionResult SalesContacted()
+        {
+            return View();
+        }
+
+        [Route("about-us")]
+        public IActionResult AboutUs()
+        {
+            return View();
+        }
+
+        [Route("jobs")]
+        public IActionResult Careers()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> OnSalesContact(ContactSalesViewModel.ContactSalesModel contactSales)
+        {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            string jsonString = System.Text.Json.JsonSerializer.Serialize(contactSales);
+            Console.WriteLine(jsonString);
+
+            // Add sales contact to database
+            var salesContact = new SalesContact();
+            salesContact.FirstName = contactSales.FirstName;
+            salesContact.LastName = contactSales.LastName;
+            salesContact.Email = contactSales.Email;
+
+            if(!string.IsNullOrEmpty(salesContact.PhoneNumber))
+            {
+                salesContact.PhoneNumber = contactSales.PhoneNumber;
+            }
+            else
+            {
+                salesContact.PhoneNumber = "N/A";
+            }
+
+            if (!string.IsNullOrEmpty(salesContact.JobTitle))
+            {
+                salesContact.JobTitle = contactSales.JobTitle;
+            }
+            else
+            {
+                salesContact.JobTitle = "N/A";
+            }
+
+            salesContact.Message = contactSales.Message;
+            salesContact.Timestamp = DateTime.Now;
+            salesContact.IsContacted = false;
+
+            await m_Database.SalesContacts.AddAsync(salesContact);
+            await m_Database.SaveChangesAsync();
+
+            return RedirectToAction(nameof(SalesContacted));
         }
 
         [HttpPost]
@@ -288,12 +427,14 @@ namespace PlanSuite.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Route("privacy")]
         public IActionResult Privacy()
         {
             CommonCookies.ApplyCommonCookies(HttpContext);
             return View();
         }
 
+        [Route("terms")]
         public IActionResult License()
         {
             CommonCookies.ApplyCommonCookies(HttpContext);

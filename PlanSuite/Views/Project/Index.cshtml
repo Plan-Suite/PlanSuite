@@ -20,6 +20,7 @@
     }
 }
 
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet" />
 <script type="module" src="~/js/project/index.js" asp-append-version="true"></script>
 
 <div class="container">
@@ -96,6 +97,9 @@
     @* Add Member *@
     <partial name="SubViews/_AddMember" />
 
+    @* Add Task *@
+    <partial name="SubViews/_AddTask" />
+
     @* Milestones *@
     @if(Model.PaymentTier >= PaymentTier.Plus)
     {
@@ -134,6 +138,8 @@
                     <li><hr class="dropdown-divider"></li>
                     <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addMemberModal"><i class="bi bi-person-plus"></i> Add Member</a></li>
                     <li><a class="dropdown-item" asp-controller="Project" asp-action="Logs" asp-route-projectId="@Model.Project.Id"><i class="bi bi-clipboard2-check"></i> Audit Logs</a></li>
+
+                    // asp-controller="Project" asp-action="Logs" asp-route-id="@item.Id"
                 }
                 @if(Model.ProjectRole != PlanSuite.Enums.ProjectRole.Owner)
                 {
@@ -143,20 +149,36 @@
             </ul>
         </div>
     </div>
-
-    @*@if(indexView == ProjectIndexView.Calendar)
+    <ul class="nav nav-tabs">
+        @{
+            string listActive = string.Empty, cardActive = string.Empty;
+            switch(indexView)
+            {
+                default:
+                case ProjectIndexView.Cards:
+                    cardActive = "active";
+                    break;
+                case ProjectIndexView.List:
+                    listActive = "active";
+                    break;
+            }
+        }
+        <li class="nav-item">
+            <a class="nav-link ps-link-primary @listActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.List)">List</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link ps-link-primary @cardActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Cards)">Boards</a>
+        </li>
+    </ul>
+    @if(indexView == ProjectIndexView.List)
     {
-        <partial name="SubViews/_CalendarView" />
-    }
-    else @if(indexView == ProjectIndexView.Gantt)
-    {
-        <partial name="SubViews/_Gantt" />
+        <partial name="SubViews/_ListView" />
     }
     else
     {
         <partial name="SubViews/_CardView" />
-    }*@
-    <partial name="SubViews/_CardView" />
+    }
+   
     <div class="card d-none" id="createCardDiv">
         <div class="card-body">
             <div class="d-grid gap-2">

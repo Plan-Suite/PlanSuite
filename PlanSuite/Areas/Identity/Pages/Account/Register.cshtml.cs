@@ -5,7 +5,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Composition.Convention;
 using System.Linq;
+using System.Security.Policy;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
@@ -18,6 +20,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Org.BouncyCastle.Asn1.Ocsp;
 using PlanSuite.Models;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Services;
@@ -73,10 +76,6 @@ namespace PlanSuite.Areas.Identity.Pages.Account
         /// </summary>
         public class InputModel
         {
-            [Required]
-            [Display(Name = "User Name")]
-            public string UserName { get; set; }
-
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -85,29 +84,6 @@ namespace PlanSuite.Areas.Identity.Pages.Account
             [EmailAddress]
             [Display(Name = "Email")]
             public string Email { get; set; }
-
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
-            [DataType(DataType.Password)]
-            [Display(Name = "Password")]
-            public string Password { get; set; }
-
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-            public string ConfirmPassword { get; set; }
-
-            [Required(ErrorMessage = "You must agree to the terms and conditions and privacy policy.")]
-            [Display(Name = "I agree to the Terms & Conditions and also agree to the Privacy Policy.")]
-            public bool EndUserLicenseAgreement { get; set; }
         }
 
 
@@ -138,31 +114,18 @@ namespace PlanSuite.Areas.Identity.Pages.Account
                     return Redirect("~/Identity/Account/Register?error=1");
                 }
 
-                try
-                {
-                    existingUser = await _userManager.FindByNameAsync(Input.UserName);
-                    if (existingUser != null)
-                    {
-                        // Name already exists
-                        return Redirect("~/Identity/Account/Register?error=2");
-                    }
-                }
-                catch (Exception e)
-                {
-                    return Redirect("~/Identity/Account/Register?error=2");
-                }
-
                 var user = CreateUser();
+                // https://localhost:7209/Identity/Account/ConfirmEmail?userId=69ae559b-22af-44ae-864b-a7f3d4fea4a1&code=Q2ZESjhFVzVCTVprSUt4RnZOWkFNeEpHUllldVllVVJOOW1uazI3UXJka29hbjNTZnc0OUtSeGFkSlEyckZlWWp3ejBYM21xaFhzM01VZVlGYUlKb1AvUzdLMjR1cXU0M1I3L2hkTUpnSmo4RlNMTmFNSEJIem1vS1pSaklhSHlrS04wampZeXFLMWtva1Z1NzhYdnR6ZWVHVXpnTGNsZTc3Ry93RENUS1ZMMExZZVpJMmUyZ0hKemljeENSaVR6a1ZxNmltaXA2bGwxV3RPallNbnhZYVhDa0xRNk8vTkNLWmpzYlR4RVl2Q01OQUhxYUNod1I2QlVWaFpKTXZML0c3ejU0Zz09&returnUrl=%2F
 
-                await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
+                await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-                var result = await _userManager.CreateAsync(user, Input.Password);
+                var result = await _userManager.CreateAsync(user);
 
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    var userId = await _userManager.GetUserIdAsync(user);
+                    /*var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
@@ -173,6 +136,10 @@ namespace PlanSuite.Areas.Identity.Pages.Account
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                    Console.WriteLine($"callbackUrl = {callbackUrl}\nreturnUrl = {returnUrl}");*/
+
+                    await RegisterCommon.SendRegisterEmail(user, _userManager, _emailSender, this);
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
@@ -215,6 +182,29 @@ namespace PlanSuite.Areas.Identity.Pages.Account
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
             return (IUserEmailStore<ApplicationUser>)_userStore;
+        }
+    }
+
+    public static class RegisterCommon
+    {
+        public static async Task SendRegisterEmail(ApplicationUser user, UserManager<ApplicationUser> userManager, IEmailSender emailSender, PageModel pageModel)
+        {
+            string returnUrl = pageModel.Url.Content("~/");
+            var userId = await userManager.GetUserIdAsync(user);
+            var code = await userManager.GenerateEmailConfirmationTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+            var callbackUrl = pageModel.Url.Page(
+                "/Account/ConfirmEmail",
+                pageHandler: null,
+                values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                protocol: pageModel.Request.Scheme);
+
+            await emailSender.SendEmailAsync(user.Email, "Confirm your email",
+                $"You're almost there!<br>" +
+                $"Thank you for signing up to Plan Suite! Click the link below to verify your email and we'll help you get started.<br><br>" +
+                $"<a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>Verify email address</a>");
+
+            Console.WriteLine($"callbackUrl = {callbackUrl}");
         }
     }
 }

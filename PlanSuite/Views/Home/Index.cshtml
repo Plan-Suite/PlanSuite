@@ -19,7 +19,8 @@
     {
         ViewData["Title"] = "Project management for everyone";
     }
-    int count = Model.OwnedProjects.Count + Model.MemberProjects.Count;
+    int projectCount = Model.OwnedProjects.Count + Model.MemberProjects.Count;
+    int taskCount = Model.DueTasks.Count;
 
     ApplicationUser user = await UserManager.GetUserAsync(User);
     OrganisationErrorCode orgStatusCode = (OrganisationErrorCode)UrlUtility.GetUrlRouteInt(Context.Request, "orgStatus");
@@ -49,10 +50,10 @@
                         errorMessage = Model.Localisation.Get(user, "ORG_CREATE_ERROR_SERVER");
                         break;
                 }
-                <div class="ps-alert ps-alert-error mt-3"><i class="bi bi-exclamation-triangle"></i> @errorMessage</div>
+                                                <div class="ps-alert ps-alert-error mt-3"><i class="bi bi-exclamation-triangle"></i> @errorMessage</div>
             }
 
-            string header = @Model.Localisation.Get(user, "YOUR_PROJECTS");
+            string header = "Home";//@Model.Localisation.Get(user, "HOME");
             if (Model.ViewingOrganisation != null)
             {
                 header = Model.ViewingOrganisation.Name;
@@ -60,29 +61,33 @@
         }
 
 
-        <h1 class="display-4">@header</h1>
-        @* Button trigger modal *@
-
-        @if (Model.CurrentOrganisationMembership != null)
-        {
-            if (Model.CurrentOrganisationMembership.Role >= ProjectRole.Admin)
-            {
-                <button type="button" class="btn ps-btn-primary mb-1" data-bs-toggle="modal" data-bs-target="#createProjectModal"><i class="bi bi-journal-plus"></i> @Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</button>
-            }
-        }
-        else
-        {
-            <button type="button" class="btn ps-btn-primary mb-1" data-bs-toggle="modal" data-bs-target="#createProjectModal"><i class="bi bi-journal-plus"></i> @Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</button>
-        }
-
-        @if (user != null && user.PaymentTier >= PaymentTier.Plus)
-        {
-            @if (Model.ViewingOrganisation == null)
-            {
-                <button type="button" class="btn ps-btn-primary mb-1" data-bs-toggle="modal" data-bs-target="#createOrganisationModal"><i class="bi bi-people"></i> @Model.Localisation.Get(user, "CREATE_NEW_ORGANISATION")</button>
-            }
-            <partial name="SubViews/_CreateOrganisation" />
-        }
+        <div class="ps-page-title">
+            @header
+            <div class="btn-group ps-home-add-btn">
+                @if (Model.CurrentOrganisationMembership != null)
+                {
+                    if (Model.CurrentOrganisationMembership.Role >= ProjectRole.Admin)
+                    {
+                        <button type="button" class="btn ps-btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createProjectModal"><i class="bi bi-plus-circle"></i> Project</button>
+                    }
+                }
+                else
+                {
+                    <button type="button" class="btn ps-btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createProjectModal">
+                        <i class="bi bi-plus-circle"></i> Project
+                    </button>
+                }
+                @if (user != null && user.PaymentTier >= PaymentTier.Plus && Model.CurrentOrganisationMembership == null)
+                {
+                    <button type="button" class="btn ps-btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="visually-hidden">Toggle Dropdown</span>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createOrganisationModal"><i class="bi bi-plus-circle"></i> Organisation</a></li>
+                    </ul>
+                }
+            </div>
+        </div>
 
         @* Create New Project *@
         <div class="modal fade" id="createProjectModal" tabindex="-1" aria-labelledby="createProjectLabel" aria-hidden="true">
@@ -211,7 +216,33 @@
         </div>
 
         <div class="container">
-            @if (count > 0)
+            <h3 class="ps-page-title"><i class="bi bi-list-task"></i> Tasks Due Soon</h3>
+            <hr>
+            @if (taskCount > 0)
+            {
+                <div class="row" id="MyTask">
+                    @if (Model.DueTasks.Count > 0)
+                    {
+                        foreach (var item in Model.DueTasks.OrderBy(t => t.CardDueDate))
+                        {
+                            Console.WriteLine($"Task {item.CardName} {item.CardDueDate}");
+                            <div class="ps-task-item" id="DueTask_@item.Id">
+                                <input type="hidden" id="TaskId" value="@item.Id"/>
+                                <input class="form-check-input ps-task-checkbox" type="checkbox" id="TaskCheckbox_@item.Id" value="" aria-label="...">
+                                @item.CardName
+                            </div>
+                        }
+                    }
+                </div>
+            }
+            else
+            {
+                <p>@Model.Localisation.Get(user, "NO_TASKS")</p>
+            }
+
+            <h3 class="ps-page-title"><i class="bi bi-clipboard"></i> Recent Projects</h3>
+            <hr>
+            @if (projectCount > 0)
             {
                 <div class="row" id="MyProjects">
                     @if (Model.OwnedProjects.Count > 0)
@@ -236,9 +267,9 @@
                                         <h5 class="card-title m-1">@item.Name</h5>
                                         <h6 class="card-subtitle m-1 mb-2 text-muted">@Html.Raw(string.Format(Model.Localisation.Get(user, "PROJECT_SUB_TITLE"), FormatDate(item.CreatedDate), FormatDate(item.DueDate), organisationName))</h6>
                                         <p class="card-text m-1">@item.Description</p>
-                                        <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">@Model.Localisation.Get(user, "VIEW_PROJECT")</a>
-                                        <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "EDIT_PROJECT")</button>
-                                        <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" id="passDeleteButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
+                                        <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">View</a>
+                                        <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">Edit</button>
+                                        <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" id="passDeleteButtonInfoBtn_@item.Id">Delete</button>
                                     </div>
                                 </div>
                             </div>
@@ -293,6 +324,10 @@
             }
         </div>
     </div>
+    @if (user != null && user.PaymentTier >= PaymentTier.Plus)
+    {
+        <partial name="SubViews/_CreateOrganisation" />
+    }
 }
 else
 {

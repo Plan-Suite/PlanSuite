@@ -104,14 +104,14 @@ namespace PlanSuite.Controllers.Api
 
         }
 
-        [HttpGet("getcards")]
+        /*[HttpGet("getcards")]
         public ActionResult<GetCardsModel> GetCards(int projectId)
         {
             Console.WriteLine($"GetCardsModel: {projectId}");
             GetCardsModel json = m_ProjectService.GetCards(projectId);
             return json;
 
-        }
+        }*/
 
         [HttpGet("getprojectmembers")]
         public ActionResult<GetProjectMembers> GetProjectMembers(int projectId)

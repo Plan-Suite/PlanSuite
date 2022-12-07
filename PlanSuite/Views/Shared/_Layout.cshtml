@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/lib/jquery-ui/jquery-ui.min.css">
     <script src="~/bundles/dep.min.js"></script>
+    <script src="~/lib/jquery-ui-touch-punch/dist/jquery.ui.touch-punch.js"></script>
     <script type="module" src="~/js/site.js" asp-append-version="true"></script>
     <script type="module" src="~/js/cookie.js" asp-append-version="true"></script>
     <script type="module" src="~/js/localisation.js" asp-append-version="true"></script>
@@ -85,20 +86,35 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark navagation-bar">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">@ApplicationInfo.APP_NAME</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-light @Html.ActiveClass("Home")" asp-area="" asp-controller="Home" asp-action="Index"><i class="bi bi-house-door"></i> Home</a>
-                        </li>
-                        <partial name="_MenuLoggedIn" />
-                    </ul>
-                    <partial name="_LoginPartial" />
-                </div>
+                @if(!Context.Request.Path.StartsWithSegments("/Identity/Account/ConfirmEmail", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">@ApplicationInfo.APP_NAME</a>
+                    @if (user == null)
+                    {
+                        <a class="btn ps-get-started ps-navbar-get-started" href="/Identity/Account/Register">Get Started</a>
+                    }
+                    else if (user != null && user.PaymentTier < PlanSuite.Enums.PaymentTier.Plus)
+                    {
+                        <a class="btn ps-get-started ps-navbar-get-started" asp-controller="Join" asp-action="Upgrade">Upgrade</a>
+                    }
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                            aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+                    <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                        <ul class="navbar-nav flex-grow-1">
+                            <li class="nav-item">
+                                <a class="nav-link text-light @Html.ActiveClass("Home")" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            </li>
+                            <partial name="_MenuLoggedIn" />
+                        </ul>
+                        <partial name="_LoginPartial" />
+                    </div>
+                }
+                else
+                {
+                    <a class="navbar-brand" href="#">@ApplicationInfo.APP_NAME</a>
+                }
             </div>
         </nav>
     </header>
