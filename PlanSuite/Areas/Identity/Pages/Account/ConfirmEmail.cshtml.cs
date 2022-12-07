@@ -34,8 +34,8 @@ namespace PlanSuite.Areas.Identity.Pages.Account
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
-        /*[TempData]
-        public string StatusMessage { get; set; }*/
+        [TempData]
+        public string StatusMessage { get; set; }
 
         public InputModel Input { get; set; }
 
@@ -84,10 +84,10 @@ namespace PlanSuite.Areas.Identity.Pages.Account
                 return NotFound($"Unable to load user with ID '{userId}'.");
             }
 
-            /*if (user.EmailConfirmed == true)
+            if (user.EmailConfirmed == true)
             {
-                return Redirect("/Home/Index");
-            }*/
+                return Redirect("/Join/FinishRegistration");
+            }
 
             user.RegistrationDate = DateTime.Now;
             await _userManager.UpdateAsync(user);
@@ -109,7 +109,7 @@ namespace PlanSuite.Areas.Identity.Pages.Account
             }
             await m_SignInManager.SignInAsync(user, isPersistent: false);
             AppUser = user;
-            return Page();
+            return Redirect("/Join/FinishRegistration");
         }
     }
 }

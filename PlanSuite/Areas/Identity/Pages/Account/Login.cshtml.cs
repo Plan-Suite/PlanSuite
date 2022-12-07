@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using PlanSuite.Models;
 using PlanSuite.Models.Persistent;
+using PlanSuite.Data;
 
 namespace PlanSuite.Areas.Identity.Pages.Account
 {
@@ -65,9 +66,9 @@ namespace PlanSuite.Areas.Identity.Pages.Account
         public class InputModel
         {
             [Required]
-            [DataType(DataType.Text)]
-            [Display(Name = "User Name")]
-            public string UserName { get; set; }
+            [DataType(DataType.EmailAddress)]
+            [Display(Name = "Email Address")]
+            public string Email { get; set; }
 
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -110,17 +111,35 @@ namespace PlanSuite.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = Input.UserName };
+                var user = await m_UserManager.FindByEmailAsync(Input.Email);
+                if(user == null)
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt! Email was incorrect.");
+                    return Page();
+                }
+
+                if (user.EmailConfirmed == false)
+                {
+                    ModelState.AddModelError(string.Empty, "Invalid login attempt! Email has not been confirmed.");
+                    return Page();
+                }
 
                 // This doesn't count login failures towards account lockout
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                //var result = await _signInManager.PasswordSignInAsync(user, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-                var result = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                var result = await _signInManager.PasswordSignInAsync(user, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                //var result = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                Console.WriteLine($"Attempt login for {Input.Email}");
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
                     user.LastVisited = DateTime.Now;
                     await m_UserManager.UpdateAsync(user);
+
+                    if(string.IsNullOrEmpty(user.FirstName))
+                    {
+                        return Redirect("/Join/FinishRegistration");
+                    }
+
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
@@ -132,11 +151,9 @@ namespace PlanSuite.Areas.Identity.Pages.Account
                     _logger.LogWarning("User account locked out.");
                     return RedirectToPage("./Lockout");
                 }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt! Is your password correct?");
-                    return Page();
-                }
+
+                ModelState.AddModelError(string.Empty, "Invalid login attempt! Is your password correct?");
+                return Page();
             }
 
             // If we got this far, something failed, redisplay form

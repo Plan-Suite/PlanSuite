@@ -53,11 +53,11 @@ namespace PlanSuite.Areas.Identity.Pages.Account.Manage
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
-            [Display(Name = "Username")]
-            public string UserName { get; set; }
+            [Display(Name = "First Name")]
+            public string FirstName { get; set; }
 
-            [Display(Name = "Confirm Username")]
-            public string ConfirmUserName { get; set; }
+            [Display(Name = "Last Name")]
+            public string LastName { get; set; }
         }
 
         private async Task LoadAsync(ApplicationUser user)
@@ -94,24 +94,9 @@ namespace PlanSuite.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            if(Input.UserName != Input.ConfirmUserName)
-            {
-                StatusMessage = "Username and confirm username must match.";
-                return RedirectToPage();
-            }
-
-            var userName = await _userManager.GetUserNameAsync(user);
-            if (Input.UserName != userName)
-            {
-                var setUsernameResult = await _userManager.SetUserNameAsync(user, Input.UserName);
-                if (!setUsernameResult.Succeeded)
-                {
-                    StatusMessage = "Unexpected error when trying to set user name.";
-                    return RedirectToPage();
-                }
-            }
-
-            await _signInManager.RefreshSignInAsync(user);
+            user.FirstName = Input.FirstName;
+            user.LastName = Input.LastName;
+            await _userManager.UpdateAsync(user);
             StatusMessage = "Your profile has been updated";
             return RedirectToPage();
         }

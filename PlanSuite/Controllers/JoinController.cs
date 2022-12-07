@@ -237,23 +237,23 @@ namespace PlanSuite.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> ContinueRegistration([FromForm] Areas.Identity.Pages.Account.ConfirmEmailModel.InputModel input)
+        public async Task<IActionResult> ContinueRegistration(FinishRegistrationModel.FinishRegistrationInputModel input)
         {
+            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(input));
             if(!ModelState.IsValid)
             {
                 return BadRequest("ModelState invalid");
             }
 
-            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(input));
 
-            ApplicationUser user = await m_UserManager.FindByIdAsync(input.User.ToString());
+            ApplicationUser user = await m_UserManager.FindByIdAsync(input.UserId.ToString());
             if(user == null)
             {
                 return BadRequest("User was null during registration");
             }
 
             var result = await m_UserManager.AddPasswordAsync(user, input.Password);
-            if(!result.Succeeded)
+            if (!result.Succeeded)
             {
                 return BadRequest("Cannot assign password");
             }
@@ -263,6 +263,29 @@ namespace PlanSuite.Controllers
             await m_UserManager.UpdateAsync(user);
 
             return RedirectToAction(nameof(Welcome));
+        }
+
+        public async Task<IActionResult> FinishRegistration()
+        {
+            ApplicationUser user = await m_UserManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return BadRequest("User was null during registration");
+            }
+
+            FinishRegistrationModel viewModel = new FinishRegistrationModel();
+            viewModel.UserId = Guid.Parse(user.Id);
+            viewModel.Email = user.Email;
+
+            return View(viewModel);
+        }
+
+        public static void DoFinishedRegistrationChecks(ControllerBase controllerBase, ApplicationUser user)
+        {
+            if (string.IsNullOrEmpty(user.FirstName))
+            {
+                controllerBase.Redirect("/Join/FinishRegistration");
+            }
         }
     }
 }

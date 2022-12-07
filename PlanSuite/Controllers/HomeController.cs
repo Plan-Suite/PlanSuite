@@ -50,13 +50,9 @@ namespace PlanSuite.Controllers
                 viewModel.CreateOrganisation.OwnerId = userId;
 
                 var user = await _userManager.FindByIdAsync(userId.ToString());
-                if(user != null && user.FinishedFirstTimeLogin == false)
-                {
-                    return Redirect("/Join/Welcome");
-                }
-
                 if(user != null)
                 {
+                    JoinController.DoFinishedRegistrationChecks(this, user);
                     user.LastVisited = DateTime.Now;
                     await _userManager.UpdateAsync(user);
                 }
