@@ -31,7 +31,7 @@ namespace PlanSuite.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly()).UseCollation("latin1_general_ci");
+            builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly()).UseCollation("latin1_swedish_ci");
         }
     }
 }
