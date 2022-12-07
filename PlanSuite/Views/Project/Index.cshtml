@@ -149,21 +149,36 @@
             </ul>
         </div>
     </div>
-
-    @*@if(indexView == ProjectIndexView.Calendar)
+    <ul class="nav nav-tabs">
+        @{
+            string listActive = string.Empty, cardActive = string.Empty;
+            switch(indexView)
+            {
+                default:
+                case ProjectIndexView.Cards:
+                    cardActive = "active";
+                    break;
+                case ProjectIndexView.List:
+                    listActive = "active";
+                    break;
+            }
+        }
+        <li class="nav-item">
+            <a class="nav-link ps-link-primary @listActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.List)">List</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link ps-link-primary @cardActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Cards)">Boards</a>
+        </li>
+    </ul>
+    @if(indexView == ProjectIndexView.List)
     {
-        <partial name="SubViews/_CalendarView" />
-    }
-    else @if(indexView == ProjectIndexView.Gantt)
-    {
-        <partial name="SubViews/_Gantt" />
+        <partial name="SubViews/_ListView" />
     }
     else
     {
         <partial name="SubViews/_CardView" />
-    }*@
-    <partial name="SubViews/_ListView" />
-    @*<partial name="SubViews/_CardView" />*@
+    }
+   
     <div class="card d-none" id="createCardDiv">
         <div class="card-body">
             <div class="d-grid gap-2">
