@@ -21,8 +21,8 @@
                 <div class="col text-center">
                     <h5>Company</h5>
                     <ul class="list-unstyled text-small">
-                    <li><a class="ps-footer-link" href="#">About</a></li>
-                    <li><a class="ps-footer-link" href="#">Careers</a></li>
+                    <li><a class="ps-footer-link" asp-controller="home" asp-action="AboutUs">About</a></li>
+                    <li><a class="ps-footer-link" asp-controller="home" asp-action="Careers">Careers</a></li>
                     </ul>
                 </div>
                 <div class="col text-center">
@@ -30,7 +30,7 @@
                     <ul class="list-unstyled text-small">
                     <li><a class="ps-footer-link" asp-controller="Home" asp-action="License">Terms</a></li>
                     <li><a class="ps-footer-link" asp-controller="Home" asp-action="Privacy">Privacy</a></li>
-                    <li><a class="ps-footer-link" href="#">Changelog</a></li>
+                    @*<li><a class="ps-footer-link" href="#">Changelog</a></li>*@
                     </ul>
                 </div>
             </div>

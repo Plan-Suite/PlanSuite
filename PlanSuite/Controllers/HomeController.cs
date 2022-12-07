@@ -249,6 +249,7 @@ namespace PlanSuite.Controllers
             return View();
         }
 
+        [Route("pricing")]
         public IActionResult Pricing()
         {
             return View();
@@ -259,8 +260,19 @@ namespace PlanSuite.Controllers
             return View();
         }
 
-
         public IActionResult SalesContacted()
+        {
+            return View();
+        }
+
+        [Route("about-us")]
+        public IActionResult AboutUs()
+        {
+            return View();
+        }
+
+        [Route("jobs")]
+        public IActionResult Careers()
         {
             return View();
         }
@@ -415,12 +427,14 @@ namespace PlanSuite.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [Route("privacy")]
         public IActionResult Privacy()
         {
             CommonCookies.ApplyCommonCookies(HttpContext);
             return View();
         }
 
+        [Route("terms")]
         public IActionResult License()
         {
             CommonCookies.ApplyCommonCookies(HttpContext);
