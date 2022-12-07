@@ -252,11 +252,21 @@ namespace PlanSuite.Controllers
                 return BadRequest("User was null during registration");
             }
 
-            var result = await m_UserManager.AddPasswordAsync(user, input.Password);
-            if (!result.Succeeded)
+            bool hasPassword = await m_UserManager.HasPasswordAsync(user);
+            if (hasPassword == false)
             {
-                return BadRequest("Cannot assign password");
+                var result = await m_UserManager.AddPasswordAsync(user, input.Password);
+                if (!result.Succeeded)
+                {
+                    return BadRequest("Cannot assign password");
+                }
             }
+            else
+            {
+                string token = await m_UserManager.GeneratePasswordResetTokenAsync(user);
+                await m_UserManager.ResetPasswordAsync(user, token, input.Password);
+            }
+
 
             user.FirstName = input.FirstName;
             user.LastName = input.LastName;
