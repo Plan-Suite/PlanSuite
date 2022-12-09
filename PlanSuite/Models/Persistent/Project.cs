@@ -13,6 +13,9 @@ namespace PlanSuite.Models.Persistent
         [Column("owner_id")]
         public Guid OwnerId { get; set; }
 
+        /// <summary>
+        /// Don't assume every project will be tied to an organisation
+        /// </summary>
         [Column("org_id")]
         public int OrganisationId { get; set; }
 

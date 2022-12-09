@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlanSuite.Data;
 
@@ -10,9 +11,10 @@ using PlanSuite.Data;
 namespace PlanSuite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221209013923_EmailInvites")]
+    partial class EmailInvites
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -457,10 +459,6 @@ namespace PlanSuite.Migrations
                     b.Property<DateTime>("Expiry")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("invite_expiry");
-
-                    b.Property<int>("Project")
-                        .HasColumnType("int")
-                        .HasColumnName("invite_project");
 
                     b.HasKey("Id");
 

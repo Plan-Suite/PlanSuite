@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using PlanSuite.Data;
 using PlanSuite.Enums;
@@ -17,13 +18,19 @@ namespace PlanSuite.Controllers
         private readonly SignInManager<ApplicationUser> m_SignInManager;
         private readonly ApplicationDbContext m_Database;
         private readonly ILogger<JoinController> m_Logger;
+        private readonly IUserStore<ApplicationUser> m_UserStore;
+        private readonly IUserEmailStore<ApplicationUser> m_EmailStore;
+        private readonly ProjectService m_ProjectService;
 
-        public JoinController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ApplicationDbContext database, ILogger<JoinController> logger)
+        public JoinController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ApplicationDbContext database, ILogger<JoinController> logger, IUserStore<ApplicationUser> userStore, ProjectService projectService)
         {
             m_UserManager = userManager;
             m_SignInManager = signInManager;
             m_Database = database;
             m_Logger = logger;
+            m_UserStore = userStore;
+            m_EmailStore = GetEmailStore();
+            m_ProjectService = projectService;
         }
 
         [Route("welcome")]
@@ -43,7 +50,7 @@ namespace PlanSuite.Controllers
                 return NotFound("User returned null, this should not happen.");
             }
 
-            m_Logger.LogInformation($"Showing first time login page for {user.UserName}");
+            m_Logger.LogInformation($"Showing first time login page for {user.FullName}");
             if (user.FinishedFirstTimeLogin == true)
             {
                 // User has already completed their first time login, so we're just gonna redirect them to the index page.
@@ -94,7 +101,7 @@ namespace PlanSuite.Controllers
                 return Redirect("/Home/Index");
             }
 
-            m_Logger.LogInformation($"Setting free tier for {user.UserName}");
+            m_Logger.LogInformation($"Setting free tier for {user.FullName}");
             user.PaymentTier = PaymentTier.Free;
             user.FinishedFirstTimeLogin = true;
             await m_UserManager.UpdateAsync(user);
@@ -272,6 +279,14 @@ namespace PlanSuite.Controllers
             user.LastName = input.LastName;
             await m_UserManager.UpdateAsync(user);
 
+            var invite = m_Database.Invitations.Where(invite => invite.Accepted == true && invite.Email.ToUpper() == user.NormalizedEmail).FirstOrDefault();
+            if(invite != null)
+            {
+                await m_ProjectService.CreateProjectAccess(user, invite.Project);
+                m_Database.Invitations.Remove(invite);
+                await m_Database.SaveChangesAsync();
+            }
+
             return RedirectToAction(nameof(Welcome));
         }
 
@@ -296,6 +311,65 @@ namespace PlanSuite.Controllers
             {
                 controllerBase.Redirect("/Join/FinishRegistration");
             }
+        }
+
+        [Route("invite/{inviteCode}")]
+        public async Task<IActionResult> AcceptInvite(string inviteCode)
+        {
+            var invitation = m_Database.Invitations.Where(invite => invite.Code == inviteCode && invite.Accepted == false && invite.Expiry > DateTime.Now).FirstOrDefault();
+            if(invitation == null)
+            {
+                return BadRequest("No invite found.");
+            }
+
+            // Create user account for email address
+
+            var user = CreateUser();
+            await m_UserStore.SetUserNameAsync(user, invitation.Email, CancellationToken.None);
+            await m_EmailStore.SetEmailAsync(user, invitation.Email, CancellationToken.None);
+            var result = await m_UserManager.CreateAsync(user);
+            if(!result.Succeeded)
+            {
+                return BadRequest("Could not create user when accepting invite.");
+            }
+
+            var code = await m_UserManager.GenerateEmailConfirmationTokenAsync(user);
+            result = await m_UserManager.ConfirmEmailAsync(user, code);
+            if (!result.Succeeded)
+            {
+                return BadRequest("Could not confirm user when creating.");
+            }
+
+            user.RegistrationDate = DateTime.Now;
+            await m_UserManager.UpdateAsync(user);
+
+            invitation.Accepted = true;
+            await m_Database.SaveChangesAsync();
+
+            await m_SignInManager.SignInAsync(user, isPersistent: false);
+
+            return Redirect("/Join/FinishRegistration");
+        }
+
+        private ApplicationUser CreateUser()
+        {
+            try
+            {
+                return Activator.CreateInstance<ApplicationUser>();
+            }
+            catch
+            {
+                throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'.");
+            }
+        }
+
+        private IUserEmailStore<ApplicationUser> GetEmailStore()
+        {
+            if (!m_UserManager.SupportsUserEmail)
+            {
+                throw new NotSupportedException("The default UI requires a user store with email support.");
+            }
+            return (IUserEmailStore<ApplicationUser>)m_UserStore;
         }
     }
 }

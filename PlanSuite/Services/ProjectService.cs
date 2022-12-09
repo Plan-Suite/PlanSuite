@@ -1,10 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using PlanSuite.Data;
 using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Utility;
+using System.ComponentModel.DataAnnotations;
+using System.Globalization;
+using System.Linq;
 using System.Security.Claims;
 
 namespace PlanSuite.Services
@@ -14,12 +18,14 @@ namespace PlanSuite.Services
         private readonly ApplicationDbContext m_Database;
         private readonly UserManager<ApplicationUser> m_UserManager;
         private readonly AuditService m_AuditService;
+        private readonly IEmailSender m_EmailSender;
 
-        public ProjectService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, AuditService auditService)
+        public ProjectService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, AuditService auditService, IEmailSender emailSender)
         {
             m_Database = dbContext;
             m_UserManager = userManager;
             m_AuditService = auditService;
+            m_EmailSender = emailSender;
         }
 
         public async Task MoveCard(MoveCardModel model, ClaimsPrincipal user)
@@ -82,7 +88,7 @@ namespace PlanSuite.Services
                 ApplicationUser user = await m_UserManager.FindByIdAsync(card.CardAssignee.ToString());
                 if (user != null)
                 {
-                    assignee = user.UserName;
+                    assignee = user.FullName;
                     assigneeId = user.Id;
                 }
 
@@ -91,7 +97,7 @@ namespace PlanSuite.Services
                 ApplicationUser creator = await m_UserManager.FindByIdAsync(card.CreatedBy.ToString());
                 if (creator != null)
                 {
-                    createdBy = creator.UserName;
+                    createdBy = creator.FullName;
                     createdById = creator.Id;
                 }
 
@@ -119,7 +125,7 @@ namespace PlanSuite.Services
                 var owner = GetProjectOwner(project);
                 if (owner != null)
                 {
-                    members.Add(Guid.Parse(owner.Id), owner.UserName);
+                    members.Add(Guid.Parse(owner.Id), owner.FullName);
                 }
 
                 var projMembers = GetProjectUsers(projId);
@@ -185,7 +191,7 @@ namespace PlanSuite.Services
                     AuditLogJsonModel auditLogModel = new AuditLogJsonModel();
                     auditLogModel.Message = await m_AuditService.AuditLogToHumanReadable(auditLog);
                     auditLogModel.Created = UrlUtility.TimestampToLastUpdated(auditLog.Timestamp);
-                    auditLogModel.Username = auditUser.UserName;
+                    auditLogModel.Username = auditUser.FullName;
                     auditLogs.Add(auditLogModel);
                 }
 
@@ -523,82 +529,107 @@ namespace PlanSuite.Services
                     var projMember = m_Database.Users.Where(u => u.Id == access.UserId.ToString()).FirstOrDefault();
                     if (projMember != null)
                     {
-                        members.Add(Guid.Parse(projMember.Id), projMember.UserName);
+                        members.Add(Guid.Parse(projMember.Id), projMember.FullName);
                     }
                 }
             }
             return members;
         }
 
-        public async Task<AddMemberResponse> AddMember(AddMemberModel model)
+        public async Task<AddMemberResponse> AddMember(ProjectViewModel.AddMemberModel model)
         {
+            Console.WriteLine($"AddMember start for Email:{model.Email} UserId:{model.UserId} ProjectId: {model.ProjectId}");
             var project = m_Database.Projects.Where(project => project.Id == model.ProjectId).FirstOrDefault();
             if (project == null)
             {
                 return AddMemberResponse.ServerError;
             }
 
-            var role = GetUserProjectAccess(model.UserId, project);
-            if (role < ProjectRole.Admin)
-            {
-                return AddMemberResponse.IncorrectRoles;
-            }
-
-            int maxMembers = 20;
-
-            // get owner
-            var owner = m_Database.Users.Where(user => user.Id == project.OwnerId.ToString()).FirstOrDefault();
-            if (owner != null)
-            {
-                var tier = owner.PaymentTier;
-                switch(tier)
-                {
-                    case PaymentTier.Plus:
-                        maxMembers = 100;
-                        break;
-                    case PaymentTier.Pro:
-                        // nobody's ever gonna reach this many project members so this is fine
-                        maxMembers = int.MaxValue;
-                        break;
-                }
-            }
-
-            // get owners tier
-            int count = m_Database.ProjectsAccess.Where(p => p.ProjectId == project.Id).ToList().Count;
-            count = count + 1;
-            if (count > maxMembers)
-            {
-                if(role == ProjectRole.Owner)
-                {
-                    return AddMemberResponse.IncorrectTierYou;
-                }
-                return AddMemberResponse.IncorrectTier;
-            }
-
-            var user = m_Database.Users.Where(user => user.UserName.Equals(model.Name)).FirstOrDefault();
-            if (user == null)
+            var projectOwner = await m_UserManager.FindByIdAsync(project.OwnerId.ToString());
+            if(projectOwner == null)
             {
                 return AddMemberResponse.NoUser;
             }
 
-            var guid = Guid.Parse(user.Id);
-            var access = m_Database.ProjectsAccess.Where(access => access.UserId == guid).FirstOrDefault();
-            if (access != null)
+            var inviter = await m_UserManager.FindByIdAsync(model.SenderId.ToString());
+            if (inviter == null)
             {
-                return AddMemberResponse.AlreadyHasAccess;
+                return AddMemberResponse.ServerError;
             }
 
-            access = new ProjectAccess();
-            access.ProjectId = model.ProjectId;
-            access.ProjectRole = ProjectRole.User;
-            access.UserId = guid;
+            int maxUsers = int.MaxValue;
+            if(projectOwner.PaymentTier < PaymentTier.Plus)
+            {
+                maxUsers = 20;
+            }
 
-            var projOwner = await m_UserManager.FindByIdAsync(model.UserId.ToString());
+            int currentMembers = m_Database.ProjectsAccess.Where(access => access.ProjectId == model.ProjectId).Count();
+            if(currentMembers > maxUsers)
+            {
+                return AddMemberResponse.IncorrectTier;
+            }
 
-            await m_AuditService.InsertLogAsync(AuditLogCategory.Project, projOwner, AuditLogType.AddedMember, model.ProjectId);
-            await m_Database.ProjectsAccess.AddAsync(access);
+            if(!string.IsNullOrEmpty(model.Email))
+            {
+                Console.WriteLine($"Get user by email");
+                // Get user by email
+                var user = await m_UserManager.FindByEmailAsync(model.Email);
+                if(user == null)
+                {
+                    if(UrlUtility.IsValidEmail(model.Email))
+                    {
+                        Console.WriteLine($"invite {model.Email}");
+                        Invitation invitation = new Invitation();
+                        invitation.Expiry = DateTime.Now.AddDays(7);
+                        invitation.Code = RandomGenerator.GetUniqueKey(15);
+                        invitation.Email = model.Email;
+                        invitation.Project = project.Id;
+
+                        await m_Database.Invitations.AddAsync(invitation);
+                        await m_Database.SaveChangesAsync();
+
+                        string inviteLink = $"https://plan-suite.com/invite/{invitation.Code}";
+                        Console.WriteLine($"Generated invite link for {invitation.Email}: {inviteLink}");
+
+                        string mailMessage = "Hello!<br><br>" +
+                            $"You have been invited by {inviter.FullName} to work on {project.Name} at Plan Suite.<br><br>" +
+                            $"Plan Suite is a professional project management website for teams and individuals alike that helps to make projects easier to manage.<br><br>" +
+                            $"<a href=\"{inviteLink}\">Accept Invitiation</a><br><br> - This invite will expire in 7 days if not accepted." +
+                            $"Regards,<br>Plan Suite.";
+
+                        await m_EmailSender.SendEmailAsync(model.Email, "You have been invited to join Plan Suite", mailMessage);
+                    }
+                }
+                else
+                {
+                    bool isActive = m_Database.ProjectsAccess.Where(access => access.UserId == Guid.Parse(user.Id) && access.ProjectId == model.ProjectId).FirstOrDefault() != null;
+                    if(isActive)
+                    {
+                        return AddMemberResponse.AlreadyHasAccess;
+                    }
+                    Console.WriteLine($"add {user.FullName} to {project.Name}");
+
+                    await CreateProjectAccess(user, model.ProjectId);
+                }
+                return AddMemberResponse.Success;
+            }
+
+            if (model.UserId != Guid.Empty)
+            {
+                return AddMemberResponse.Success;
+            }
+            return AddMemberResponse.NoUser;
+        }
+
+        public async Task CreateProjectAccess(ApplicationUser user, int projectId)
+        {
+            var projectAccess = new ProjectAccess();
+            projectAccess.UserId = Guid.Parse(user.Id);
+            projectAccess.ProjectId = projectId;
+            projectAccess.AccessSince = DateTime.Now;
+            projectAccess.ProjectRole = ProjectRole.User;
+            await m_Database.ProjectsAccess.AddAsync(projectAccess);
             await m_Database.SaveChangesAsync();
-            return AddMemberResponse.Success;
         }
 
         public async Task EditCardAsync(EditCardModel model, ClaimsPrincipal user)
@@ -669,7 +700,7 @@ namespace PlanSuite.Services
             var owner = m_Database.Users.Where(user => user.Id == project.OwnerId.ToString()).FirstOrDefault();
             if (owner != null)
             {
-                cardMembers.CardOwner = owner.UserName;
+                cardMembers.CardOwner = owner.FullName;
             }
 
 
@@ -682,7 +713,7 @@ namespace PlanSuite.Services
                     var adminUser = m_Database.Users.Where(user => user.Id == admin.UserId.ToString()).FirstOrDefault();
                     if(adminUser != null)
                     {
-                        cardMembers.CardAdmins.Add(adminUser.UserName);
+                        cardMembers.CardAdmins.Add(adminUser.FullName);
                     }
                 }
 
@@ -697,7 +728,7 @@ namespace PlanSuite.Services
                     var regularUser = m_Database.Users.Where(user => user.Id == regUser.UserId.ToString()).FirstOrDefault();
                     if (regularUser != null)
                     {
-                        cardMembers.CardMembers.Add(regularUser.UserName);
+                        cardMembers.CardMembers.Add(regularUser.FullName);
                     }
                 }
 

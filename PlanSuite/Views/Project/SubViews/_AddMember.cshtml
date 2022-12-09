@@ -8,27 +8,62 @@
     int columnCount = Model.Columns.Count;
     int cardCount = Model.Cards.Count;
     ApplicationUser user = await UserManager.GetUserAsync(User);
+    Model.AddMember.ProjectId = projectId;
+    Model.AddMember.SenderId = Guid.Parse(user.Id);
 }
-<div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="leaveProjectLabel" aria-hidden="true">
+<div class="modal fade" id="addMemberModal" tabindex="-1" aria-labelledby="addMemberLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="projectMembersLabel">@Model.Localisation.Get(user, "ADD_MEMBER")</h5>
+                <h5 class="modal-title" id="addMemberLabel">@Model.Localisation.Get(user, "ADD_MEMBER")</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form>
-            <div class="modal-body">
+            @using (Html.BeginForm("AddMember", "Project", FormMethod.Post))
+            {
+                @Html.HiddenFor(model => model.AddMember.ProjectId)
+                @Html.HiddenFor(model => model.AddMember.SenderId)
+                <div class="modal-body">
                     <div class="form-group">
-                        <label class="m-1" for="addMemberInput">@Model.Localisation.Get(user, "ADD_MEMBER_ENTER_USERNAME")</label>
-                        <input type="text" id="addMemberInput" class="form-control" placeholder="@Model.Localisation.Get(user, "USERNAME")"/>
+                        @Html.LabelFor(model => model.AddMember.Email, new { htmlAttributes = new { @class = "form-label" } })
+                        @Html.EditorFor(model => model.AddMember.Email, new { htmlAttributes = new { @class = "form-control" } })
+                        @Html.ValidationMessageFor(model => model.AddMember.Email, "", new { @class = "text-danger", })
+                        <p class="mt-3">Don't worry if the user is not on Plan Suite, an invite link will be sent to them in that case.</p>
                     </div>
-                <br>
-                <div class="modal-footer">
-                    <button type="button" class="btn ps-btn-primary" data-bs-dismiss="modal" id="addMemberBtn">@Model.Localisation.Get(user, "ADD_MEMBER")</button>
-                    <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CANCEL")</button>
-                </div> 
-            </div>
-            </form>
+                    @if (Model.Project.OrganisationId > 0)
+                    {
+                        <p class="text-center">Or</p>
+                        <div class="form-group">
+                            @{
+                                List<SelectListItem> organisationMembers = new List<SelectListItem>();
+                                organisationMembers.Add(new SelectListItem()
+                                {
+                                    Text = "Nobody",
+                                    Value = Guid.Empty.ToString()
+                                });
+                                foreach (var member in Model.OrganisationMembers)
+                                {
+                                    organisationMembers.Add(new SelectListItem()
+                                    {
+                                        Text = member.Value,
+                                        Value = member.Key.ToString()
+                                    });
+                                }
+                            }
+
+                            @Html.LabelFor(model => model.AddMember.UserId, new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.DropDownListFor(model => model.AddMember.UserId, organisationMembers.ToArray(), new { @class="form-select" })
+
+                            @*<label class="m-1" for="addMemberInput">Organisation Member:</label>
+                    <input type="email" id="addMemberInput" class="form-control" placeholder="@Model.Localisation.Get(user, "EMAIL")" />*@
+                        </div>
+                    }
+                    <br>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn ps-btn-primary" @*data-bs-dismiss="modal" id="addMemberBtn"*@>@Model.Localisation.Get(user, "ADD_MEMBER")</button>
+                        <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CANCEL")</button>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>

@@ -17,21 +17,19 @@
             <input type="hidden" asp-for="AddMilestone.ProjectId" value="@projectId">
             <div class="modal-body">
                 <div class="mb-3">
-                    @Html.LabelFor(model => model.AddMilestone.Title, new { htmlAttributes = new { @class = "form-label", } })
+                    @Html.LabelFor(model => model.AddMilestone.Title, new { htmlAttributes = new { @class = "form-label" } })
                     @Html.EditorFor(model => model.AddMilestone.Title, new { htmlAttributes = new { @class = "form-control" } })
                     @Html.ValidationMessageFor(model => model.AddMilestone.Title, "", new { @class = "text-danger", })
                 </div>
                 <div class="mb-3">
                     @Html.LabelFor(model => model.AddMilestone.Description, new { htmlAttributes = new { @class = "form-label", } })
-
-                    <textarea class="form-control" rows="3" asp-for="AddMilestone.Description"></textarea>
-                    @*Html.EditorFor(model => model.AddMilestone.Description, new { htmlAttributes = new { @class = "form-control" } })*@
+                    @Html.TextAreaFor(model => model.AddMilestone.Description, 3, 3, new { @class = "form-control" })
                     @Html.ValidationMessageFor(model => model.AddMilestone.Description, "", new { @class = "text-danger", })
                 </div>
                 <div class="mb-3">
-                    @Html.LabelFor(model => model.AddMilestone.Description, new { htmlAttributes = new { @class = "form-label", } })
+                    @Html.LabelFor(model => model.AddMilestone.DueDate, new { htmlAttributes = new { @class = "form-label", } })
                     @Html.EditorFor(model => model.AddMilestone.DueDate, new { htmlAttributes = new { @class = "form-control" } })
-                    @Html.ValidationMessageFor(model => model.AddMilestone.Description, "", new { @class = "text-danger", })
+                    @Html.ValidationMessageFor(model => model.AddMilestone.DueDate, "", new { @class = "text-danger", })
                 </div>
                 <br>
                 <div class="modal-footer">

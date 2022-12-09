@@ -1,6 +1,8 @@
 ﻿using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
 using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography.X509Certificates;
 
 namespace PlanSuite.Models.Temporary
 {
@@ -22,6 +24,21 @@ namespace PlanSuite.Models.Temporary
         public PaymentTier PaymentTier = PaymentTier.Free;
         public Dictionary<Guid, string> ProjectMembers { get; set; } = new Dictionary<Guid, string>();
         public AddTaskModel AddTask { get; set; } = new AddTaskModel();
+        public Dictionary<Guid, string> OrganisationMembers { get; set; } = new Dictionary<Guid, string>();
+        public AddMemberModel AddMember { get; set; } = new AddMemberModel();
+
+        public class AddMemberModel
+        {
+            public int ProjectId { get; set; }
+            public Guid SenderId { get; set; }
+
+            [Display(Name = "Email")]
+            [DataType(DataType.EmailAddress)]
+            public string? Email { get; set; }
+
+            [Display(Name = "Organisation Member")]
+            public Guid? UserId { get; set; }
+        }
 
         public class AddColumnModel
         {
@@ -40,16 +57,20 @@ namespace PlanSuite.Models.Temporary
         {
             public int ColumnId { get; set; }
 
+            [Required]
             [DisplayName("Name")]
+            [DataType(DataType.Text)]
             public string Name { get; set; }
 
             [DisplayName("Content")]
+            [DataType(DataType.MultilineText)]
             public string Content { get; set; }
 
             [DisplayName("Assignee")]
             public Guid Assignee { get; set; }
 
             [DisplayName("Due Date")]
+            [DataType(DataType.Date)]
             public DateTime DueDate { get; set; }
 
             [DisplayName("Priority")]

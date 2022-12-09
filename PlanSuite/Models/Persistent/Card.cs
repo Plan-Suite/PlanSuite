@@ -40,5 +40,8 @@ namespace PlanSuite.Models.Persistent
 
         [Column("card_is_finished")]
         public bool IsFinished { get; set; }
+
+        [Column("card_view")]
+        public ProjectIndexView DefaultView { get; set; }
     }
 }

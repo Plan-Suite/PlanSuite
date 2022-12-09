@@ -121,11 +121,11 @@ namespace PlanSuite.Areas.Identity.Pages.Account
                 return RedirectToPage("./ResetPasswordConfirmation");
             }
 
-            Console.WriteLine($"ResetPasswordAsync called for {user.UserName}");
+            Console.WriteLine($"ResetPasswordAsync called for {user.FullName}");
             var result = await _userManager.ResetPasswordAsync(user, Input.Code, Input.Password);
             if (result.Succeeded)
             {
-                Console.WriteLine($"ResetPasswordAsync success for {user.UserName}");
+                Console.WriteLine($"ResetPasswordAsync success for {user.FullName}");
 
                 var request = m_Database.PasswordResetRequests.Where(r => r.Code.Equals(Input.Code, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
                 if (request != null)
@@ -138,7 +138,7 @@ namespace PlanSuite.Areas.Identity.Pages.Account
                 return RedirectToPage("./ResetPasswordConfirmation");
             }
 
-            Console.WriteLine($"ResetPasswordAsync FAILED for {user.UserName}");
+            Console.WriteLine($"ResetPasswordAsync FAILED for {user.FullName}");
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);

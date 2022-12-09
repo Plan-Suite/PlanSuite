@@ -100,12 +100,12 @@ namespace PlanSuite.Services
             if (!hasRole)
             {
                 await m_UserManager.AddToRoleAsync(user, Constants.AdminRole);
-                Console.WriteLine($"SECURITY: Added {user.UserName} to {Constants.AdminRole}");
+                Console.WriteLine($"SECURITY: Added {user.FullName} to {Constants.AdminRole}");
             }
             else
             {
                 await m_UserManager.RemoveFromRoleAsync(user, Constants.AdminRole);
-                Console.WriteLine($"SECURITY: Removed {user.UserName} from {Constants.AdminRole}");
+                Console.WriteLine($"SECURITY: Removed {user.FullName} from {Constants.AdminRole}");
             }
 
             return true;
@@ -164,13 +164,13 @@ namespace PlanSuite.Services
             {
                 if(!string.IsNullOrEmpty(model.NewName))
                 {
-                    Console.WriteLine($"{user.UserName}: Modified username to {model.NewName}");
+                    Console.WriteLine($"{user.FullName}: Modified username to {model.NewName}");
                     await m_UserManager.SetUserNameAsync(user, model.NewName);
                     await m_UserManager.UpdateNormalizedUserNameAsync(user);
                 }
                 if (!string.IsNullOrEmpty(model.NewEmail))
                 {
-                    Console.WriteLine($"{user.UserName}: Modified email to {model.NewName}");
+                    Console.WriteLine($"{user.FullName}: Modified email to {model.NewName}");
                     await m_UserManager.SetEmailAsync(user, model.NewEmail);
                     var token = await m_UserManager.GenerateEmailConfirmationTokenAsync(user);
                     await m_UserManager.ConfirmEmailAsync(user, token);

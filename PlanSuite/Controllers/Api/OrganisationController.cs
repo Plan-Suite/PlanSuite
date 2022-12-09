@@ -64,13 +64,13 @@ namespace PlanSuite.Controllers.Api
                     switch(role)
                     {
                         case ProjectRole.Admin:
-                            organisationMembers.Admins.Add(user.UserName);
+                            organisationMembers.Admins.Add(user.FullName);
                             break;
                         case ProjectRole.Owner:
-                            organisationMembers.Owners.Add(user.UserName);
+                            organisationMembers.Owners.Add(user.FullName);
                             break;
                         default:
-                            organisationMembers.Members.Add(user.UserName);
+                            organisationMembers.Members.Add(user.FullName);
                             break;
                     }
                 }

@@ -37,7 +37,7 @@ namespace PlanSuite.Services
             await m_Database.SaveChangesAsync();
 
             string auditLogMsg = await AuditLogToHumanReadable(auditLog);
-            string logMsg = $"[{auditLog.Timestamp.ToString("dd/MMM/yyyy HH:mm:ss")}] (Category: {auditLog.LogCategory}, Id: #{auditLog.Id}, TargetId: #{auditLog.TargetID}, Action: {auditLog.LogType}, User: {user.UserName}): {auditLogMsg}";
+            string logMsg = $"[{auditLog.Timestamp.ToString("dd/MMM/yyyy HH:mm:ss")}] (Category: {auditLog.LogCategory}, Id: #{auditLog.Id}, TargetId: #{auditLog.TargetID}, Action: {auditLog.LogType}, User: {user.FullName}): {auditLogMsg}";
             Console.WriteLine(logMsg);
             DateTime now = DateTime.Now;
 
@@ -71,13 +71,13 @@ namespace PlanSuite.Services
                     message = $"Created project.";
                     break;
                 case AuditLogType.AddedMember:
-                    message = $"Added user {targetUser.UserName} to project.";
+                    message = $"Added user {targetUser.FullName} to project.";
                     break;
                 case AuditLogType.Left:
                     message = $"Left the project.";
                     break;
                 case AuditLogType.RemovedMember:
-                    message = $"Removed user {targetUser.UserName} to project.";
+                    message = $"Removed user {targetUser.FullName} to project.";
                     break;
             }
 
@@ -93,7 +93,7 @@ namespace PlanSuite.Services
             switch (auditLog.LogType)
             {
                 case AuditLogType.Modified:
-                    message = $"Added user {loggedUser.UserName} to project.";
+                    message = $"Added user {loggedUser.FullName} to project.";
                     break;
                 case AuditLogType.Closed:
                     break;

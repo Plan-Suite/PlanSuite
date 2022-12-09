@@ -107,9 +107,6 @@ $(function () {
             }
         });
     }
-
-    // 
-
 });
 
 function removeCard() {

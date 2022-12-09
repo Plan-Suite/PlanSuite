@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlanSuite.Data;
 
@@ -10,9 +11,10 @@ using PlanSuite.Data;
 namespace PlanSuite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221207192744_CardView")]
+    partial class CardView
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -431,40 +433,6 @@ namespace PlanSuite.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("columns");
-                });
-
-            modelBuilder.Entity("PlanSuite.Models.Persistent.Invitation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("id");
-
-                    b.Property<bool>("Accepted")
-                        .HasColumnType("tinyint(1)")
-                        .HasColumnName("invite_accepted");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("invite_code");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("longtext")
-                        .HasColumnName("invite_email");
-
-                    b.Property<DateTime>("Expiry")
-                        .HasColumnType("datetime(6)")
-                        .HasColumnName("invite_expiry");
-
-                    b.Property<int>("Project")
-                        .HasColumnType("int")
-                        .HasColumnName("invite_project");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("invitations");
                 });
 
             modelBuilder.Entity("PlanSuite.Models.Persistent.JournalNote", b =>

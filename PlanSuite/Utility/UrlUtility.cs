@@ -106,6 +106,18 @@ namespace PlanSuite.Utility
                 return text;
             }
         }
+
+        public static bool IsValidEmail(string email)
+        {
+            try
+            {
+                return new System.Net.Mail.MailAddress(email).Address == email && !email.Trim().EndsWith(".");
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 
     public static class EventUtility

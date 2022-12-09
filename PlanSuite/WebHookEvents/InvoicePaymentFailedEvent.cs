@@ -52,7 +52,7 @@ namespace PlanSuite.WebHookEvents
             // Send email to customer and customer service  
             string billingLink = $"Please review and update your payment details: <a href=\"{portal.Url}\">Update your payment</a><br><br>";
 
-            string message = $"Hello {user.UserName}!<br><br>" +
+            string message = $"Hello {user.FullName}!<br><br>" +
                 $"There's a billing issue on your account which we discovered on {dateTime.Day} {CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(dateTime.Month)} {dateTime.Year}.<br>" +
                 billingLink +
                 $"Regards,<br>PlanSuite.";

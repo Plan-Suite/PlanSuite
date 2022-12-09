@@ -34,7 +34,7 @@ namespace PlanSuite.Services
             PaymentTier paymentTier = owner.PaymentTier;
             if(paymentTier == PaymentTier.Free)
             {
-                m_Logger.LogError($"Cannot create organisation as {owner.UserName} is only free tier.");
+                m_Logger.LogError($"Cannot create organisation as {owner.FullName} is only free tier.");
                 return OrganisationErrorCode.IsFreeTier;
             }
 
@@ -42,7 +42,7 @@ namespace PlanSuite.Services
             int orgCount = m_Database.OrganizationsMembership.Where(member => member.UserId == model.OwnerId && member.Role == ProjectRole.Owner).Count();
             if (orgCount >= 1 && paymentTier <= PaymentTier.Plus)
             {
-                m_Logger.LogError($"Cannot create organisation as {owner.UserName} is only plus tier and already owns an organisation.");
+                m_Logger.LogError($"Cannot create organisation as {owner.FullName} is only plus tier and already owns an organisation.");
                 return OrganisationErrorCode.IsPlusTier;
             }
 
@@ -56,7 +56,7 @@ namespace PlanSuite.Services
             await m_Database.Organizations.AddAsync(organisation);
             await m_Database.SaveChangesAsync();
 
-            m_Logger.LogInformation($"Creating organisation membership for {owner.UserName} with org id {organisation.Id}");
+            m_Logger.LogInformation($"Creating organisation membership for {owner.FullName} with org id {organisation.Id}");
             OrganisationMembership membership = new OrganisationMembership
             {
                 OrganisationId = organisation.Id,
@@ -103,7 +103,7 @@ namespace PlanSuite.Services
             m_Logger.LogInformation($"Deleting organisation {model.Name}");
             m_Database.Organizations.Remove(organisation);
 
-            m_Logger.LogInformation($"Deleting organisation membership for {owner.UserName} with org id {model.Id}");
+            m_Logger.LogInformation($"Deleting organisation membership for {owner.FullName} with org id {model.Id}");
             m_Database.OrganizationsMembership.Remove(organisationMembership);
 
             m_Logger.LogInformation($"Reverting organisation projects for organisation {model.Id} back to original owner");

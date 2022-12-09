@@ -145,7 +145,30 @@ namespace PlanSuite.Controllers
                     }
                     viewModel.ProjectMembers.Add(member.UserId, userName);
                 }
+            }
 
+            if(project.OrganisationId > 0)
+            {
+                Console.WriteLine($"Getting org members {project.OrganisationId}");
+                var memberships = dbContext.OrganizationsMembership.Where(orgMember => orgMember.OrganisationId == project.OrganisationId).ToList();
+                foreach (var member in memberships)
+                {
+                    Console.WriteLine($"Member {member.UserId}");
+                    var orgMember = await _userManager.FindByIdAsync(member.UserId.ToString());
+                    if (orgMember != null)
+                    {
+                        string userName = orgMember.Email;
+                        if (!string.IsNullOrEmpty(orgMember.FirstName))
+                        {
+                            userName = orgMember.FullName;
+                        }
+                        Console.WriteLine($"OrgMember {userName}");
+                        if(!viewModel.OrganisationMembers.ContainsKey(member.UserId))
+                        {
+                            viewModel.OrganisationMembers.Add(member.UserId, userName);
+                        }
+                    }
+                }
             }
             return View(viewModel);
         }
@@ -288,6 +311,19 @@ namespace PlanSuite.Controllers
             await m_ProjectService.AddTask(addTask, User);
 
             return RedirectToAction(nameof(Index), "Project", new { id = column.ProjectId });
+        }
+
+        [HttpPost("AddMember")]
+        public async Task<IActionResult> AddMember(ProjectViewModel.AddMemberModel addMember)
+        {
+            if (!_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction(nameof(Index), "Home");
+            }
+
+            Console.WriteLine(JsonSerializer.Serialize(addMember));
+            var result = await m_ProjectService.AddMember(addMember);
+            return RedirectToAction(nameof(Index), "Project", new { id = addMember.ProjectId, addMemberResult = (int)result });
         }
 
         [HttpPost("addmilestone")]

@@ -82,19 +82,6 @@ namespace PlanSuite.Controllers.Api
 
         }
 
-        [HttpPost("addmember")]
-        public async Task<IActionResult> AddMember([FromBody] AddMemberModel model)
-        {
-            Console.WriteLine($"AddMemberModel: {model.ProjectId} {model.Name}");
-            var result = await m_ProjectService.AddMember(model);
-
-            return Ok(new
-            {
-                Response = result
-            });
-
-        }
-
         [HttpGet("getcard")]
         public async Task<ActionResult<GetCardReturnJson>> GetCardMarkdown(int cardId)
         {

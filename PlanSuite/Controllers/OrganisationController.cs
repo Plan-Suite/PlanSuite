@@ -227,13 +227,13 @@ namespace PlanSuite.Controllers
                     switch(orgMembership.Role)
                     {
                         case ProjectRole.Owner:
-                            model.Owners.Add(userId, orgUser.UserName);
+                            model.Owners.Add(userId, orgUser.FullName);
                             break;
                         case ProjectRole.Admin:
-                            model.Admins.Add(userId, orgUser.UserName);
+                            model.Admins.Add(userId, orgUser.FullName);
                             break;
                         default:
-                            model.Members.Add(userId, orgUser.UserName);
+                            model.Members.Add(userId, orgUser.FullName);
                             break;
                     }
                 }
