@@ -38,7 +38,7 @@ namespace PlanSuite.Controllers.Api
                 return organisationMembers;
             }
 
-            m_Logger.LogInformation($"Getting organisation members for {orgId}");
+            Console.WriteLine($"Getting organisation members for {orgId}");
 
             await AddUsersToList(orgId, organisationMembers, ProjectRole.Owner);
             await AddUsersToList(orgId, organisationMembers, ProjectRole.Admin);
@@ -64,15 +64,25 @@ namespace PlanSuite.Controllers.Api
                     switch(role)
                     {
                         case ProjectRole.Admin:
-                            organisationMembers.Admins.Add(user.FullName);
+                            if(!organisationMembers.Admins.Contains(user.FullName))
+                            {
+                                organisationMembers.Admins.Add(user.FullName);
+                            }
                             break;
                         case ProjectRole.Owner:
-                            organisationMembers.Owners.Add(user.FullName);
+                            if (!organisationMembers.Owners.Contains(user.FullName))
+                            {
+                                organisationMembers.Owners.Add(user.FullName);
+                            }
                             break;
                         default:
-                            organisationMembers.Members.Add(user.FullName);
+                            if (!organisationMembers.Members.Contains(user.FullName))
+                            {
+                                organisationMembers.Members.Add(user.FullName);
+                            }
                             break;
                     }
+                    Console.WriteLine($"Add user to list {user.Email} {user.FullName}");
                 }
             }
         }

@@ -44,6 +44,7 @@ function onSeeOrganisationMembers(dbId: number): void {
                                 Owner\
                             </div>\
                         </li>`);
+                    console.log(`Owner ${element}`)
                 });
             }
 
@@ -55,6 +56,7 @@ function onSeeOrganisationMembers(dbId: number): void {
                                 Member\
                             </div>\
                         </li>`);
+                    console.log(`Admin ${element}`)
                 });
             }
 
@@ -66,6 +68,7 @@ function onSeeOrganisationMembers(dbId: number): void {
                                 Member\
                             </div>\
                         </li>`);
+                    console.log(`Member ${element}`)
                 });
             }
         },

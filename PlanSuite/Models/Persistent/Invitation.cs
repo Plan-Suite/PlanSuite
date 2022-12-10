@@ -24,5 +24,8 @@ namespace PlanSuite.Models.Persistent
 
         [Column("invite_project")]
         public int Project { get; set; }
+
+        [Column("invite_organisation")]
+        public int Organisation { get; set; }
     }
 }

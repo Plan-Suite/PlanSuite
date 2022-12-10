@@ -24,6 +24,7 @@
 
     ApplicationUser user = await UserManager.GetUserAsync(User);
     OrganisationErrorCode orgStatusCode = (OrganisationErrorCode)UrlUtility.GetUrlRouteInt(Context.Request, "orgStatus");
+    List<Project> existingProjects = new List<Project>();
 }
 
 @functions{
@@ -249,6 +250,7 @@
                     {
                         foreach (var item in Model.OwnedProjects)
                         {
+                            existingProjects.Add(item);
                             // get org name
                             string organisationName = "N/A";
                             if (Model.OrganisationMap.ContainsKey(item.Id))
@@ -279,41 +281,45 @@
                     {
                         foreach (var item in Model.MemberProjects)
                         {
-                            // get org name
-                            string organisationName = "N/A";
-                            if (Model.OrganisationMap.ContainsKey(item.Id))
+                            if (!existingProjects.Contains(item))
                             {
-                                organisationName = $"<a href=\"/?orgId={Model.OrganisationMap[item.Id].Id}\">{Model.OrganisationMap[item.Id].Name}</a>";
-                            }
+                                existingProjects.Add(item);
+                                // get org name
+                                string organisationName = "N/A";
+                                if (Model.OrganisationMap.ContainsKey(item.Id))
+                                {
+                                    organisationName = $"<a href=\"/?orgId={Model.OrganisationMap[item.Id].Id}\">{Model.OrganisationMap[item.Id].Name}</a>";
+                                }
 
-                            if (Model.ViewingOrganisation != null)
-                            {
-                                organisationName = Model.ViewingOrganisation.Name;
-                            }
+                                if (Model.ViewingOrganisation != null)
+                                {
+                                    organisationName = Model.ViewingOrganisation.Name;
+                                }
 
-                            <div class="col-sm-6" id="MemberProject_@item.Id">
-                                <input type="hidden" id="projectId" value="@item.Id" />
-                                <input type="hidden" id="projectName" value="@item.Name" />
-                                <input type="hidden" id="projectDesc" value="@item.Description" />
-                                <input type="hidden" id="projectDate" value="@item.DueDate?.ToUniversalTime()" />
-                                <input type="hidden" id="projectOrganisation" value="@item.OrganisationId" />
-                                <div class="card p-1 mt-2" style="height:12rem;">
-                                    <div>
-                                        <h5 class="card-title m-1">@item.Name</h5>
-                                        <h6 class="card-subtitle m-1 mb-2 text-muted">@Html.Raw(string.Format(Model.Localisation.Get(user, "PROJECT_SUB_TITLE"), FormatDate(item.CreatedDate), FormatDate(item.DueDate), organisationName))</h6>
-                                        <p class="card-text m-1">@item.Description</p>
-                                        <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">@Model.Localisation.Get(user, "VIEW_PROJECT")</a>
-                                        @if (Model.CurrentOrganisationMembership != null && Model.CurrentOrganisationMembership.Role >= PlanSuite.Enums.ProjectRole.Admin)
-                                        {
-                                            <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "EDIT_PROJECT")</button>
-                                        }
-                                        @if (Model.CurrentOrganisationMembership != null && Model.CurrentOrganisationMembership.Role >= PlanSuite.Enums.ProjectRole.Admin)
-                                        {
-                                            <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" id="passDeleteButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
-                                        }
+                                <div class="col-sm-6" id="MemberProject_@item.Id">
+                                    <input type="hidden" id="projectId" value="@item.Id" />
+                                    <input type="hidden" id="projectName" value="@item.Name" />
+                                    <input type="hidden" id="projectDesc" value="@item.Description" />
+                                    <input type="hidden" id="projectDate" value="@item.DueDate?.ToUniversalTime()" />
+                                    <input type="hidden" id="projectOrganisation" value="@item.OrganisationId" />
+                                    <div class="card p-1 mt-2" style="height:12rem;">
+                                        <div>
+                                            <h5 class="card-title m-1">@item.Name</h5>
+                                            <h6 class="card-subtitle m-1 mb-2 text-muted">@Html.Raw(string.Format(Model.Localisation.Get(user, "PROJECT_SUB_TITLE"), FormatDate(item.CreatedDate), FormatDate(item.DueDate), organisationName))</h6>
+                                            <p class="card-text m-1">@item.Description</p>
+                                            <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">@Model.Localisation.Get(user, "VIEW_PROJECT")</a>
+                                            @if (Model.CurrentOrganisationMembership != null && Model.CurrentOrganisationMembership.Role >= PlanSuite.Enums.ProjectRole.Admin)
+                                            {
+                                                <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "EDIT_PROJECT")</button>
+                                            }
+                                            @if (Model.CurrentOrganisationMembership != null && Model.CurrentOrganisationMembership.Role >= PlanSuite.Enums.ProjectRole.Admin)
+                                            {
+                                                <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" id="passDeleteButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
+                                            }
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            }
                         }
                     }
                 </div>

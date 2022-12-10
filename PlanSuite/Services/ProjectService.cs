@@ -616,6 +616,13 @@ namespace PlanSuite.Services
 
             if (model.UserId != Guid.Empty)
             {
+                var user = await m_UserManager.FindByIdAsync(model.UserId.ToString());
+                if(user == null)
+                {
+                    return AddMemberResponse.NoUser;
+                }
+
+                await CreateProjectAccess(user, project.Id);
                 return AddMemberResponse.Success;
             }
             return AddMemberResponse.NoUser;
@@ -713,7 +720,11 @@ namespace PlanSuite.Services
                     var adminUser = m_Database.Users.Where(user => user.Id == admin.UserId.ToString()).FirstOrDefault();
                     if(adminUser != null)
                     {
-                        cardMembers.CardAdmins.Add(adminUser.FullName);
+                        Console.WriteLine($"adminUser = {adminUser.FullName}");
+                        if (!cardMembers.CardAdmins.Contains(adminUser.FullName))
+                        {
+                            cardMembers.CardAdmins.Add(adminUser.FullName);
+                        }
                     }
                 }
 
@@ -728,7 +739,11 @@ namespace PlanSuite.Services
                     var regularUser = m_Database.Users.Where(user => user.Id == regUser.UserId.ToString()).FirstOrDefault();
                     if (regularUser != null)
                     {
-                        cardMembers.CardMembers.Add(regularUser.FullName);
+                        Console.WriteLine($"regularUser = {regularUser.FullName}");
+                        if (!cardMembers.CardMembers.Contains(regularUser.FullName))
+                        {
+                            cardMembers.CardMembers.Add(regularUser.FullName);
+                        }
                     }
                 }
 

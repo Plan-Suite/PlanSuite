@@ -252,7 +252,6 @@ namespace PlanSuite.Controllers
                 return BadRequest("ModelState invalid");
             }
 
-
             ApplicationUser user = await m_UserManager.FindByIdAsync(input.UserId.ToString());
             if(user == null)
             {
@@ -274,7 +273,6 @@ namespace PlanSuite.Controllers
                 await m_UserManager.ResetPasswordAsync(user, token, input.Password);
             }
 
-
             user.FirstName = input.FirstName;
             user.LastName = input.LastName;
             await m_UserManager.UpdateAsync(user);
@@ -282,11 +280,21 @@ namespace PlanSuite.Controllers
             var invite = m_Database.Invitations.Where(invite => invite.Accepted == true && invite.Email.ToUpper() == user.NormalizedEmail).FirstOrDefault();
             if(invite != null)
             {
-                await m_ProjectService.CreateProjectAccess(user, invite.Project);
+                if(invite.Organisation > 0)
+                {
+                    var organisationAccess = new OrganisationMembership();
+                    organisationAccess.UserId = Guid.Parse(user.Id);
+                    organisationAccess.Role = ProjectRole.User;
+                    organisationAccess.OrganisationId = invite.Organisation;
+                    await m_Database.OrganizationsMembership.AddAsync(organisationAccess);
+                }
+                if(invite.Project > 0)
+                {
+                    await m_ProjectService.CreateProjectAccess(user, invite.Project);
+                }
                 m_Database.Invitations.Remove(invite);
                 await m_Database.SaveChangesAsync();
             }
-
             return RedirectToAction(nameof(Welcome));
         }
 
