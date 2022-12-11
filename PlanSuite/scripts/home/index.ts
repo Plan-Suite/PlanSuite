@@ -1,4 +1,5 @@
-﻿import { onDeleteInput } from "../site.js";
+﻿import { ProjectCommon } from "../project/projectCommon.js";
+import { onDeleteInput } from "../site.js";
 
 const verificationToken: string = $("#RequestVerificationToken").val() as string;
 
@@ -31,14 +32,29 @@ $(function () {
                         dataType: "json",
                         url: `/api/Task/ArchiveTask?taskId=${id}`,
                         beforeSend: function (request) {
-                            request.setRequestHeader("RequestVerificationToken", verificationToken);
+                            request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
                         }
                     });
                     $(`#DueTask_${id}`).fadeOut(1000);
                 }
             });
+
+            let arr = $(this).attr("id").match(/[0-9]+$/);
+            let textId = parseInt(arr[0], 10);
+            let dueTaskText = $(this).children(`#DueTaskText_${textId}`).first();
+
+            dueTaskText.on("click", function () {
+                console.log(`view card ${textId}`);
+                ProjectCommon.viewCardButton(id);
+            });
         }
     });
+    $("#viewCardLabel").on("click", ProjectCommon.editName);
+    $("#viewCardText").on("click", ProjectCommon.editDescription);
+    $("#addChecklistBtn").on("click", ProjectCommon.onAddChecklist);
+    $("#editCardSaveContentBtn").on("click", ProjectCommon.onEditCardSaveContent);
+    $("#editCardBtn").on("click", ProjectCommon.onEditCard);
+    $("#markCompleteBtn").on("click", ProjectCommon.onMarkComplete);
 
     $(function () {
         $("#confirmDeleteProjName").on("keyup", function () { onDeleteInput('deleteButton', 'DeleteProject_Name', 'confirmDeleteProjName') });

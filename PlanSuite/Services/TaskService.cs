@@ -24,8 +24,8 @@ namespace PlanSuite.Services
                 return new NotFoundResult();
             }
 
-            Console.WriteLine($"Card finished {taskId}");
-            task.IsFinished = true;
+            task.IsFinished = !task.IsFinished;
+            Console.WriteLine($"Card marked IsFinished {taskId} = ${task.IsFinished}");
             await m_Database.SaveChangesAsync();
             return new OkResult();
         }

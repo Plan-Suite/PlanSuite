@@ -1,4 +1,5 @@
 ﻿import { Localisation } from "../localisation.js";
+import { isBlank } from '../site.js'
 const localisation = new Localisation();
 const verificationToken: string = $("#RequestVerificationToken").val() as string;
 
@@ -10,6 +11,235 @@ export enum EPriority {
 };
 
 export class ProjectCommon {
+    static onMarkComplete() {
+        var cardId = $("#viewCardId").val();
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            url: `/api/Task/ArchiveTask?taskId=${cardId}`,
+            beforeSend: function (request) {
+                request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
+            }
+        });
+        $(`.card#${cardId}`).fadeOut(1000);
+        $(`.ps-task-item#DueTask_${cardId}`).fadeOut(1000);
+        let boardTask = $(`.ps-board-task#${cardId}`);
+
+        if (boardTask.hasClass("ps-board-task-pending")) {
+            boardTask.removeClass("ps-board-task-pending");
+            boardTask.addClass("ps-board-task-complete");
+        }
+        else {
+            boardTask.addClass("ps-board-task-pending");
+            boardTask.removeClass("ps-board-task-complete");
+        }
+    }
+
+    static onEditCardSaveContent() {
+        var dbId = $('#viewCardId').val();
+        $("#editCardContentForm").addClass("d-none");
+        $("#viewCardContent").removeClass("d-none");
+        var dateEntered = ProjectCommon.getCardDueDate();
+        var radioValue = $("input[name='priority']:checked").val();
+        var assigneeId = $("#assignee").val();
+        var milestoneId = $("#milestone").val();
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json",
+            url: "/api/Project/EditCard",
+            beforeSend: function (request) {
+                request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
+            },
+            data: JSON.stringify({ cardId: dbId, timestamp: dateEntered, priority: radioValue, assigneeId: assigneeId, milestoneId: milestoneId }),
+            success: function (response) {
+                ProjectCommon.viewCardButton(dbId);
+            },
+        });
+    }
+
+    static getCardDueDate() {
+        var input: string = $("#viewCardDueDateDateTime").val() as string;
+        var dbId: number = $('#viewCardId').val() as number;
+
+        var timestamp = 0;
+        var dateEntered = 0;
+        if (!isBlank(input)) {
+            dateEntered = new Date(input).getTime() / 1000;
+        }
+        return dateEntered;
+    }
+
+    static onAddChecklist() {
+        var addChecklistForm = $("#addChecklistForm");
+        var input = $("#addChecklistInput");
+        var btn = $("#addBtn");
+        addChecklistForm.removeClass("d-none");
+        $("#addChecklistBtn").addClass("d-none");
+        var dbId = $("#viewCardId").val();
+
+        input.focus();
+        btn.on("click", function () {
+            addChecklistForm.addClass("d-none");
+            $("#addChecklistBtn").removeClass("d-none");
+
+            var text: string = input.val() as string;
+
+            if (!text.length) {
+                return;
+            }
+
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                contentType: "application/json",
+                url: "/api/Project/AddChecklist",
+                beforeSend: function (request) {
+                    request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
+                },
+                data: JSON.stringify({ id: dbId, name: text }),
+                success: function (response) {
+                    ProjectCommon.addChecklist(response.id, response.checklistName, null);
+                },
+            });
+
+            btn.off("click");
+        });
+    }
+
+    static editName(): void {
+        var dbid = $('#viewCardId').val();
+        var currentName = $('#viewCardLabel').text();
+        console.log(`editName: ${currentName}`);
+        $('#viewCardLabel').addClass("d-none");
+        $('#viewCardEditLabel').removeClass("d-none");
+
+        $('#viewCardEditLabelEditor').val(currentName);
+        $('#viewCardEditLabelEditor').focus();
+        $('#viewCardEditLabelEditor').on("focusout", ProjectCommon.removeEditLabel);
+    }
+
+    static editDescription(): void {
+        var dbid = $('#viewCardId').val();
+        $('#viewCardText').addClass("d-none");
+        $('#viewCardEditText').removeClass("d-none");
+
+        $('#viewCardEditTextEditor').focus();
+        $('#viewCardEditTextEditor').on("focusout", ProjectCommon.removeEditForm);
+        $('#viewCardEditTextEditor').keydown(function (event) {
+            var id = event.key || event.which || event.keyCode || 0;
+            if (id == 13) {
+                ProjectCommon.removeEditForm();
+            }
+        });
+    }
+
+    static removeEditLabel() {
+        var dbId = $('#viewCardId').val();
+        const name = "#viewCardEditLabel";
+        $("#viewCardEditLabelEditor").off();
+        $(name).addClass("d-none");
+        $("#viewCardLabel").removeClass("d-none");
+
+        var text: string = $("#viewCardEditLabelEditor").val() as string;
+        if (isBlank(text)) {
+            text = "Card Name";
+        }
+
+        var desc = $("#viewCardText").text();
+        $("#viewCardLabel").text(text);
+        $(`#viewCardName_${dbId}`).text(text);
+        $(`#viewCardName_${dbId}`).attr("onclick", function () {
+            ProjectCommon.viewCardButton(dbId);
+        });
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json",
+            url: "/api/Project/editcardname",
+            beforeSend: function (request) {
+                request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
+            },
+            data: JSON.stringify({ cardId: dbId, name: text }),
+        });
+    }
+
+    static removeDateEditor() {
+        var input: string = $("#viewCardDueDateDateTime").val() as string;
+        var startInput: string = $("#viewCardStartDateDateTime").val() as string;
+        var dbId: number = $('#viewCardId').val() as number;
+        $("#viewCardDueDateDateTime").off();
+        $("#viewCardDueDateEditor").addClass("d-none");
+        $("#viewCardDueDate").removeClass("d-none");
+
+        console.log(`removeDateEditor: ${input}`);
+        var timestamp = 0;
+        var dateEntered;
+        if (isBlank(input)) {
+            dateEntered = 0;
+        }
+        else {
+            dateEntered = new Date(input).getTime() / 1000;
+        }
+
+        var dateString: string = "None";
+        if (dateEntered > 0) {
+            dateString = `${new Date(dateEntered).toDateString()}`;
+        }
+
+        $("#viewCardDueDate").text(`<strong>Due By:</strong> ${dateString}`);
+
+        if (isBlank(startInput)) {
+            dateEntered = 0;
+        }
+        else {
+            dateEntered = new Date(startInput).getTime() / 1000;
+        }
+
+        var startDateString: string = "None";
+        if (dateEntered > 0) {
+            startDateString = `${new Date(dateEntered).toDateString()}`;
+        }
+
+        $("#viewCardStartDate").text(`<strong>Start Date:</strong> ${startDateString}`);
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json",
+            url: "/api/Project/EditCardDueDate",
+            beforeSend: function (request) {
+                request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
+            },
+            data: JSON.stringify({ cardId: dbId, timestamp: dateEntered }),
+        });
+    }
+
+    static removeEditForm() {
+        var dbId = $('#viewCardId').val();
+        const name = "#viewCardEditText";
+        $("#viewCardEditTextEditor").off();
+        $(name).addClass("d-none");
+        $("#viewCardText").removeClass("d-none");
+
+        const text: string = $("#viewCardEditTextEditor").val() as string;
+
+        $("#viewCardText").text(text);
+
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json",
+            url: "/api/Project/editcarddesc",
+            beforeSend: function (request) {
+                request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
+            },
+            data: JSON.stringify({ cardId: dbId, description: text }),
+        });
+    }
+
     static GetVerificationToken(): string {
         return verificationToken;
     }
@@ -312,6 +542,74 @@ export class ProjectCommon {
             data: JSON.stringify({ checklistItemId: dbId }),
         });
     }
+
+    static onEditCard() {
+        var cardId = $("#viewCardId").val();
+        $("#editCardContentForm").removeClass("d-none");
+        $("#viewCardContent").addClass("d-none");
+
+        const url = `/api/Project/getcard?cardId=${cardId}`;
+
+        $.ajax({
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json",
+            url: url,
+            success: function (response) {
+
+                // Due Date
+                var date = "";
+                if (response.unixTimestamp > 0) {
+                    // I have to multiply by 1000 for some reason here idk why
+                    date = new Date(response.unixTimestamp * 1000).toDateString();
+                }
+
+                $("#viewCardDueDateDateTime").val(date);
+
+                var startDate = "";
+                if (response.startDate > 0) {
+                    // I have to multiply by 1000 for some reason here idk why
+                    date = new Date(response.startDate * 1000).toDateString();
+                }
+
+                $("#viewCardStartDateDateTime").val(startDate);
+
+                // get assignee
+                $("#assignee").empty();
+                $("#assignee").append("<option value=\"0\">Unassigned</option>");
+
+                Object.entries(response.members).forEach(([k, v]) => {
+                    $("#assignee").append(`<option value="${k}">${v}</option>`);
+                });
+
+                // set assignee
+                var guid = "0";
+                if (!isBlank(response.assigneeId)) {
+                    guid = response.assigneeId;
+                }
+
+                $("#assignee").val(guid).change();
+
+                // get milestones
+                //projectMilestones
+                $("#milestone").empty();
+                $("#milestone").append("<option value=\"0\">None</option>");
+
+                Object.entries(response.projectMilestones).forEach(([k, v]) => {
+                    $("#milestone").append(`<option value="${k}">${v}</option>`);
+                });
+
+                // set milestone
+                var milestoneId = 0;
+                if (response.milestoneId > 0) {
+                    milestoneId = response.milestoneId;
+                }
+
+                $("#milestone").val(milestoneId).change();
+            }
+        });
+    }
+
 /*
     static addTaskLabels(cardName: string, overdue: string, priority: EPriority, milestone: string): string {
 

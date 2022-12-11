@@ -32,12 +32,12 @@
                         if (card.ColumnId == item.Id)
                         {
                             string overdue = string.Empty;
-                            if (card.CardDueDate != null && card.CardDueDate < DateTime.Now)
+                            if (card.CardDueDate != null && card.CardDueDate < DateTime.Now && card.IsFinished == false)
                             {
                                 overdue = $"<span class=\"badge bg-danger\">{Model.Localisation.Get(user, "OVERDUE")}</span>";
                             }
                             string priority = string.Empty;
-                            if (card.CardPriority > PlanSuite.Enums.Priority.None)
+                            if (card.CardPriority > PlanSuite.Enums.Priority.None && card.IsFinished == false)
                             {
                                 switch (card.CardPriority)
                                 {
@@ -75,9 +75,19 @@
                             }
 
                             string cardName = card.CardName.ReplaceLineEndings("");
-                            <div class="card mb-1 draggable" id="@card.Id">
+                            string cardClasses = "ps-board-task";
+                            if(card.IsFinished == true)
+                            {
+                                cardClasses += " ps-board-task-complete";
+                            }
+                            else
+                            {
+                                cardClasses += " ps-board-task-pending";
+                            }
+
+                            <div class="@cardClasses mb-1 draggable" id="@card.Id">
                                 <div class="d-grid gap-2" style="min-height:60px;">
-                                    <a class="btn ps-btn-white" style="text-align:left;" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal">@Html.Raw(overdue) @Html.Raw(priority) @cardName @Html.Raw(milestone)</a>
+                                    <a class="btn" style="text-align:left;" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal">@Html.Raw(overdue) @Html.Raw(priority) @cardName @Html.Raw(milestone)</a>
                                 </div>
                             </div>
                         }
