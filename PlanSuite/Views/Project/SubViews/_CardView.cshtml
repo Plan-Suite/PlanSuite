@@ -24,7 +24,7 @@
                 <div class="column" id="@item.Id">
                     <div class="card mb-1 script-ignore">
                         <div class="d-grid gap-2">
-                            <a class="btn ps-btn-white" style="text-align:left;" href="#" data-bs-toggle="modal" data-bs-target="#addTaskModal">@Html.Raw(Model.Localisation.Get(user, "ADD_NEW_CARD"))</a>
+                            <a class="btn ps-btn-white ps-card-item-selector" style="text-align:left;" href="#" id="addTask_@item.Id" data-bs-toggle="modal" data-bs-target="#addTaskModal">@Html.Raw(Model.Localisation.Get(user, "ADD_NEW_CARD"))</a>
                         </div>
                     </div>
                     @foreach (var card in Model.Cards)

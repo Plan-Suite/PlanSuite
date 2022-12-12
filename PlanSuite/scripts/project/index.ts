@@ -75,6 +75,13 @@ $(function () {
         }
     });
 
+    $(".ps-card-item-selector").on("click", function () {
+        let arr = $(this).attr("id").match(/[0-9]+$/);
+        let id = parseInt(arr[0], 10);
+        console.log(id);
+        $("#AddTask_ColumnId").val(id);
+    });
+
     //$("#listMilestonesEditBtn").on("click", function () { onEditMilestoneBtn(); });
     //$("#listMilestonesCloseBtn").on("click", onCloseMilestoneBtn);
 
