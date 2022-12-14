@@ -103,6 +103,9 @@ namespace PlanSuite.Areas.Identity.Pages.Account
             ReturnUrl = returnUrl;
         }
 
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
             returnUrl ??= Url.Content("~/");

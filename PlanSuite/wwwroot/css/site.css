@@ -40,6 +40,11 @@
     --white-2: #FCFCFC;
     --white-2: #F9F9F9;
     --white-3: #F7F7F7;
+    --yellow-1: #DAB53A;
+    --yellow-2: #C4A234;
+    --yellow-3: #AE902E;
+    --yellow-4: #987E28;
+    --yellow-5: #826C22;
     /* Fonts */
     --fontFamilyBase: "Alexandria", "Helvetica Neue", "Helvetica", sans-serif;
     --fontFamilyPrint: "Source Serif Pro", "Times New Roman", "Times", serif;
@@ -389,6 +394,12 @@ input.input-validation-error {
     background-color: var(--red-1);
     color: var(--white);
 }
+
+.ps-alert-warning {
+    background-color: var(--yellow-1);
+    color: var(--black);
+}
+
 
 .ps-alert-success {
     background-color: var(--green-1);
