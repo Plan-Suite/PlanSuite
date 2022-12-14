@@ -8,6 +8,7 @@
     int columnCount = Model.Columns.Count;
     int cardCount = Model.Cards.Count;
     ApplicationUser user = await UserManager.GetUserAsync(User);
+    Model.AddTask.MilestoneId = 0;
 }
 <div class="modal fade" id="addTaskModal" tabindex="-1" aria-labelledby="addTaskLabel" aria-hidden="true">
     <input type="hidden" value="0" id="#addTaskColId"/>
@@ -87,6 +88,11 @@
                             <div class="col-sm-10">
                                 @{
                                     List<SelectListItem> projectMilestones = new List<SelectListItem>();
+                                    projectMilestones.Add(new SelectListItem()
+                                    {
+                                        Text = "None",
+                                        Value = "0"
+                                    });
                                     foreach (var milestone in Model.Milestones)
                                     {
                                         projectMilestones.Add(new SelectListItem()
@@ -103,7 +109,7 @@
                     }
                     <br>
                     <div class="modal-footer">
-                        <button type="submit" class="btn ps-btn-primary" data-bs-dismiss="modal">Create Task</button>
+                        <button type="submit" class="btn ps-btn-primary">Create Task</button>
                         <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CANCEL")</button>
                     </div>
                 </div>

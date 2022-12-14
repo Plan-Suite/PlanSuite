@@ -64,14 +64,14 @@ namespace PlanSuite.Models.Temporary
 
             [DisplayName("Content")]
             [DataType(DataType.MultilineText)]
-            public string Content { get; set; }
+            public string? Content { get; set; }
 
             [DisplayName("Assignee")]
-            public Guid Assignee { get; set; }
+            public Guid? Assignee { get; set; }
 
             [DisplayName("Due Date")]
             [DataType(DataType.Date)]
-            public DateTime DueDate { get; set; }
+            public DateTime? DueDate { get; set; }
 
             [DisplayName("Priority")]
             public Priority Priority { get; set; }
