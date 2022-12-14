@@ -825,7 +825,13 @@ namespace PlanSuite.Services
 
             card.CardName = model.Name;
             card.CardDescription = model.Content;
-            card.CardAssignee = model.Assignee;
+
+            card.CardAssignee = Guid.Empty;
+            if(model.Assignee != null && model.Assignee != Guid.Empty)
+            {
+                card.CardAssignee = (Guid)model.Assignee;
+            }
+
             card.CardDueDate = model.DueDate;
             card.CardPriority = model.Priority;
             card.CardMilestone = model.MilestoneId;
