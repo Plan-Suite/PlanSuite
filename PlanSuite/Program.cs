@@ -68,8 +68,6 @@ builder.Services.AddDefaultIdentity<ApplicationUser>((options) =>
     options.Lockout.MaxFailedAccessAttempts = 3;
 
     options.SignIn.RequireConfirmedAccount = true;
-    options.Password.RequireNonAlphanumeric = false;
-    options.Password.RequireDigit = false;
 })
 .AddRoles<IdentityRole>()
 .AddEntityFrameworkStores<ApplicationDbContext>();

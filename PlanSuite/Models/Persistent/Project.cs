@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PlanSuite.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PlanSuite.Models.Persistent
@@ -30,5 +31,23 @@ namespace PlanSuite.Models.Persistent
 
         [Column("due_date")]
         public DateTime? DueDate { get; set; }
+
+        [Column("client")]
+        public string? Client { get; set; }
+
+        [Column("budget")]
+        public decimal Budget { get; set; }
+
+        [Column("budget_type")]
+        public ProjectBudgetType BudgetType { get; set; }
+
+        [Column("budget_monetary_unit")]
+        public string? BudgetMonetaryUnit { get; set; }
+
+        /*[Column("approved")]
+        public ApprovalType Approved { get; set; }
+
+        [Column("approval_reason")]
+        public string Approved { get; set; }*/
     }
 }

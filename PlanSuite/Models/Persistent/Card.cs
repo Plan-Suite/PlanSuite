@@ -43,5 +43,8 @@ namespace PlanSuite.Models.Persistent
 
         [Column("card_view")]
         public ProjectIndexView DefaultView { get; set; }
+
+        [Column("card_budget")]
+        public decimal Budget { get; set; }
     }
 }

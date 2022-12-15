@@ -46,6 +46,9 @@ namespace PlanSuite.Models.Temporary
         public string MilestoneName { get; set; }
         public List<AuditLogJsonModel> AuditLogs { get; set; } = new List<AuditLogJsonModel>();
         public string CreatedBy { get; set; }
+        public decimal Budget { get; set; }
+        public string BudgetUnit { get; set; }
+        public ProjectBudgetType BudgetType { get; set; }
     }
 
     public class AuditLogJsonModel
@@ -73,6 +76,7 @@ namespace PlanSuite.Models.Temporary
         public int Priority { get; set; }
         public string AssigneeId { get; set; }
         public int MilestoneId { get; set; }
+        public decimal Budget { get; set; }
     }
 
     public class GetProjectMembers

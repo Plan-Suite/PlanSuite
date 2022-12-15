@@ -118,6 +118,8 @@ namespace PlanSuite.Controllers
                 }
             }
 
+            viewModel.UsedBudget = m_ProjectService.GetUsedBudget(project.Id);
+
             // TODO: All users will soon be in an organisation, either one they own or their teams organisation.
 
             // Get project members

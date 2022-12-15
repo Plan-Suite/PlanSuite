@@ -13,8 +13,12 @@ $(function () {
             var desc: string = element.children("#projectDesc").val() as string;
             var date: string = element.children("#projectDate").val() as string | "";
             var organisation: number = element.children("#projectOrganisation").val() as number;
+            var client: string = element.children("#projectClient").val() as string;
+            var budget: number = element.children("#projectBudget").val() as number;
+            var budgetType: number = element.children("#projectBudgetType").val() as number;
+            var budgetUnit: number = element.children("#projectBudgetUnit").val() as number;
 
-            $(`#passButtonInfoBtn_${id}`).on("click", function () { passButtonInfo(id, name, desc, date, organisation); });
+            $(`#passButtonInfoBtn_${id}`).on("click", function () { passButtonInfo(id, name, desc, date, organisation, client, budget, budgetType, budgetUnit); });
             $(`#passDeleteButtonInfoBtn_${id}`).on("click", function () { passDeleteButtonInfo(id, name); });
         }
     });
@@ -62,13 +66,17 @@ $(function () {
     });
 });
 
-function passButtonInfo(dbId, name, desc, date, organisation) {
+function passButtonInfo(dbId, name, desc, date, organisation, client, budget, budgetType, budgetUnit) {
     $("#editProjectLabel").html(`<strong>Edit:</strong> ${name}`);
     $('#editProjName').val(name);
     $('#editProjDesc').val(desc);
-    $('#editProjDate').val(date); // i have no fking clue how to get this working :(
+    $('#editProjDate').val(date); // FIXME: DueDate does not get assigned
     $('#editProjOrg').val(organisation);
     $('#EditProject_Id').val(dbId);
+    $('#editProjClient').val(client);
+    $('#editProjBudget').val(Number(budget).toFixed(2)); // FIXME: Budget related items do not get assigned
+    $('#editProjBudgetType').val(budgetType);
+    $('#editProjBudgetUnit').val(budgetUnit);
 }
 
 function passDeleteButtonInfo(dbId, name) {

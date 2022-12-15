@@ -32,8 +32,8 @@
 
     <h1 class="text-center">@Model.Project.Name</h1>
     <hr />
-    <div class="alert alert-success d-none" id="addUserSuccess" role="alert">Sucessfully added new user to project.</div>
-    <div class="alert alert-danger d-none" id="addUserFail" role="alert">Failed to add user to project.</div>
+    <div class="ps-alert ps-alert-success d-none" id="addUserSuccess" role="alert">Sucessfully added new user to project.</div>
+    <div class="ps-alert ps-alert-danger d-none" id="addUserFail" role="alert">Failed to add user to project.</div>
     <h4 class="text-muted">@Model.Project.Description</h4>
     <p class="text-muted"><strong>Project Created:</strong> @Model.Project.CreatedDate<br /><strong>Project Due Date:</strong>
         @if(Model.Project.DueDate != null)
@@ -52,6 +52,12 @@
         else 
         {
             <text>N/A</text>
+        }
+        @if (Model.Project.Budget > 0.0m)
+        {
+            <br />
+            <strong>Project Budget:</strong> @user.FormatBudget(Model.UsedBudget, Model.Project.BudgetMonetaryUnit, Model.Project.BudgetType)<text>/</text>@user.FormatMaxBudget(Model.Project.Budget, Model.Project.BudgetMonetaryUnit, Model.Project.BudgetType)
+            //@if(Mode)
         }
     </p>
 

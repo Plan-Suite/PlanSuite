@@ -25,8 +25,9 @@ namespace PlanSuite.Controllers
         private readonly LocalisationService m_Localisation;
         private readonly AuditService m_AuditService;
         private readonly IEmailSender m_EmailSender;
+        private readonly ProjectService m_ProjectService;
 
-        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AuditService auditService, IEmailSender emailSender)
+        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AuditService auditService, IEmailSender emailSender, ProjectService projectService)
         {
             m_Database = context;
             m_Logger = logger;
@@ -35,6 +36,7 @@ namespace PlanSuite.Controllers
             m_Localisation = LocalisationService.Instance;
             m_AuditService = auditService;
             m_EmailSender = emailSender;
+            m_ProjectService = projectService;
         }
 
         public async Task<IActionResult> Index(int orgId = 0)
@@ -121,9 +123,9 @@ namespace PlanSuite.Controllers
                                 var cards = m_Database.Cards.Where(card => card.ColumnId == column.Id && card.IsFinished == false).ToList();
                                 if (cards != null && cards.Count > 0)
                                 {
-                                    foreach(var card in cards)
+                                    foreach (var card in cards)
                                     {
-                                        if(card.CardDueDate != null && card.CardDueDate <= DateTime.Now.AddMonths(1))
+                                        if (card.CardDueDate != null && card.CardDueDate <= DateTime.Now.AddMonths(1))
                                         {
                                             viewModel.DueTasks.Add(card);
                                         }
@@ -131,6 +133,8 @@ namespace PlanSuite.Controllers
                                 }
                             }
                         }
+
+                        AddBudgetIfExists(viewModel, project);
                     }
                 }
 
@@ -170,6 +174,8 @@ namespace PlanSuite.Controllers
                                     }
                                 }
                             }
+
+                            AddBudgetIfExists(viewModel, project);
                         }
                     }
                 }
@@ -223,6 +229,7 @@ namespace PlanSuite.Controllers
                                                 }
                                             }
                                         }
+                                        AddBudgetIfExists(viewModel, project);
                                     }
                                     viewModel.MemberProjects.AddRange(organisationProjects);
                                 }
@@ -232,6 +239,18 @@ namespace PlanSuite.Controllers
                 }
             }
             return View(viewModel);
+        }
+
+        private void AddBudgetIfExists(HomeViewModel viewModel, Project project)
+        {
+            if(project != null)
+            {
+                decimal budget = m_ProjectService.GetUsedBudget(project.Id);
+                if (!viewModel.BudgetMap.ContainsKey(project.Id))
+                {
+                    viewModel.BudgetMap.Add(project.Id, budget);
+                }
+            }
         }
 
         private void AddToOrganisationMap(HomeViewModel viewModel, Project project)
@@ -355,6 +374,19 @@ namespace PlanSuite.Controllers
             project.DueDate = createProject.DueDate;
             project.OwnerId = Guid.Parse(_userManager.GetUserId(claimsPrincipal));
             project.OrganisationId = createProject.OrganisationId;
+            if(!string.IsNullOrEmpty(createProject.Client))
+            {
+                project.Client = createProject.Client;
+            }
+            if(createProject.Budget > 0.0m)
+            {
+                project.Budget = createProject.Budget;
+                project.BudgetType = createProject.BudgetType;
+                if(project.BudgetType == ProjectBudgetType.Cost)
+                {
+                    project.BudgetMonetaryUnit = createProject.BudgetUnit;
+                }
+            }
             await m_Database.Projects.AddAsync(project);
             await m_Database.SaveChangesAsync();
 
@@ -393,6 +425,16 @@ namespace PlanSuite.Controllers
             project.Description = editProject.Description;
             project.DueDate = editProject.DueDate;
             project.OrganisationId = editProject.Organisation;
+            project.Client = editProject.Client;
+            if (editProject.Budget > 0.0m)
+            {
+                project.Budget = editProject.Budget;
+                project.BudgetType = editProject.BudgetType;
+                if (project.BudgetType == ProjectBudgetType.Cost)
+                {
+                    project.BudgetMonetaryUnit = editProject.BudgetUnit;
+                }
+            }
             m_Database.SaveChanges();
 
             return RedirectToAction(nameof(Index));

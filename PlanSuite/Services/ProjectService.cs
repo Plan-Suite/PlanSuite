@@ -28,6 +28,48 @@ namespace PlanSuite.Services
             m_EmailSender = emailSender;
         }
 
+        public PaymentTier GetProjectTier(int projectId)
+        {
+            var project = m_Database.Projects.Where(proj => proj.Id == projectId).FirstOrDefault();
+            if (project == null)
+            {
+                return PaymentTier.Free;
+            }
+
+            var owner = GetProjectOwner(project);
+            if (owner == null)
+            {
+                return PaymentTier.Free;
+            }
+
+            return owner.PaymentTier;
+        }
+
+        public decimal GetUsedBudget(int projectId)
+        {
+            var project = m_Database.Projects.Where(proj => proj.Id == projectId).FirstOrDefault();
+            if(project == null)
+            {
+                return 0m;
+            }
+
+            var columns = m_Database.Columns.Where(column => column.ProjectId == project.Id).ToList();
+            if (columns == null)
+            {
+                return 0m;
+            }
+
+            decimal budget = 0m;
+            foreach (var column in columns)
+            {
+                foreach (var card in m_Database.Cards.Where(card => card.ColumnId == column.Id))
+                {
+                    budget += card.Budget;
+                }
+            }
+            return budget;
+        }
+
         public async Task MoveCard(MoveCardModel model, ClaimsPrincipal user)
         {
             var card = m_Database.Cards.Where(card => card.Id == model.CardId).FirstOrDefault();
@@ -137,6 +179,20 @@ namespace PlanSuite.Services
                     }
                 }
 
+                decimal budget = 0m;
+                string budgetUnit = string.Empty;
+                ProjectBudgetType budgetType = ProjectBudgetType.None;
+                if(GetProjectTier(project.Id) >= PaymentTier.Plus)
+                {
+                    budget = card.Budget;
+                    if (budget > 0m)
+                    {
+                        budgetUnit = project.BudgetMonetaryUnit;
+                        budgetType = project.BudgetType;
+                    }
+                    Console.WriteLine($"Budget info: {budgetUnit}{budget} {budgetType}");
+                }
+
                 // get card checklists
                 List<ChecklistItem> items = new List<ChecklistItem>();
 
@@ -213,8 +269,12 @@ namespace PlanSuite.Services
                     MilestoneId = currentMilestoneId,
                     MilestoneName = currentMilestoneName,
                     AuditLogs = auditLogs,
-                    CreatedBy = createdBy
+                    CreatedBy = createdBy,
+                    Budget = budget,
+                    BudgetType = budgetType,
+                    BudgetUnit = budgetUnit
                 };
+                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(json));
                 return json;
             }
             return null;
@@ -652,6 +712,7 @@ namespace PlanSuite.Services
             var card = m_Database.Cards.Where(card => card.Id == model.CardId).FirstOrDefault();
             if (card != null)
             {
+                Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(model));
                 card.CardDueDate = dueDate;
                 card.CardPriority = (Priority)model.Priority;
                 if(Guid.TryParse(model.AssigneeId, out Guid result))
@@ -659,6 +720,7 @@ namespace PlanSuite.Services
                     card.CardAssignee = result;
                 }
                 card.CardMilestone = model.MilestoneId;
+                card.Budget = model.Budget;
 
                 var appUser = await m_UserManager.GetUserAsync(user);
                 await m_AuditService.InsertLogAsync(AuditLogCategory.Card, appUser, AuditLogType.Modified, card.Id.ToString());

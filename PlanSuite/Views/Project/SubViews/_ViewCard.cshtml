@@ -41,6 +41,9 @@
                         {
                             <small class="text-muted" id="viewCardMilestone">
                                 CARD_MILESTONE
+                            </small><br />  
+                            <small class="text-muted" id="viewCardBudget">
+                                CARD_BUDGET
                             </small>
                         }
                     </div>
@@ -113,6 +116,20 @@
                             <legend class="col-form-label-sm">Milestone</legend>
                             <div class="col-sm-10">
                                 <select class="form-select form-select-sm" aria-label=".form-select-sm example" id="milestone"></select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <legend class="col-form-label-sm">Budget</legend>
+                            <div class="col-sm-10 row">
+                                <div class="col-auto" id="budgetUnitLabel">
+                                    <span id="budgetUnit" class="form-text">£</span>
+                                </div>
+                                <div class="col-auto">
+                                    <input type="number" id="viewCardBudgetInput" class="form-control col-auto" />
+                                </div>
+                                <div class="col-auto d-none" id="budgetTypeLabel">
+                                    <span id="budgetType" class="form-text">Hours</span>
+                                </div>
                             </div>
                         </div>
                     }

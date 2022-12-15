@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PlanSuite.Data;
 
@@ -10,9 +11,10 @@ using PlanSuite.Data;
 namespace PlanSuite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221212021802_ProjectBudget")]
+    partial class ProjectBudget
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -279,10 +281,6 @@ namespace PlanSuite.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasColumnName("id");
-
-                    b.Property<decimal>("Budget")
-                        .HasColumnType("decimal(65,30)")
-                        .HasColumnName("card_budget");
 
                     b.Property<Guid>("CardAssignee")
                         .HasColumnType("char(36)")
@@ -595,8 +593,8 @@ namespace PlanSuite.Migrations
                         .HasColumnType("decimal(65,30)")
                         .HasColumnName("budget");
 
-                    b.Property<string>("BudgetMonetaryUnit")
-                        .HasColumnType("longtext")
+                    b.Property<int>("BudgetMonetaryUnit")
+                        .HasColumnType("int")
                         .HasColumnName("budget_monetary_unit");
 
                     b.Property<int>("BudgetType")

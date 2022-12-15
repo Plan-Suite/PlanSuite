@@ -29,7 +29,7 @@ namespace PlanSuite.Services
         }
 
 
-        public string Get(ApplicationUser user, string key)
+        public string Get(ApplicationUser? user, string key)
         {
             var userLanguage = Language.English;
 

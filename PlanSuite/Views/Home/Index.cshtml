@@ -25,10 +25,29 @@
     ApplicationUser user = await UserManager.GetUserAsync(User);
     OrganisationErrorCode orgStatusCode = (OrganisationErrorCode)UrlUtility.GetUrlRouteInt(Context.Request, "orgStatus");
     List<Project> existingProjects = new List<Project>();
-}
 
-@functions{
-    string FormatDate(DateTime? value) => value.HasValue ? value.Value.ToString("dd/MMM/yyyy") : "N/A";
+    var budgetTypes = user.GetDropdownItemsFromEnum(new ProjectBudgetType());
+    // TODO: find a better way to do this, preferably loop through existing enums
+    List<SelectListItem> budgetUnits = new List<SelectListItem>();
+    budgetUnits.Add(new SelectListItem()
+    {
+        Value = "None",
+        Text = Model.Localisation.Get(user, "NONE")
+    });
+
+    var currencyUnits = CurrencyTools.GetAllSymbols();
+    foreach(var unit in currencyUnits)
+    {
+        if(string.IsNullOrEmpty(unit) || unit == "&ZeroWidthSpace")
+        {
+            continue;
+        }
+
+        var selectItem = new SelectListItem();
+        selectItem.Text = unit;
+        selectItem.Value = unit;
+        budgetUnits.Add(selectItem);
+    }
 }
 
 <script type="module" src="~/js/home/index.js" asp-append-version="true"></script>
@@ -101,19 +120,41 @@
                             @Html.EditorFor(model => model.CreateProject.Name, new { htmlAttributes = new { @class = "form-control" } })
                             @Html.LabelFor(model => model.CreateProject.Name, new { htmlAttributes = new { @class = "form-label" } })
                             @Html.ValidationMessageFor(model => model.CreateProject.Name, "", new { @class = "text-danger" })
-                            <br>
                         </div>
                         <div class="form-floating mb-3">
                             @Html.EditorFor(model => model.CreateProject.Description, new { htmlAttributes = new { @class = "form-control" } })
                             @Html.LabelFor(model => model.CreateProject.Description, new { htmlAttributes = new { @class = "form-label" } })
                             @Html.ValidationMessageFor(model => model.CreateProject.Description, "", new { @class = "text-danger" })
-                            <br>
                         </div>
                         <div class="form-floating mb-3">
                             @Html.EditorFor(model => model.CreateProject.DueDate, new { htmlAttributes = new { @class = "form-control" } })
                             @Html.LabelFor(model => model.CreateProject.DueDate, new { htmlAttributes = new { @class = "form-label" } })
                             @Html.ValidationMessageFor(model => model.CreateProject.DueDate, "", new { @class = "text-danger" })
-                            <br>
+                        </div>
+                        <div class="form-floating mb-3">
+                            @Html.EditorFor(model => model.CreateProject.Client, new { htmlAttributes = new { @class = "form-control" } })
+                            @Html.LabelFor(model => model.CreateProject.Client, new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.ValidationMessageFor(model => model.CreateProject.Client, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="row form-floating mb-3">
+                            <div class="col-auto">
+                                @{
+                                    
+                                }
+                                @Html.LabelFor(model => model.CreateProject.BudgetType, Model.Localisation.Get(user, "BUDGET_TYPE"), new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.DropDownListFor(model => model.CreateProject.BudgetType, budgetTypes.ToArray(), new { @class = "form-select" })
+                                @Html.ValidationMessageFor(model => model.CreateProject.BudgetType, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-auto">
+                                @Html.LabelFor(model => model.CreateProject.Budget, Model.Localisation.Get(user, "BUDGET"), new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.EditorFor(model => model.CreateProject.Budget, new { htmlAttributes = new { @class = "form-control" } })
+                                @Html.ValidationMessageFor(model => model.CreateProject.Budget, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-auto">
+                                @Html.LabelFor(model => model.CreateProject.BudgetUnit, Model.Localisation.Get(user, "BUDGET_UNIT"), new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.DropDownListFor(model => model.CreateProject.BudgetUnit, budgetUnits.ToArray(), new { @class = "form-select" })
+                                @Html.ValidationMessageFor(model => model.CreateProject.BudgetUnit, "", new { @class = "text-danger" })
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
@@ -159,6 +200,7 @@
                                     <select id="editProjOrg" class="form-control" asp-for="EditProject.Organisation" asp-items="@(new SelectList(Model.Organisations, "Value", "Name"))">
                                         <option value="0">@Model.Localisation.Get(user, "NONE")</option>
                                     </select>
+                                    @Html.LabelFor(model => model.EditProject.Organisation, new { htmlAttributes = new { @class = "form-label" } })
                                 </div>
                             }
                             else
@@ -174,6 +216,28 @@
                                 </select>
                             </div>
                         }
+                        <div class="form-floating mb-3">
+                            @Html.EditorFor(model => model.EditProject.Client, new { htmlAttributes = new { @class = "form-control", id = "editProjClient" } })
+                            @Html.LabelFor(model => model.EditProject.Client, new { htmlAttributes = new { @class = "form-label" } })
+                            @Html.ValidationMessageFor(model => model.EditProject.Client, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="row form-floating mb-3">
+                            <div class="col-auto">
+                                @Html.LabelFor(model => model.EditProject.BudgetType, Model.Localisation.Get(user, "BUDGET_TYPE"), new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.DropDownListFor(model => model.EditProject.BudgetType, budgetTypes.ToArray(), new { @class = "form-select", id = "editProjBudgetType" })
+                                @Html.ValidationMessageFor(model => model.EditProject.BudgetType, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-auto">
+                                @Html.LabelFor(model => model.EditProject.Budget, Model.Localisation.Get(user, "BUDGET"), new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.EditorFor(model => model.EditProject.Budget, new { htmlAttributes = new { @class = "form-control", id = "editProjBudget" } })
+                                @Html.ValidationMessageFor(model => model.EditProject.Budget, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="col-auto">
+                                @Html.LabelFor(model => model.EditProject.BudgetUnit, Model.Localisation.Get(user, "BUDGET_UNIT"), new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.DropDownListFor(model => model.EditProject.BudgetUnit, budgetUnits.ToArray(), new { @class = "form-select", id = "editProjBudgetUnit" })
+                                @Html.ValidationMessageFor(model => model.EditProject.BudgetUnit, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
                         <div class="modal-footer">
                             <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
                             <button type="submit" class="btn ps-btn-primary">@Model.Localisation.Get(user, "SAVE_CHANGES")</button>
@@ -251,10 +315,25 @@
                     {
                         existingProjects.Add(item);
                         // get org name
-                        string organisationName = "N/A";
+                        string organisationName = string.Empty;
                         if (Model.OrganisationMap.ContainsKey(item.Id))
                         {
                             organisationName = $"<a href=\"/?orgId={Model.OrganisationMap[item.Id].Id}\">{Model.OrganisationMap[item.Id].Name}</a>";
+                        }
+                        string projectClient = string.Empty;
+                        if(!string.IsNullOrEmpty(item.Client))
+                        {
+                            projectClient = item.Client;
+                        }
+                        decimal projectBudget = 0m;
+                        if(item.Budget > 0m)
+                        {
+                            projectBudget = item.Budget;
+                        }
+                        decimal projectUsedBudget = 0m;
+                        if (Model.BudgetMap.ContainsKey(item.Id))
+                        {
+                            projectUsedBudget = Model.BudgetMap[item.Id];
                         }
 
                         <div class="col-sm-6" id="OwnedProject_@item.Id">
@@ -263,10 +342,38 @@
                             <input type="hidden" id="projectDesc" value="@item.Description" />
                             <input type="hidden" id="projectDate" value="@item.DueDate?.ToUniversalTime()" />
                             <input type="hidden" id="projectOrganisation" value="@item.OrganisationId" />
+                            <input type="hidden" id="projectClient" value="@item.Client" />
+                            <input type="hidden" id="projectBudget" value="@item.Budget" />
+                            <input type="hidden" id="projectBudgetType" value="@((int)item.BudgetType)" />
+                            <input type="hidden" id="projectBudgetUnit" value="@item.BudgetMonetaryUnit" />
+                            <input type="hidden" id="projectUsedBudget" value="@((int)projectUsedBudget)" />
                             <div class="card p-1 mt-2" style="height:12rem;">
                                 <div>
                                     <h5 class="card-title m-1">@item.Name</h5>
-                                    <h6 class="card-subtitle m-1 mb-2 text-muted">@Html.Raw(string.Format(Model.Localisation.Get(user, "PROJECT_SUB_TITLE"), FormatDate(item.CreatedDate), FormatDate(item.DueDate), organisationName))</h6>
+                                    <h6 class="card-subtitle m-1 mb-2 text-muted">
+                                        <strong>Created Date:</strong> @user.FormatDate(item.CreatedDate)<br>
+                                        <strong>Due Date:</strong> @user.FormatDate(item.DueDate)<br>
+                                        @if(organisationName.Length > 0)
+                                        {
+                                            <strong>Organisation:</strong> @Html.Raw(organisationName)
+                                            <br>
+                                        }
+                                        @if (projectClient.Length > 0)
+                                        {
+                                            <strong>Client:</strong> @projectClient<br>
+                                        }
+                                        @if (projectBudget > 0.0m)
+                                        {
+                                            string danger = string.Empty;
+                                            if (Model.BudgetMap[item.Id] > projectBudget)
+                                            {
+                                                danger = "class=\"text-danger\"";
+                                            }
+
+                                            <span @Html.Raw(danger)><strong>Budget:</strong> @user.FormatBudget(Model.BudgetMap[item.Id], item.BudgetMonetaryUnit, item.BudgetType)<text>/</text>@user.FormatMaxBudget(projectBudget, item.BudgetMonetaryUnit, item.BudgetType)</span>
+                                            <br>
+                                        }
+                                    </h6>
                                     <p class="card-text m-1">@item.Description</p>
                                     <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">View</a>
                                     <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">Edit</button>
@@ -290,6 +397,23 @@
                                 organisationName = $"<a href=\"/?orgId={Model.OrganisationMap[item.Id].Id}\">{Model.OrganisationMap[item.Id].Name}</a>";
                             }
 
+                            string projectClient = string.Empty;
+                            if (!string.IsNullOrEmpty(item.Client))
+                            {
+                                projectClient = item.Client;
+                            }
+                            decimal projectBudget = 0m;
+                            if (item.Budget > 0m)
+                            {
+                                projectBudget = item.Budget;
+                            }
+
+                            decimal projectUsedBudget = 0m;
+                            if (Model.BudgetMap.ContainsKey(item.Id))
+                            {
+                                projectUsedBudget = Model.BudgetMap[item.Id];
+                            }
+
                             if (Model.ViewingOrganisation != null)
                             {
                                 organisationName = Model.ViewingOrganisation.Name;
@@ -301,19 +425,48 @@
                                 <input type="hidden" id="projectDesc" value="@item.Description" />
                                 <input type="hidden" id="projectDate" value="@item.DueDate?.ToUniversalTime()" />
                                 <input type="hidden" id="projectOrganisation" value="@item.OrganisationId" />
+                                <input type="hidden" id="projectClient" value="@item.Client" />
+                                <input type="hidden" id="projectBudget" value="@item.Budget" />
+                                <input type="hidden" id="projectBudgetType" value="@((int)item.BudgetType)" />
+                                <input type="hidden" id="projectBudgetUnit" value="@item.BudgetMonetaryUnit" />
+                                <input type="hidden" id="projectUsedBudget" value="@((int)projectUsedBudget)" />
                                 <div class="card p-1 mt-2" style="height:12rem;">
                                     <div>
                                         <h5 class="card-title m-1">@item.Name</h5>
-                                        <h6 class="card-subtitle m-1 mb-2 text-muted">@Html.Raw(string.Format(Model.Localisation.Get(user, "PROJECT_SUB_TITLE"), FormatDate(item.CreatedDate), FormatDate(item.DueDate), organisationName))</h6>
+                                        <h6 class="card-subtitle m-1 mb-2 text-muted">
+                                        <strong>Created Date:</strong> @user.FormatDate(item.CreatedDate)<br>
+                                        <strong>Due Date:</strong> @user.FormatDate(item.DueDate)<br>
+                                        @if(organisationName.Length > 0)
+                                        {
+                                            <strong>Organisation:</strong> @Html.Raw(organisationName)<br>
+                                        }
+                                        @if (projectClient.Length > 0)
+                                        {
+                                            <strong>Client:</strong> @projectClient<br>
+                                        }
+                                        @if (projectBudget > 0.0m)
+                                        {
+                                        }
+                                        @if (projectBudget > 0.0m)
+                                        {
+                                            string danger = string.Empty;
+                                            if (Model.BudgetMap[item.Id] > projectBudget)
+                                            {
+                                                danger = "class=\"text-danger\"";
+                                            }
+
+                                            <span @Html.Raw(danger)><strong>Budget:</strong> @user.FormatBudget(Model.BudgetMap[item.Id], item.BudgetMonetaryUnit, item.BudgetType)<text>/</text>@user.FormatMaxBudget(projectBudget, item.BudgetMonetaryUnit, item.BudgetType)</span>
+                                        }
+                                    </h6>
                                         <p class="card-text m-1">@item.Description</p>
-                                        <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">@Model.Localisation.Get(user, "VIEW_PROJECT")</a>
+                                        <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">View</a>
                                         @if (Model.CurrentOrganisationMembership != null && Model.CurrentOrganisationMembership.Role >= PlanSuite.Enums.ProjectRole.Admin)
                                         {
-                                            <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "EDIT_PROJECT")</button>
+                                            <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">Edit</button>
                                         }
                                         @if (Model.CurrentOrganisationMembership != null && Model.CurrentOrganisationMembership.Role >= PlanSuite.Enums.ProjectRole.Admin)
                                         {
-                                            <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" id="passDeleteButtonInfoBtn_@item.Id">@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
+                                            <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" id="passDeleteButtonInfoBtn_@item.Id">Delete</button>
                                         }
                                     </div>
                                 </div>

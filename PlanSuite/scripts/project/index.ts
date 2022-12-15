@@ -8,6 +8,8 @@ const localisation = new Localisation();
 var projectId: number;
 var columnCount: number;
 var userId: number;
+var budgetUnit;
+var budgetType;
 
 enum AddMemberResponse {
     Success = 0,
@@ -23,6 +25,8 @@ $(function () {
     projectId = $("#projectId").val() as number;
     columnCount = $("#columnCount").val() as number;
     userId = $("#userId").val() as number;
+    budgetUnit = $("#budgetUnitLabel");
+    budgetType = $("#budgetTypeLabel");
 
     $(".draggable").draggable({
         revert: "invalid"

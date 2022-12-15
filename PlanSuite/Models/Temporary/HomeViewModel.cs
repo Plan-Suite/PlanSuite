@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
 using System.ComponentModel.DataAnnotations;
 
@@ -17,6 +18,7 @@ namespace PlanSuite.Models.Temporary
         public OrganisationMembership CurrentOrganisationMembership { get; set; }
         public List<ItemList> Organisations { get; set; } = new List<ItemList>();
         public List<Card> DueTasks { get; set; } = new List<Card>();
+        public Dictionary<int, decimal> BudgetMap = new Dictionary<int, decimal>();
 
         public class CreateProjectModel
         {
@@ -25,6 +27,10 @@ namespace PlanSuite.Models.Temporary
             [BindProperty]
             public DateTime? DueDate { get; set; }
             public int OrganisationId { get; set; } = 0;
+            public string? Client { get; set; }
+            public decimal Budget { get; set; }
+            public ProjectBudgetType BudgetType { get; set; }
+            public string BudgetUnit { get; set; }
         }
 
         public class EditProjectModel
@@ -35,6 +41,10 @@ namespace PlanSuite.Models.Temporary
             [BindProperty]
             public DateTime? DueDate { get; set; }
             public int Organisation { get; set; }
+            public string? Client { get; set; }
+            public decimal Budget { get; set; }
+            public ProjectBudgetType BudgetType { get; set; }
+            public string BudgetUnit { get; set; }
         }
 
         public class DeleteProjectModel

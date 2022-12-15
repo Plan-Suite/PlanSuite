@@ -51,6 +51,7 @@ export class ProjectCommon {
         var radioValue = $("input[name='priority']:checked").val();
         var assigneeId = $("#assignee").val();
         var milestoneId = $("#milestone").val();
+        var budget = $("#viewCardBudgetInput").val();
 
         $.ajax({
             type: "POST",
@@ -60,7 +61,7 @@ export class ProjectCommon {
             beforeSend: function (request) {
                 request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
             },
-            data: JSON.stringify({ cardId: dbId, timestamp: dateEntered, priority: radioValue, assigneeId: assigneeId, milestoneId: milestoneId }),
+            data: JSON.stringify({ cardId: dbId, timestamp: dateEntered, priority: radioValue, assigneeId: assigneeId, milestoneId: milestoneId, budget: budget }),
             success: function (response) {
                 ProjectCommon.viewCardButton(dbId);
             },
@@ -316,6 +317,21 @@ export class ProjectCommon {
                     milestone = response.milestoneName;
                 }
 
+                var budget: string = "None";
+                if (response.budget > 0) {
+                    var budgetType = "";
+                    switch (response.budgetType)
+                    {
+                        case 2:
+                            budgetType = " hours";
+                            break;
+                        case 3:
+                            budgetType = " days";
+                            break;
+                    }
+                    budget = `${response.budgetUnit}${response.budget}${budgetType}`;
+                }
+
                 var checklistHolder = $("#checklistHolder");
                 if (response.cardChecklists.length > 0) {
                     checklistHolder.removeClass("d-none");
@@ -345,6 +361,7 @@ export class ProjectCommon {
                 $('#viewCardPriority').html(`<strong>${localisation.Get("VIEW_CARD_PRIORITY")}</strong> ${priority}`);
                 $('#viewCardAssignee').html(`<strong>${localisation.Get("VIEW_CARD_ASSIGNEE")}</strong> ${assignee}`);
                 $('#viewCardMilestone').html(`<strong>${localisation.Get("VIEW_CARD_MILESTONE")}</strong> ${milestone}`);
+                $('#viewCardBudget').html(`<strong>${localisation.Get("VIEW_CARD_BUDGET")}</strong> ${budget}`);
             },
         });
     }
