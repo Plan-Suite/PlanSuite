@@ -35,6 +35,14 @@ export class ProjectCommon {
         }
     }
 
+    static onEditCardCancelEdit() {
+        console.log("cancel edit");
+        var dbId = $('#viewCardId').val();
+        $("#editCardContentForm").addClass("d-none");
+        $("#viewCardContent").removeClass("d-none");
+        ProjectCommon.viewCardButton(dbId);
+    }
+
     static onEditCardSaveContent() {
         var dbId = $('#viewCardId').val();
         $("#editCardContentForm").addClass("d-none");

@@ -53,6 +53,7 @@ $(function () {
     $("#viewCardText").on("click", ProjectCommon.editDescription);
     $("#addChecklistBtn").on("click", ProjectCommon.onAddChecklist);
     $("#editCardSaveContentBtn").on("click", ProjectCommon.onEditCardSaveContent);
+    $("#editCardCancelEditBtn").on("click", ProjectCommon.onEditCardCancelEdit);
     $("#editCardBtn").on("click", ProjectCommon.onEditCard);
     $("#markCompleteBtn").on("click", ProjectCommon.onMarkComplete);
 

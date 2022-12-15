@@ -820,3 +820,7 @@ input.input-validation-error {
 .ps-board-task-pending {
     background-color: #FFF;
 }
+
+.column {
+    min-height: 100px;
+}

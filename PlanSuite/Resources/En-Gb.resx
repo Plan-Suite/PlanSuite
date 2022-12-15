@@ -273,7 +273,7 @@
   <data name="NO_PROJECTS" xml:space="preserve">
     <value>No Projects</value>
   </data>
-	<data name="NO_TASKS" xml:space="preserve">
+  <data name="NO_TASKS" xml:space="preserve">
     <value>No Tasks</value>
   </data>
   <data name="ORGANISATION_MEMBERS" xml:space="preserve">
@@ -303,7 +303,7 @@
   <data name="VIEW_CARD_ASSIGNEE" xml:space="preserve">
     <value>Assignee:</value>
   </data>
-	<data name="VIEW_CARD_START_DATE" xml:space="preserve">
+  <data name="VIEW_CARD_START_DATE" xml:space="preserve">
     <value>Start Date:</value>
   </data>
   <data name="VIEW_CARD_DUE_DATE" xml:space="preserve">
@@ -338,5 +338,14 @@
   </data>
   <data name="TRANSFER_TO_ORG" xml:space="preserve">
     <value>Transfer to organisation</value>
+  </data>
+  <data name="BUDGET" xml:space="preserve">
+    <value>Budget</value>
+  </data>
+  <data name="BUDGET_TYPE" xml:space="preserve">
+    <value>Budget Type</value>
+  </data>
+  <data name="VIEW_CARD_BUDGET" xml:space="preserve">
+    <value>Budget:</value>
   </data>
 </root>

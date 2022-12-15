@@ -60,6 +60,13 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<ApplicationUser>((options) => 
 {
+    options.Password.RequiredLength = 8;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireLowercase = true;
+
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(30);
+    options.Lockout.MaxFailedAccessAttempts = 3;
+
     options.SignIn.RequireConfirmedAccount = true;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireDigit = false;
