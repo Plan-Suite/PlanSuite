@@ -348,4 +348,40 @@
   <data name="VIEW_CARD_BUDGET" xml:space="preserve">
     <value>Budget:</value>
   </data>
+  <data name="COMPANY_EMAIL" xml:space="preserve">
+    <value>Company Email</value>
+  </data>
+  <data name="CONTACT_SALES_LABEL_1" xml:space="preserve">
+    <value>What would you like to discuss?</value>
+  </data>
+  <data name="CONTACT_SALES_LABEL_2" xml:space="preserve">
+    <value>Tell us about your team and project you would like to keep track of in Plan Suite.</value>
+  </data>
+  <data name="CONTACT_SALES_TITLE" xml:space="preserve">
+    <value>Contact our sales team</value>
+  </data>
+  <data name="FIRST_NAME" xml:space="preserve">
+    <value>First Name</value>
+  </data>
+  <data name="JOB_TITLE" xml:space="preserve">
+    <value>Job Title</value>
+  </data>
+  <data name="LAST_NAME" xml:space="preserve">
+    <value>Last Name</value>
+  </data>
+  <data name="PHONE_NO" xml:space="preserve">
+    <value>Phone Number</value>
+  </data>
+  <data name="SALES_HEADER" xml:space="preserve">
+    <value>Get in touch with our sales team</value>
+  </data>
+  <data name="SALES_MODAL_REQUIRED_INFO" xml:space="preserve">
+    <value>All forms marked with an asterix (*) are required.</value>
+  </data>
+  <data name="SALES_TEXT_1" xml:space="preserve">
+    <value>Wish to find out more information, to try one of our paid plans or have a simple question? Submit a query using the form below and a member of our sales team will follow up with you as soon as possible.</value>
+  </data>
+  <data name="SUBMIT" xml:space="preserve">
+    <value>Submit</value>
+  </data>
 </root>
