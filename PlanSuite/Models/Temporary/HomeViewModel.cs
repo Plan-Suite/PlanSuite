@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
-using System.ComponentModel.DataAnnotations;
 
 namespace PlanSuite.Models.Temporary
 {
@@ -9,16 +8,15 @@ namespace PlanSuite.Models.Temporary
     {
         public CreateProjectModel CreateProject { get; set; } = new CreateProjectModel();
         public CreateOrganisationModel CreateOrganisation { get; set; } = new CreateOrganisationModel();
-        public List<Project> OwnedProjects { get; set; } = new List<Project>();
+        public List<ProjectModel> OwnedProjects { get; set; } = new List<ProjectModel>();
         public Dictionary<int, Organisation> OrganisationMap { get; set; } = new Dictionary<int, Organisation>();
-        public List<Project> MemberProjects { get; set; } = new List<Project>();
+        public List<ProjectModel> MemberProjects { get; set; } = new List<ProjectModel>();
         public EditProjectModel EditProject { get; set; } = new EditProjectModel();
         public DeleteProjectModel DeleteProject { get; set; } = new DeleteProjectModel();
         public Organisation ViewingOrganisation { get; set; }
         public OrganisationMembership CurrentOrganisationMembership { get; set; }
         public List<ItemList> Organisations { get; set; } = new List<ItemList>();
         public List<Card> DueTasks { get; set; } = new List<Card>();
-        public Dictionary<int, decimal> BudgetMap = new Dictionary<int, decimal>();
 
         public class CreateProjectModel
         {
@@ -51,6 +49,22 @@ namespace PlanSuite.Models.Temporary
         {
             public int Id { get; set; }
             public string Name { get; set; }
+        }
+
+        public class ProjectModel
+        {
+            public int Id { get; set; }
+            public string Name { get; set; }
+            public string Description { get; set; }
+            public DateTime CreatedDate { get; set; }
+            public DateTime? DueDate { get; set; }
+            public string? Client { get; set; }
+            public decimal Budget { get; set; }
+            public int ProjectBudgetType { get; set; }
+            public string? BudgetMonetaryUnit { get; set; }
+            public decimal ProjectUsedBudget { get; set; }
+            public int OrganisationId { get; set; }
+            public string OrganisationName { get; set; }
         }
     }
 }

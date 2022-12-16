@@ -7,6 +7,7 @@
 @using System.Security.Claims
 @using PlanSuite.Utility
 @using PlanSuite.Enums
+@using static PlanSuite.Models.Temporary.HomeViewModel
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
 @model PlanSuite.Models.Temporary.HomeViewModel
@@ -24,7 +25,7 @@
 
     ApplicationUser user = await UserManager.GetUserAsync(User);
     OrganisationErrorCode orgStatusCode = (OrganisationErrorCode)UrlUtility.GetUrlRouteInt(Context.Request, "orgStatus");
-    List<Project> existingProjects = new List<Project>();
+    List<ProjectModel> existingProjects = new List<ProjectModel>();
 
     var budgetTypes = user.GetDropdownItemsFromEnum(new ProjectBudgetType());
     // TODO: find a better way to do this, preferably loop through existing enums
@@ -316,9 +317,9 @@
                         existingProjects.Add(item);
                         // get org name
                         string organisationName = string.Empty;
-                        if (Model.OrganisationMap.ContainsKey(item.Id))
+                        if (item.OrganisationId > 0 && !string.IsNullOrEmpty(item.OrganisationName))
                         {
-                            organisationName = $"<a href=\"/?orgId={Model.OrganisationMap[item.Id].Id}\">{Model.OrganisationMap[item.Id].Name}</a>";
+                            organisationName = $"<a href=\"/?orgId={item.OrganisationId}\">{item.OrganisationName}</a>";
                         }
                         string projectClient = string.Empty;
                         if(!string.IsNullOrEmpty(item.Client))
@@ -330,11 +331,6 @@
                         {
                             projectBudget = item.Budget;
                         }
-                        decimal projectUsedBudget = 0m;
-                        if (Model.BudgetMap.ContainsKey(item.Id))
-                        {
-                            projectUsedBudget = Model.BudgetMap[item.Id];
-                        }
 
                         <div class="col-sm-6" id="OwnedProject_@item.Id">
                             <input type="hidden" id="projectId" value="@item.Id" />
@@ -344,9 +340,9 @@
                             <input type="hidden" id="projectOrganisation" value="@item.OrganisationId" />
                             <input type="hidden" id="projectClient" value="@item.Client" />
                             <input type="hidden" id="projectBudget" value="@item.Budget" />
-                            <input type="hidden" id="projectBudgetType" value="@((int)item.BudgetType)" />
+                            <input type="hidden" id="projectBudgetType" value="@item.ProjectBudgetType" />
                             <input type="hidden" id="projectBudgetUnit" value="@item.BudgetMonetaryUnit" />
-                            <input type="hidden" id="projectUsedBudget" value="@((int)projectUsedBudget)" />
+                            <input type="hidden" id="projectUsedBudget" value="@item.ProjectUsedBudget" />
                             <div class="card p-1 mt-2" style="height:12rem;">
                                 <div>
                                     <h5 class="card-title m-1">@item.Name</h5>
@@ -362,15 +358,16 @@
                                         {
                                             <strong>Client:</strong> @projectClient<br>
                                         }
-                                        @if (projectBudget > 0.0m)
+                                        @if(item.Budget > 0.0m)
                                         {
                                             string danger = string.Empty;
-                                            if (Model.BudgetMap[item.Id] > projectBudget)
+                                            Console.WriteLine($"{item.ProjectUsedBudget} > {item.Budget}");
+                                            if (item.ProjectUsedBudget > item.Budget)
                                             {
                                                 danger = "class=\"text-danger\"";
                                             }
 
-                                            <span @Html.Raw(danger)><strong>Budget:</strong> @user.FormatBudget(Model.BudgetMap[item.Id], item.BudgetMonetaryUnit, item.BudgetType)<text>/</text>@user.FormatMaxBudget(projectBudget, item.BudgetMonetaryUnit, item.BudgetType)</span>
+                                            <span @Html.Raw(danger)><strong>Budget:</strong> @user.FormatBudget(item.ProjectUsedBudget, item.BudgetMonetaryUnit, (ProjectBudgetType)item.ProjectBudgetType)<text>/</text>@user.FormatMaxBudget(item.Budget, item.BudgetMonetaryUnit, (ProjectBudgetType)item.ProjectBudgetType)</span>
                                             <br>
                                         }
                                     </h6>
@@ -392,9 +389,9 @@
                             existingProjects.Add(item);
                             // get org name
                             string organisationName = "N/A";
-                            if (Model.OrganisationMap.ContainsKey(item.Id))
+                            if (item.OrganisationId > 0 && !string.IsNullOrEmpty(item.OrganisationName))
                             {
-                                organisationName = $"<a href=\"/?orgId={Model.OrganisationMap[item.Id].Id}\">{Model.OrganisationMap[item.Id].Name}</a>";
+                                organisationName = $"<a href=\"/?orgId={item.OrganisationId}\">{item.OrganisationName}</a>";
                             }
 
                             string projectClient = string.Empty;
@@ -406,12 +403,6 @@
                             if (item.Budget > 0m)
                             {
                                 projectBudget = item.Budget;
-                            }
-
-                            decimal projectUsedBudget = 0m;
-                            if (Model.BudgetMap.ContainsKey(item.Id))
-                            {
-                                projectUsedBudget = Model.BudgetMap[item.Id];
                             }
 
                             if (Model.ViewingOrganisation != null)
@@ -427,35 +418,32 @@
                                 <input type="hidden" id="projectOrganisation" value="@item.OrganisationId" />
                                 <input type="hidden" id="projectClient" value="@item.Client" />
                                 <input type="hidden" id="projectBudget" value="@item.Budget" />
-                                <input type="hidden" id="projectBudgetType" value="@((int)item.BudgetType)" />
+                                <input type="hidden" id="projectBudgetType" value="@item.(ProjectBudgetType)" />
                                 <input type="hidden" id="projectBudgetUnit" value="@item.BudgetMonetaryUnit" />
-                                <input type="hidden" id="projectUsedBudget" value="@((int)projectUsedBudget)" />
+                                <input type="hidden" id="projectUsedBudget" value="@item.ProjectUsedBudget" />
                                 <div class="card p-1 mt-2" style="height:12rem;">
                                     <div>
                                         <h5 class="card-title m-1">@item.Name</h5>
                                         <h6 class="card-subtitle m-1 mb-2 text-muted">
                                         <strong>Created Date:</strong> @user.FormatDate(item.CreatedDate)<br>
                                         <strong>Due Date:</strong> @user.FormatDate(item.DueDate)<br>
-                                        @if(organisationName.Length > 0)
+                                        @if(!string.IsNullOrEmpty(item.OrganisationName))
                                         {
-                                            <strong>Organisation:</strong> @Html.Raw(organisationName)<br>
+                                            <strong>Organisation:</strong> @Html.Raw(item.OrganisationName)<br>
                                         }
-                                        @if (projectClient.Length > 0)
+                                        @if(!string.IsNullOrEmpty(item.Client))
                                         {
-                                            <strong>Client:</strong> @projectClient<br>
+                                            <strong>Client:</strong> @item.Client<br>
                                         }
-                                        @if (projectBudget > 0.0m)
-                                        {
-                                        }
-                                        @if (projectBudget > 0.0m)
+                                        @if (item.Budget > 0.0m)
                                         {
                                             string danger = string.Empty;
-                                            if (Model.BudgetMap[item.Id] > projectBudget)
+                                            if (item.ProjectUsedBudget > item.Budget)
                                             {
                                                 danger = "class=\"text-danger\"";
                                             }
 
-                                            <span @Html.Raw(danger)><strong>Budget:</strong> @user.FormatBudget(Model.BudgetMap[item.Id], item.BudgetMonetaryUnit, item.BudgetType)<text>/</text>@user.FormatMaxBudget(projectBudget, item.BudgetMonetaryUnit, item.BudgetType)</span>
+                                            <span @Html.Raw(danger)><strong>Budget:</strong> @user.FormatBudget(item.Budget, item.BudgetMonetaryUnit, (ProjectBudgetType)item.ProjectBudgetType)<text>/</text>@user.FormatMaxBudget(item.Budget, item.BudgetMonetaryUnit, (ProjectBudgetType)item.ProjectBudgetType)</span>
                                         }
                                     </h6>
                                         <p class="card-text m-1">@item.Description</p>

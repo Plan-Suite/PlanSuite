@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using PlanSuite.Data;
 using PlanSuite.Enums;
@@ -47,7 +48,7 @@ namespace PlanSuite.Controllers
             if (_signInManager.IsSignedIn(User))
             {
                 viewModel.DueTasks = new List<Models.Persistent.Card>();
-                viewModel.OwnedProjects = new List<Project>();
+                viewModel.OwnedProjects = new List<HomeViewModel.ProjectModel>();
                 Guid userId = Guid.Parse(_userManager.GetUserId(User));
                 viewModel.CreateOrganisation.OwnerId = userId;
 
@@ -93,7 +94,25 @@ namespace PlanSuite.Controllers
                     var organisationProjects = m_Database.Projects.Where(p => p.OrganisationId == orgId).ToList();
                     if (organisationProjects != null && organisationProjects.Count > 0)
                     {
-                        viewModel.MemberProjects.AddRange(organisationProjects);
+                        foreach(var project in organisationProjects)
+                        {
+                            HomeViewModel.ProjectModel model = new HomeViewModel.ProjectModel
+                            {
+                                Id = project.Id,
+                                Name = project.Name,
+                                Description = project.Description,
+                                CreatedDate = project.CreatedDate,
+                                DueDate = project.DueDate,
+                                Client = project.Client,
+                                Budget = project.Budget,
+                                ProjectBudgetType = (int)project.BudgetType,
+                                BudgetMonetaryUnit = project.BudgetMonetaryUnit,
+                                ProjectUsedBudget = m_ProjectService.GetUsedBudget(project.Id),
+                                OrganisationId = organisation.Id,
+                                OrganisationName = organisation.Name
+                            };
+                            viewModel.MemberProjects.Add(model);
+                        }
                     }
                     m_Logger.LogInformation($"Added {organisationProjects.Count} projects to user {userId} viewModel");
 
@@ -110,7 +129,35 @@ namespace PlanSuite.Controllers
                 if (ownedProjects != null && ownedProjects.Count > 0)
                 {
                     m_Logger.LogInformation($"Grabbing {ownedProjects.Count} owned projects for user {userId}");
-                    viewModel.OwnedProjects.AddRange(ownedProjects);
+                    foreach (var project in ownedProjects)
+                    {
+                        Organisation organisation = null;
+                        if (project.OrganisationId > 0)
+                        {
+                            organisation = await m_Database.Organizations.Where(org => org.Id == project.OrganisationId).FirstOrDefaultAsync();
+                        }
+
+                        HomeViewModel.ProjectModel model = new HomeViewModel.ProjectModel
+                        {
+                            Id = project.Id,
+                            Name = project.Name,
+                            Description = project.Description,
+                            CreatedDate = project.CreatedDate,
+                            DueDate = project.DueDate,
+                            Client = project.Client,
+                            Budget = project.Budget,
+                            ProjectBudgetType = (int)project.BudgetType,
+                            BudgetMonetaryUnit = project.BudgetMonetaryUnit,
+                            ProjectUsedBudget = m_ProjectService.GetUsedBudget(project.Id)
+                        };
+
+                        if (organisation != null)
+                        {
+                            model.OrganisationId = organisation.Id;
+                            model.OrganisationName = organisation.Name;
+                        }
+                        viewModel.MemberProjects.Add(model);
+                    }
 
                     m_Logger.LogInformation($"Grabbing unowned due tasks for user {userId}");
                     foreach(var project in ownedProjects)
@@ -133,8 +180,6 @@ namespace PlanSuite.Controllers
                                 }
                             }
                         }
-
-                        AddBudgetIfExists(viewModel, project);
                     }
                 }
 
@@ -148,12 +193,33 @@ namespace PlanSuite.Controllers
                         var project = m_Database.Projects.Where(project => project.Id == access.ProjectId && access.ProjectRole >= ProjectRole.User).FirstOrDefault();
                         if (project != null)
                         {
-                            if (project.OrganisationId > 0)
+                            Organisation organisation = null;
+                            if(project.OrganisationId > 0)
                             {
-                                AddToOrganisationMap(viewModel, project);
+                                organisation = await m_Database.Organizations.Where(org => org.Id == project.OrganisationId).FirstOrDefaultAsync();
                             }
 
-                            viewModel.MemberProjects.Add(project);
+                            HomeViewModel.ProjectModel model = new HomeViewModel.ProjectModel
+                            {
+                                Id = project.Id,
+                                Name = project.Name,
+                                Description = project.Description,
+                                CreatedDate = project.CreatedDate,
+                                DueDate = project.DueDate,
+                                Client = project.Client,
+                                Budget = project.Budget,
+                                ProjectBudgetType = (int)project.BudgetType,
+                                BudgetMonetaryUnit = project.BudgetMonetaryUnit,
+                                ProjectUsedBudget = m_ProjectService.GetUsedBudget(project.Id)
+                            };
+
+                            if(organisation != null)
+                            {
+                                model.OrganisationId = organisation.Id;
+                                model.OrganisationName = organisation.Name;
+                            }
+
+                            viewModel.MemberProjects.Add(model);
 
                             m_Logger.LogInformation($"Grabbing due tasks for user {userId} for project {project.Id}");
                             var columns = m_Database.Columns.Where(c => c.ProjectId == project.Id).ToList();
@@ -174,8 +240,6 @@ namespace PlanSuite.Controllers
                                     }
                                 }
                             }
-
-                            AddBudgetIfExists(viewModel, project);
                         }
                     }
                 }
@@ -208,8 +272,6 @@ namespace PlanSuite.Controllers
                                 {
                                     foreach (var project in organisationProjects)
                                     {
-                                        AddToOrganisationMap(viewModel, project);
-
                                         m_Logger.LogInformation($"Grabbing organisation due tasks for user {userId} for organisation {organisation.Id} project {project.Id}");
                                         var columns = m_Database.Columns.Where(c => c.ProjectId == project.Id).ToList();
                                         if (columns != null && columns.Count > 0)
@@ -229,9 +291,25 @@ namespace PlanSuite.Controllers
                                                 }
                                             }
                                         }
-                                        AddBudgetIfExists(viewModel, project);
+
+                                        HomeViewModel.ProjectModel model = new HomeViewModel.ProjectModel
+                                        {
+                                            Id = project.Id,
+                                            Name = project.Name,
+                                            Description = project.Description,
+                                            CreatedDate = project.CreatedDate,
+                                            DueDate = project.DueDate,
+                                            Client = project.Client,
+                                            Budget = project.Budget,
+                                            ProjectBudgetType = (int)project.BudgetType,
+                                            BudgetMonetaryUnit = project.BudgetMonetaryUnit,
+                                            ProjectUsedBudget = m_ProjectService.GetUsedBudget(project.Id),
+                                            OrganisationId = organisation.Id,
+                                            OrganisationName = organisation.Name
+                                        };
+
+                                        viewModel.MemberProjects.Add(model);
                                     }
-                                    viewModel.MemberProjects.AddRange(organisationProjects);
                                 }
                             }
                         }
@@ -239,28 +317,6 @@ namespace PlanSuite.Controllers
                 }
             }
             return View(viewModel);
-        }
-
-        private void AddBudgetIfExists(HomeViewModel viewModel, Project project)
-        {
-            if(project != null)
-            {
-                decimal budget = m_ProjectService.GetUsedBudget(project.Id);
-                if (!viewModel.BudgetMap.ContainsKey(project.Id))
-                {
-                    viewModel.BudgetMap.Add(project.Id, budget);
-                }
-            }
-        }
-
-        private void AddToOrganisationMap(HomeViewModel viewModel, Project project)
-        {
-            var org = m_Database.Organizations.Where(o => o.Id == project.OrganisationId).FirstOrDefault();
-            if (org != null && !viewModel.OrganisationMap.ContainsKey(project.Id))
-            {
-                m_Logger.LogInformation($"AddToOrganisationMap for organisation {org.Id} to project {project.Id}");
-                viewModel.OrganisationMap.Add(project.Id, org);
-            }
         }
 
         public IActionResult Features()
@@ -378,7 +434,7 @@ namespace PlanSuite.Controllers
             {
                 project.Client = createProject.Client;
             }
-            if(createProject.Budget > 0.0m)
+            if(createProject.Budget > 0.0m && appUser.PaymentTier >= PaymentTier.Plus)
             {
                 project.Budget = createProject.Budget;
                 project.BudgetType = createProject.BudgetType;
@@ -399,7 +455,7 @@ namespace PlanSuite.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(HomeViewModel.EditProjectModel editProject)
+        public async Task<IActionResult> Edit(HomeViewModel.EditProjectModel editProject)
         {
             if (!_signInManager.IsSignedIn(User))
             {
@@ -410,13 +466,21 @@ namespace PlanSuite.Controllers
             var project = m_Database.Projects.FirstOrDefault(p => p.Id == editProject.Id);
             if(project == null)
             {
-                Console.WriteLine($"No project with id {editProject.Id} found");
+                m_Logger.LogError($"No project with id {editProject.Id} found");
                 return RedirectToAction(nameof(Index));
             }
 
-            if (project.OwnerId != Guid.Parse(_userManager.GetUserId(claimsPrincipal)))
+            string userId = _userManager.GetUserId(claimsPrincipal);
+            if (project.OwnerId != Guid.Parse(userId))
             {
-                Console.WriteLine($"WARNING: Account {_userManager.GetUserId(claimsPrincipal)} tried to modify {project.Id} without correct permissions");
+                m_Logger.LogError($"WARNING: Account {_userManager.GetUserId(claimsPrincipal)} tried to modify {project.Id} without correct permissions");
+                return RedirectToAction(nameof(Index));
+            }
+
+            var appUser = await _userManager.FindByIdAsync(userId);
+            if(appUser == null)
+            {
+                m_Logger.LogError($"WARNING: Account {_userManager.GetUserId(claimsPrincipal)} returned null");
                 return RedirectToAction(nameof(Index));
             }
 
@@ -426,7 +490,7 @@ namespace PlanSuite.Controllers
             project.DueDate = editProject.DueDate;
             project.OrganisationId = editProject.Organisation;
             project.Client = editProject.Client;
-            if (editProject.Budget > 0.0m)
+            if (editProject.Budget > 0.0m && appUser.PaymentTier >= PaymentTier.Plus)
             {
                 project.Budget = editProject.Budget;
                 project.BudgetType = editProject.BudgetType;
@@ -435,7 +499,7 @@ namespace PlanSuite.Controllers
                     project.BudgetMonetaryUnit = editProject.BudgetUnit;
                 }
             }
-            m_Database.SaveChanges();
+            await m_Database.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
