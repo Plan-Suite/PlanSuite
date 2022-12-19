@@ -4,7 +4,7 @@
 @model PlanSuite.Models.Temporary.ContactSalesViewModel
 @{
     ApplicationUser user = await UserManager.GetUserAsync(User);
-    ViewData["Title"] = @Model.Localisation.Get(user, "CONTACT_SALES_TITLE");
+    ViewData["Title"] = Model.Localisation.Get(user, "CONTACT_SALES_TITLE");
 }
 
 <style media="(max-width: 767px)">

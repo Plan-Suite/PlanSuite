@@ -332,7 +332,8 @@ namespace PlanSuite.Controllers
 
         public IActionResult Sales()
         {
-            return View();
+            var model = new ContactSalesViewModel();
+            return View(model);
         }
 
         public IActionResult SalesContacted()
