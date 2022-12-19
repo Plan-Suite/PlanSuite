@@ -14,11 +14,18 @@ namespace PlanSuite.Models.Temporary
             CultureInfo[] cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
             foreach(var culture in cultures)
             {
-                RegionInfo region = new RegionInfo(culture.LCID);
-                if(!Countries.Contains(region.EnglishName))
+                try
                 {
-                    Countries.Add(region.EnglishName);
-                    Console.WriteLine($"Added region {region.EnglishName}");
+                    RegionInfo region = new RegionInfo(culture.LCID);
+                    if(!Countries.Contains(region.EnglishName))
+                    {
+                        Countries.Add(region.EnglishName);
+                        Console.WriteLine($"Added region {region.EnglishName}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Exception during cultures loop in ContactSalesViewModel: {e.Message}\n{e.StackTrace}");
                 }
             }
         }
