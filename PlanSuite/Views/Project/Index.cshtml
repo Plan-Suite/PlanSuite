@@ -53,7 +53,7 @@
         {
             <text>N/A</text>
         }
-        @if (Model.Project.Budget > 0.0m)
+        @if (user.PaymentTier >= PaymentTier.Plus && Model.Project.Budget > 0.0m)
         {
             <br />
             <strong>Project Budget:</strong> @user.FormatBudget(Model.UsedBudget, Model.Project.BudgetMonetaryUnit, Model.Project.BudgetType)<text>/</text>@user.FormatMaxBudget(Model.Project.Budget, Model.Project.BudgetMonetaryUnit, Model.Project.BudgetType)

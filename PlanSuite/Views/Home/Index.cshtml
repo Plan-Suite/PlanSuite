@@ -438,12 +438,13 @@
                                         @if (item.Budget > 0.0m)
                                         {
                                             string danger = string.Empty;
+                                                Console.WriteLine($"{item.ProjectUsedBudget} > {item.Budget}");
                                             if (item.ProjectUsedBudget > item.Budget)
                                             {
                                                 danger = "class=\"text-danger\"";
                                             }
 
-                                            <span @Html.Raw(danger)><strong>Budget:</strong> @user.FormatBudget(item.Budget, item.BudgetMonetaryUnit, (ProjectBudgetType)item.ProjectBudgetType)<text>/</text>@user.FormatMaxBudget(item.Budget, item.BudgetMonetaryUnit, (ProjectBudgetType)item.ProjectBudgetType)</span>
+                                            <span @Html.Raw(danger)><strong>Budget:</strong> @user.FormatBudget(item.ProjectUsedBudget, item.BudgetMonetaryUnit, (ProjectBudgetType)item.ProjectBudgetType)<text>/</text>@user.FormatMaxBudget(item.Budget, item.BudgetMonetaryUnit, (ProjectBudgetType)item.ProjectBudgetType)</span>
                                         }
                                     </h6>
                                         <p class="card-text m-1">@item.Description</p>
