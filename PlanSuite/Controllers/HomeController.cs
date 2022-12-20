@@ -330,6 +330,7 @@ namespace PlanSuite.Controllers
             return View();
         }
 
+        [Route("contact-sales")]
         public IActionResult Sales()
         {
             var model = new ContactSalesViewModel();
