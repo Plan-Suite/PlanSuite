@@ -49,6 +49,8 @@ namespace PlanSuite.Models.Temporary
         public decimal Budget { get; set; }
         public string BudgetUnit { get; set; }
         public ProjectBudgetType BudgetType { get; set; }
+        public string ProjectName { get; set; }
+        public int ProjectId { get; set; }
     }
 
     public class AuditLogJsonModel

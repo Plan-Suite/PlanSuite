@@ -353,6 +353,11 @@ export class ProjectCommon {
                     logHolder.append(`<div class="ps-card-log"><strong>${log.username}</strong><br />${log.message}<br /><small class="text-muted">${log.created}</small></div>`);
                 });
 
+                var project: string;
+                var projectId: number;
+                project = response.projectName;
+                projectId = response.projectId;
+
                 $('#viewCardLabel').text(response.name);
                 $('#viewCardText').html(response.markdownContent);
                 $('#viewCardEditTextEditor').val(response.rawContent);
@@ -360,6 +365,7 @@ export class ProjectCommon {
                 $('#viewCardDueDate').html(`<strong>${localisation.Get("VIEW_CARD_DUE_DATE")}</strong> ${endDate}`);
                 $('#viewCardPriority').html(`<strong>${localisation.Get("VIEW_CARD_PRIORITY")}</strong> ${priority}`);
                 $('#viewCardAssignee').html(`<strong>${localisation.Get("VIEW_CARD_ASSIGNEE")}</strong> ${assignee}`);
+                $('#viewCardProject').html(`<strong>${localisation.Get("VIEW_CARD_PROJECT")}</strong> <a class="ps-link-primary" href="/projects/${projectId}">${project}</a>`);
                 $('#viewCardMilestone').html(`<strong>${localisation.Get("VIEW_CARD_MILESTONE")}</strong> ${milestone}`);
                 $('#viewCardBudget').html(`<strong>${localisation.Get("VIEW_CARD_BUDGET")}</strong> ${budget}`);
             },

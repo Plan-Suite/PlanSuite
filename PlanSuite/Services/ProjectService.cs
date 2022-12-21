@@ -272,7 +272,9 @@ namespace PlanSuite.Services
                     CreatedBy = createdBy,
                     Budget = budget,
                     BudgetType = budgetType,
-                    BudgetUnit = budgetUnit
+                    BudgetUnit = budgetUnit,
+                    ProjectName = project.Name,
+                    ProjectId = project.Id
                 };
                 Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(json));
                 return json;

@@ -384,4 +384,7 @@
   <data name="SUBMIT" xml:space="preserve">
     <value>Submit</value>
   </data>
+  <data name="VIEW_CARD_PROJECT" xml:space="preserve">
+    <value>Project:</value>
+  </data>
 </root>
