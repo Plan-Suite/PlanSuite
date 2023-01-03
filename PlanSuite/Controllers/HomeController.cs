@@ -451,7 +451,7 @@ namespace PlanSuite.Controllers
             await m_AuditService.InsertLogAsync(AuditLogCategory.Project, appUser, AuditLogType.Created, project.Id);
             await m_Database.SaveChangesAsync();
 
-            Console.WriteLine($"Account {_userManager.GetUserId(claimsPrincipal)} successfully created {project.Id}");
+            m_Logger.LogInformation($"Account {_userManager.GetUserId(claimsPrincipal)} successfully created {project.Id}");
 
             return RedirectToAction(nameof(ProjectController.Index), "Project", new { id = project.Id });
         }
@@ -486,7 +486,7 @@ namespace PlanSuite.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            Console.WriteLine($"Account {_userManager.GetUserId(claimsPrincipal)} successfully modified {project.Id}");
+            m_Logger.LogInformation($"Account {_userManager.GetUserId(claimsPrincipal)} successfully modified {project.Id}");
             project.Name = editProject.Name;
             project.Description = editProject.Description;
             project.DueDate = editProject.DueDate;
@@ -528,7 +528,7 @@ namespace PlanSuite.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            Console.WriteLine($"Account {_userManager.GetUserId(claimsPrincipal)} successfully deleted {project.Id}");
+            m_Logger.LogInformation($"Account {_userManager.GetUserId(claimsPrincipal)} successfully deleted {project.Id}");
             m_Database.Projects.Remove(project);
             m_Database.SaveChanges();
 

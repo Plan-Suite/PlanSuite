@@ -18,18 +18,21 @@ namespace PlanSuite.Services
         private readonly SignInManager<ApplicationUser> m_SignInManager;
         private readonly RoleManager<IdentityRole> m_RoleManager;
         private readonly IEmailSender m_EmailSender;
+        private readonly ILogger<AdminService> m_Logger;
 
-        public AdminService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IEmailSender emailSender)
+        public AdminService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IEmailSender emailSender, ILogger<AdminService> logger)
         {
             m_Database = dbContext;
             m_UserManager = userManager;
             m_SignInManager = signInManager;
             m_RoleManager = roleManager;
             m_EmailSender = emailSender;
+            m_Logger = logger;
         }
 
         public async Task<GetUsersModel> GetUser(string? username, string? email)
         {
+            m_Logger.LogInformation($"AdminService.GetUser: {username}, {email}");
             var appUsers = m_Database.Users.Where(user => 
             user.UserName == username 
             || (username != null && user.UserName.StartsWith(username))
@@ -63,6 +66,7 @@ namespace PlanSuite.Services
 
         public async Task<bool> GiveAdmin(GiveAdminModel model)
         {
+            m_Logger.LogInformation($"AdminService.GiveAdmin: {model.Id}");
             var user = await m_UserManager.FindByIdAsync(model.Id);
             if (user == null)
             {
@@ -113,6 +117,7 @@ namespace PlanSuite.Services
 
         public async Task<bool> SetRole(SetRoleModel model)
         {
+            m_Logger.LogInformation($"AdminService.SetRole: {model.Id}, {model.Role}");
             var user = await m_UserManager.FindByIdAsync(model.Id);
             if (user == null)
             {
@@ -143,6 +148,7 @@ namespace PlanSuite.Services
 
         public async Task<bool> SendPasswordReset(SendPasswordResetModel model)
         {
+            m_Logger.LogInformation($"AdminService.SendPasswordReset: {model.Id}");
             var user = await m_UserManager.FindByIdAsync(model.Id);
             if (user == null)
             {
@@ -159,18 +165,19 @@ namespace PlanSuite.Services
 
         public async Task<bool> ModifyUser(SaveUserModel model)
         {
+            m_Logger.LogInformation($"AdminService.ModifyUser: {model.Id}, New email: {model.NewEmail}, new name: {model.NewName}");
             var user = await m_UserManager.FindByIdAsync(model.Id);
             if (user != null)
             {
                 if(!string.IsNullOrEmpty(model.NewName))
                 {
-                    Console.WriteLine($"{user.FullName}: Modified username to {model.NewName}");
+                    m_Logger.LogInformation($"{user.FullName}: Modified username to {model.NewName}");
                     await m_UserManager.SetUserNameAsync(user, model.NewName);
                     await m_UserManager.UpdateNormalizedUserNameAsync(user);
                 }
                 if (!string.IsNullOrEmpty(model.NewEmail))
                 {
-                    Console.WriteLine($"{user.FullName}: Modified email to {model.NewName}");
+                    m_Logger.LogInformation($"{user.FullName}: Modified email to {model.NewName}");
                     await m_UserManager.SetEmailAsync(user, model.NewEmail);
                     var token = await m_UserManager.GenerateEmailConfirmationTokenAsync(user);
                     await m_UserManager.ConfirmEmailAsync(user, token);

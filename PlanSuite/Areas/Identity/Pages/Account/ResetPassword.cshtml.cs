@@ -20,11 +20,13 @@ namespace PlanSuite.Areas.Identity.Pages.Account
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext m_Database;
+        private readonly ILogger<ResetPasswordModel> m_Logger;
 
-        public ResetPasswordModel(UserManager<ApplicationUser> userManager, ApplicationDbContext database)
+        public ResetPasswordModel(UserManager<ApplicationUser> userManager, ApplicationDbContext database, ILogger<ResetPasswordModel> logger)
         {
             _userManager = userManager;
             m_Database = database;
+            m_Logger = logger;
         }
 
         /// <summary>
@@ -79,6 +81,7 @@ namespace PlanSuite.Areas.Identity.Pages.Account
         {
             if (code == null)
             {
+                m_Logger.LogError("ResetPassword: Code was null.");
                 return BadRequest("A code must be supplied for password reset.");
             }
             else
@@ -86,12 +89,14 @@ namespace PlanSuite.Areas.Identity.Pages.Account
                 var request = m_Database.PasswordResetRequests.Where(r => r.Code.Equals(code)).FirstOrDefault();
                 if(request == null || request.Expiry < DateTime.Now)
                 {
+                    m_Logger.LogError("ResetPassword: Request was null, or request had expired.");
                     return BadRequest("An invalid or expired password reset code was provided.");
                 }
 
                 var user = await _userManager.FindByIdAsync(request.AccountId.ToString());
                 if (user == null)
                 {
+                    m_Logger.LogError("ResetPassword: Invalid user.");
                     return BadRequest("Invalid user for request.");
                 }
 
@@ -109,28 +114,28 @@ namespace PlanSuite.Areas.Identity.Pages.Account
         {
             if (!ModelState.IsValid)
             {
-                Console.WriteLine("ModelState.IsValid false during OnPostAsync in ResetPassword");
+                m_Logger.LogError("ModelState.IsValid false during OnPostAsync in ResetPassword");
                 return Page();
             }
 
             var user = await _userManager.FindByEmailAsync(Input.Email);
             if (user == null)
             {
-                Console.WriteLine("User did not exist when attempting to reset password");
+                m_Logger.LogError("User did not exist when attempting to reset password");
                 // Don't reveal that the user does not exist
                 return RedirectToPage("./ResetPasswordConfirmation");
             }
 
-            Console.WriteLine($"ResetPasswordAsync called for {user.FullName}");
+            m_Logger.LogInformation($"ResetPasswordAsync called for {user.FullName}");
             var result = await _userManager.ResetPasswordAsync(user, Input.Code, Input.Password);
             if (result.Succeeded)
             {
-                Console.WriteLine($"ResetPasswordAsync success for {user.FullName}");
+                m_Logger.LogInformation($"ResetPasswordAsync success for {user.FullName}");
 
                 var request = m_Database.PasswordResetRequests.Where(r => r.Code.Equals(Input.Code, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
                 if (request != null)
                 {
-                    Console.WriteLine($"Removing password reset request {request.Id} on use");
+                    m_Logger.LogInformation($"Removing password reset request {request.Id} on use");
                     m_Database.Remove(request);
                     await m_Database.SaveChangesAsync();
                 }
@@ -138,7 +143,7 @@ namespace PlanSuite.Areas.Identity.Pages.Account
                 return RedirectToPage("./ResetPasswordConfirmation");
             }
 
-            Console.WriteLine($"ResetPasswordAsync FAILED for {user.FullName}");
+            m_Logger.LogError($"ResetPasswordAsync FAILED for {user.FullName}");
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);
