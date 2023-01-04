@@ -33,7 +33,7 @@ then
     echo "-> Applying new database changes"
     cd ~/build/PlanSuite/PlanSuite
     cp ~/build/appsettings.json ~/build/PlanSuite/PlanSuite/appsettings.json
-    dotnet ef migrations bundle --self-contained -r linux-x64
+    dotnet ef migrations bundle --self-contained -r linux-x64 --configuration Bundle
     ~/build/PlanSuite/PlanSuite/efbundle
 
     echo "-> Applying correct permissions"
