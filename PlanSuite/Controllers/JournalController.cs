@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PlanSuite.Data;
+using PlanSuite.Interfaces;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
@@ -17,8 +18,9 @@ namespace PlanSuite.Controllers
         private readonly LocalisationService m_Localisation;
         private readonly AuditService m_AuditService;
         private readonly IWebHostEnvironment m_Environment;
+        private readonly IPathService m_PathService;
 
-        public JournalController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AuditService auditService, IWebHostEnvironment environment)
+        public JournalController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AuditService auditService, IWebHostEnvironment environment, IPathService pathService)
         {
             m_Database = context;
             m_Logger = logger;
@@ -27,6 +29,7 @@ namespace PlanSuite.Controllers
             m_Localisation = LocalisationService.Instance;
             m_AuditService = auditService;
             m_Environment = environment;
+            m_PathService = pathService;
         }
 
         [Route("journal/list")]
@@ -133,11 +136,7 @@ namespace PlanSuite.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadImage(IFormFile file)
         {
-            string uploadsFolder = Path.Combine(m_Environment.WebRootPath, "uploaded_images");
-            if(!Directory.Exists(uploadsFolder))
-            {
-                Directory.CreateDirectory(uploadsFolder);
-            }
+            string uploadsFolder = m_PathService.GetWebRootPath("uploaded_images");
 
             m_Logger.LogInformation($"Attempting UploadImage {file.FileName} to {uploadsFolder}...");
             var fileName = string.Empty;
@@ -160,7 +159,7 @@ namespace PlanSuite.Controllers
         [HttpPost]
         public IActionResult DeleteImage(string file)
         {
-            string uploadsFolder = Path.Combine(m_Environment.WebRootPath, "uploaded_images");
+            string uploadsFolder = m_PathService.GetWebRootPath("uploaded_images");
             string fileItself = Path.GetFileName(file);
             string filePath = Path.Combine(uploadsFolder, fileItself);
 

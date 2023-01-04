@@ -11,6 +11,7 @@ using PlanSuite.Utility;
 using System.Security.Claims;
 using NLog;
 using NLog.Web;
+using PlanSuite.Interfaces;
 
 var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
 logger.Debug("Init main");
@@ -27,6 +28,7 @@ try
     builder.Services.AddScoped<OrganisationService>();
     builder.Services.AddScoped<AuditService>();
     builder.Services.AddScoped<TaskService>();
+    builder.Services.AddScoped<IPathService, PathService>();
 
     var configuration = System.Environment.GetEnvironmentVariables();
     builder.Services.AddTransient<IEmailSender, EmailService>();
