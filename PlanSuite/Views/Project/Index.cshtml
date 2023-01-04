@@ -10,6 +10,7 @@
     ViewData["Title"] = Model.Project.Name;
     ApplicationUser user = await UserManager.GetUserAsync(User);
     ProjectIndexView indexView = (ProjectIndexView)UrlUtility.GetUrlRouteInt(Context.Request, "view");
+    Model.MarkComplete.ProjectId = Model.Project.Id;
 }
 
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
@@ -34,6 +35,10 @@
     <hr />
     <div class="ps-alert ps-alert-success d-none" id="addUserSuccess" role="alert">Sucessfully added new user to project.</div>
     <div class="ps-alert ps-alert-danger d-none" id="addUserFail" role="alert">Failed to add user to project.</div>
+    @if(Model.Project.ProjectCompleted == true)
+    {
+        <div class="ps-alert ps-alert-warning text-center" role="alert">This project has been marked as complete.</div>
+    }
     <h4 class="text-muted">@Model.Project.Description</h4>
     <p class="text-muted"><strong>Project Created:</strong> @Model.Project.CreatedDate<br /><strong>Project Due Date:</strong>
         @if(Model.Project.DueDate != null)
@@ -119,17 +124,23 @@
     @* Project Navbar *@
     <div class="col col-sm-10">
         <button type="button" class="btn m-1 ps-btn-success float-start" data-bs-toggle="modal" data-bs-target="#addColumnModal" id="addColumnBtn"><i class="bi bi-layout-three-columns"></i> Add Column</button>
-        @*@if(indexView == ProjectIndexView.Cards)
-        {
-            <a asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Gantt)" class="btn m-1 ps-btn-secondary"><i class="bi bi-calendar-range"></i> Gantt Chart</a>
-        }
-        else
-        {
-            <a asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Cards)" class="btn m-1 ps-btn-secondary"><i class="bi bi-kanban"></i> Card View</a>
-        }*@
         @if(Model.PaymentTier >= PaymentTier.Plus)
         {
             <button type="button" class="btn m-1 ps-btn-secondary" data-bs-toggle="modal" data-bs-target="#milestonesModal" id="listMilestonesBtn"><i class="bi bi-signpost"></i> Milestones</button>
+        }
+        @if(Model.ProjectRole >= PlanSuite.Enums.ProjectRole.Admin)
+        {
+            <form style="display: inline;" method="post" asp-controller="Project" asp-action="MarkComplete">
+                @Html.HiddenFor(model => Model.MarkComplete.ProjectId)
+                @if(Model.Project.ProjectCompleted)
+                {
+                    <button type="submit" class="btn m-1 ps-btn-secondary"><i class="bi bi-door-open"></i> Mark Active</button>
+                }
+                else
+                {
+                    <button type="submit" class="btn m-1 ps-btn-secondary"><i class="bi bi-door-closed"></i> Mark Complete</button>
+                }
+            </form>
         }
         <div class="btn-group" role="group">
             <button id="btnGroupDrop1" type="button" class="btn m-1 ps-btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i> More</button>

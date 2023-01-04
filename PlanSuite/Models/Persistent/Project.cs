@@ -44,6 +44,9 @@ namespace PlanSuite.Models.Persistent
         [Column("budget_monetary_unit")]
         public string? BudgetMonetaryUnit { get; set; }
 
+        [Column("project_completed")]
+        public bool ProjectCompleted { get; set; }
+
         /*[Column("approved")]
         public ApprovalType Approved { get; set; }
 

@@ -27,6 +27,7 @@ namespace PlanSuite.Models.Temporary
         public Dictionary<Guid, string> OrganisationMembers { get; set; } = new Dictionary<Guid, string>();
         public AddMemberModel AddMember { get; set; } = new AddMemberModel();
         public decimal UsedBudget { get; set; }
+        public MarkCompleteModel MarkComplete = new MarkCompleteModel();
 
         public class AddMemberModel
         {

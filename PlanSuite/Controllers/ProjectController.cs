@@ -381,5 +381,17 @@ namespace PlanSuite.Controllers
 
             return RedirectToAction(nameof(Index), "Project", new { id = deleteMilestone.ProjectId });
         }
+
+        [HttpPost("MarkComplete")]
+        public async Task<IActionResult> MarkCompleteAsync(MarkCompleteModel markComplete)
+        {
+            if (!_signInManager.IsSignedIn(User))
+            {
+                return RedirectToAction(nameof(Index), "Home");
+            }
+
+            await m_ProjectService.MarkCompleteAsync(markComplete, User);
+            return RedirectToAction(nameof(Index), "Project", new { id = markComplete.ProjectId });
+        }
     }
 }

@@ -20,7 +20,8 @@
     {
         ViewData["Title"] = "Project management for everyone";
     }
-    int projectCount = Model.OwnedProjects.Count + Model.MemberProjects.Count;
+    int projectCount = Model.OwnedProjects.Where(p => p.ProjectComplete == false).ToList().Count + Model.MemberProjects.Where(p => p.ProjectComplete == false).ToList().Count;
+    int completeProjectCount = Model.OwnedProjects.Where(p => p.ProjectComplete == true).ToList().Count + Model.MemberProjects.Where(p => p.ProjectComplete == true).ToList().Count;
     int taskCount = Model.DueTasks.Count;
 
     ApplicationUser user = await UserManager.GetUserAsync(User);
@@ -305,7 +306,7 @@
             <p>@Model.Localisation.Get(user, "NO_TASKS")</p>
         }
 
-        <h3 class="ps-page-title"><i class="bi bi-clipboard"></i> Recent Projects</h3>
+        <h3 class="ps-page-title"><i class="bi bi-clipboard"></i> Active Projects</h3>
         <hr>
         @if (projectCount > 0)
         {
@@ -314,6 +315,11 @@
                 {
                     foreach (var item in Model.OwnedProjects)
                     {
+                        if(item.ProjectComplete == true)
+                        {
+                            continue;
+                        }
+
                         existingProjects.Add(item);
                         // get org name
                         string organisationName = string.Empty;
@@ -384,6 +390,11 @@
                 {
                     foreach (var item in Model.MemberProjects)
                     {
+                        if(item.ProjectComplete == true)
+                        {
+                            continue;
+                        }
+
                         if (!existingProjects.Contains(item))
                         {
                             existingProjects.Add(item);
@@ -468,6 +479,178 @@
         else
         {
             <p>@Model.Localisation.Get(user, "NO_PROJECTS")</p>
+        }
+        
+        @if (completeProjectCount > 0)
+        {
+            <br/>
+            <h3 class="ps-page-title"><i class="bi bi-clipboard"></i> Completed Projects</h3>
+            <hr>
+            <div class="row text-center" id="MyProjects">
+                @if (Model.OwnedProjects.Count > 0)
+                {
+                    foreach (var item in Model.OwnedProjects)
+                    {
+                        if(item.ProjectComplete == false)
+                        {
+                            continue;
+                        }
+
+                        existingProjects.Add(item);
+                        // get org name
+                        string organisationName = string.Empty;
+                        if (item.OrganisationId > 0 && !string.IsNullOrEmpty(item.OrganisationName))
+                        {
+                            organisationName = $"<a href=\"/?orgId={item.OrganisationId}\">{item.OrganisationName}</a>";
+                        }
+                        string projectClient = string.Empty;
+                        if(!string.IsNullOrEmpty(item.Client))
+                        {
+                            projectClient = item.Client;
+                        }
+                        decimal projectBudget = 0m;
+                        if(item.Budget > 0m)
+                        {
+                            projectBudget = item.Budget;
+                        }
+
+                        <div class="col-sm-6" id="OwnedProject_@item.Id">
+                            <input type="hidden" id="projectId" value="@item.Id" />
+                            <input type="hidden" id="projectName" value="@item.Name" />
+                            <input type="hidden" id="projectDesc" value="@item.Description" />
+                            <input type="hidden" id="projectDate" value="@item.DueDate?.ToUniversalTime()" />
+                            <input type="hidden" id="projectOrganisation" value="@item.OrganisationId" />
+                            <input type="hidden" id="projectClient" value="@item.Client" />
+                            <input type="hidden" id="projectBudget" value="@item.Budget" />
+                            <input type="hidden" id="projectBudgetType" value="@item.ProjectBudgetType" />
+                            <input type="hidden" id="projectBudgetUnit" value="@item.BudgetMonetaryUnit" />
+                            <input type="hidden" id="projectUsedBudget" value="@item.ProjectUsedBudget" />
+                            <div class="card p-1 mt-2" style="height:12rem;">
+                                <div>
+                                    <h5 class="card-title m-1">@item.Name</h5>
+                                    <h6 class="card-subtitle m-1 mb-2 text-muted">
+                                        <strong>Created Date:</strong> @user.FormatDate(item.CreatedDate)<br>
+                                        <strong>Due Date:</strong> @user.FormatDate(item.DueDate)<br>
+                                        @if(organisationName.Length > 0)
+                                        {
+                                            <strong>Organisation:</strong> @Html.Raw(organisationName)
+                                            <br>
+                                        }
+                                        @if (projectClient.Length > 0)
+                                        {
+                                            <strong>Client:</strong> @projectClient<br>
+                                        }
+                                        @if(item.Budget > 0.0m)
+                                        {
+                                            string danger = string.Empty;
+                                            Console.WriteLine($"{item.ProjectUsedBudget} > {item.Budget}");
+                                            if (item.ProjectUsedBudget > item.Budget)
+                                            {
+                                                danger = "class=\"text-danger\"";
+                                            }
+
+                                            <span @Html.Raw(danger)><strong>Budget:</strong> @user.FormatBudget(item.ProjectUsedBudget, item.BudgetMonetaryUnit, (ProjectBudgetType)item.ProjectBudgetType)<text>/</text>@user.FormatMaxBudget(item.Budget, item.BudgetMonetaryUnit, (ProjectBudgetType)item.ProjectBudgetType)</span>
+                                            <br>
+                                        }
+                                    </h6>
+                                    <p class="card-text m-1">@item.Description</p>
+                                    <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">View</a>
+                                    <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">Edit</button>
+                                    <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" id="passDeleteButtonInfoBtn_@item.Id">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                @if (Model.MemberProjects.Count > 0)
+                {
+                    foreach (var item in Model.MemberProjects)
+                    {
+                        if(item.ProjectComplete == false)
+                        {
+                            continue;
+                        }
+
+                        if (!existingProjects.Contains(item))
+                        {
+                            existingProjects.Add(item);
+                            // get org name
+                            string organisationName = "N/A";
+                            if (item.OrganisationId > 0 && !string.IsNullOrEmpty(item.OrganisationName))
+                            {
+                                organisationName = $"<a href=\"/?orgId={item.OrganisationId}\">{item.OrganisationName}</a>";
+                            }
+
+                            string projectClient = string.Empty;
+                            if (!string.IsNullOrEmpty(item.Client))
+                            {
+                                projectClient = item.Client;
+                            }
+                            decimal projectBudget = 0m;
+                            if (item.Budget > 0m)
+                            {
+                                projectBudget = item.Budget;
+                            }
+
+                            if (Model.ViewingOrganisation != null)
+                            {
+                                organisationName = Model.ViewingOrganisation.Name;
+                            }
+
+                            <div class="col-sm-6" id="MemberProject_@item.Id">
+                                <input type="hidden" id="projectId" value="@item.Id" />
+                                <input type="hidden" id="projectName" value="@item.Name" />
+                                <input type="hidden" id="projectDesc" value="@item.Description" />
+                                <input type="hidden" id="projectDate" value="@item.DueDate?.ToUniversalTime()" />
+                                <input type="hidden" id="projectOrganisation" value="@item.OrganisationId" />
+                                <input type="hidden" id="projectClient" value="@item.Client" />
+                                <input type="hidden" id="projectBudget" value="@item.Budget" />
+                                <input type="hidden" id="projectBudgetType" value="@item.(ProjectBudgetType)" />
+                                <input type="hidden" id="projectBudgetUnit" value="@item.BudgetMonetaryUnit" />
+                                <input type="hidden" id="projectUsedBudget" value="@item.ProjectUsedBudget" />
+                                <div class="card p-1 mt-2" style="height:12rem;">
+                                    <div>
+                                        <h5 class="card-title m-1">@item.Name</h5>
+                                        <h6 class="card-subtitle m-1 mb-2 text-muted">
+                                        <strong>Created Date:</strong> @user.FormatDate(item.CreatedDate)<br>
+                                        <strong>Due Date:</strong> @user.FormatDate(item.DueDate)<br>
+                                        @if(!string.IsNullOrEmpty(item.OrganisationName))
+                                        {
+                                            <strong>Organisation:</strong> @Html.Raw(item.OrganisationName)<br>
+                                        }
+                                        @if(!string.IsNullOrEmpty(item.Client))
+                                        {
+                                            <strong>Client:</strong> @item.Client<br>
+                                        }
+                                        @if (item.Budget > 0.0m)
+                                        {
+                                            string danger = string.Empty;
+                                                Console.WriteLine($"{item.ProjectUsedBudget} > {item.Budget}");
+                                            if (item.ProjectUsedBudget > item.Budget)
+                                            {
+                                                danger = "class=\"text-danger\"";
+                                            }
+
+                                            <span @Html.Raw(danger)><strong>Budget:</strong> @user.FormatBudget(item.ProjectUsedBudget, item.BudgetMonetaryUnit, (ProjectBudgetType)item.ProjectBudgetType)<text>/</text>@user.FormatMaxBudget(item.Budget, item.BudgetMonetaryUnit, (ProjectBudgetType)item.ProjectBudgetType)</span>
+                                        }
+                                    </h6>
+                                        <p class="card-text m-1">@item.Description</p>
+                                        <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">View</a>
+                                        @if (Model.CurrentOrganisationMembership != null && Model.CurrentOrganisationMembership.Role >= PlanSuite.Enums.ProjectRole.Admin)
+                                        {
+                                            <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">Edit</button>
+                                        }
+                                        @if (Model.CurrentOrganisationMembership != null && Model.CurrentOrganisationMembership.Role >= PlanSuite.Enums.ProjectRole.Admin)
+                                        {
+                                            <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" id="passDeleteButtonInfoBtn_@item.Id">Delete</button>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                }
+            </div>
         }
     </div>
     @if (user != null && user.PaymentTier >= PaymentTier.Plus)

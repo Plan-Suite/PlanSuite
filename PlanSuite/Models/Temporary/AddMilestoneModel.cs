@@ -57,4 +57,9 @@ namespace PlanSuite.Models.Temporary
     {
         public List<ProjectMilestone> Milestones { get; set; }
     }
+
+    public class MarkCompleteModel
+    {
+        public int ProjectId { get; set; }
+    }
 }

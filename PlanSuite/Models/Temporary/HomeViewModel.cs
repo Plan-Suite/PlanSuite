@@ -9,8 +9,8 @@ namespace PlanSuite.Models.Temporary
         public CreateProjectModel CreateProject { get; set; } = new CreateProjectModel();
         public CreateOrganisationModel CreateOrganisation { get; set; } = new CreateOrganisationModel();
         public List<ProjectModel> OwnedProjects { get; set; } = new List<ProjectModel>();
-        public Dictionary<int, Organisation> OrganisationMap { get; set; } = new Dictionary<int, Organisation>();
         public List<ProjectModel> MemberProjects { get; set; } = new List<ProjectModel>();
+        public Dictionary<int, Organisation> OrganisationMap { get; set; } = new Dictionary<int, Organisation>();
         public EditProjectModel EditProject { get; set; } = new EditProjectModel();
         public DeleteProjectModel DeleteProject { get; set; } = new DeleteProjectModel();
         public Organisation ViewingOrganisation { get; set; }
@@ -65,6 +65,7 @@ namespace PlanSuite.Models.Temporary
             public decimal ProjectUsedBudget { get; set; }
             public int OrganisationId { get; set; }
             public string OrganisationName { get; set; }
+            public bool ProjectComplete { get; set; }
         }
     }
 }

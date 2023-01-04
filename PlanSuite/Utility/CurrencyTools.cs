@@ -22,7 +22,6 @@ namespace PlanSuite.Utility
             List<string> currencyList = new List<string>();
             foreach(var currency in m_CurrencySymbols)
             {
-                Console.WriteLine($"getting {currency}");
                 currencyList.Add(currency);
             }
             return currencyList;

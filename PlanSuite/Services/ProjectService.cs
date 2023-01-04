@@ -6,9 +6,6 @@ using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Utility;
-using System.ComponentModel.DataAnnotations;
-using System.Globalization;
-using System.Linq;
 using System.Security.Claims;
 
 namespace PlanSuite.Services
@@ -19,13 +16,15 @@ namespace PlanSuite.Services
         private readonly UserManager<ApplicationUser> m_UserManager;
         private readonly AuditService m_AuditService;
         private readonly IEmailSender m_EmailSender;
+        private readonly ILogger<ProjectService> m_Logger;
 
-        public ProjectService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, AuditService auditService, IEmailSender emailSender)
+        public ProjectService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, AuditService auditService, IEmailSender emailSender, ILogger<ProjectService> logger)
         {
             m_Database = dbContext;
             m_UserManager = userManager;
             m_AuditService = auditService;
             m_EmailSender = emailSender;
+            m_Logger = logger;
         }
 
         public PaymentTier GetProjectTier(int projectId)
@@ -905,40 +904,29 @@ namespace PlanSuite.Services
             await m_AuditService.InsertLogAsync(AuditLogCategory.Card, user, AuditLogType.Added, card.Id);
         }
 
-        /*public GetCardsModel GetCards(int projectId)
+        public async Task<bool> MarkCompleteAsync(MarkCompleteModel model, ClaimsPrincipal user)
         {
-            GetCardsModel model = new GetCardsModel();
-            var project = m_Database.Projects.Where(project => project.Id == projectId).FirstOrDefault();
+            // Grab checklist item from database
+            var project = m_Database.Projects.Where(item => item.Id == model.ProjectId).FirstOrDefault();
             if (project == null)
             {
-                return model;
+                return false;
             }
 
-            model.Cards = new List<GetCardModelCardJson>();
-            foreach (var column in m_Database.Columns.Where(col => col.ProjectId == projectId).ToList())
+            bool complete = !project.ProjectCompleted;
+            m_Logger.LogInformation($"Marking project {model.ProjectId} as complete: {complete}");
+            project.ProjectCompleted = complete;
+            await m_Database.SaveChangesAsync();
+
+            if(complete)
             {
-                foreach(var card in m_Database.Cards.Where(card => card.ColumnId == column.Id).ToList())
-                {
-                    GetCardModelCardJson json = new GetCardModelCardJson();
-                    json.Id = card.Id;
-
-                    json.Name = card.CardName;
-
-                    DateTime actualStart = (DateTime)card.CardStartDate;
-                    json.StartDate = actualStart;//.ToString("u").Replace(' ', 'T');
-
-                    if(card.CardDueDate == null)
-                    {
-                        card.CardDueDate = (DateTime)card.CardStartDate.GetValueOrDefault().AddDays(7);
-                    }
-
-                    DateTime actualEnd = (DateTime)card.CardDueDate;
-                    json.DueDate = actualEnd;//.ToString("dd MMM yyyy HH:mm:ss");
-
-                    model.Cards.Add(json);
-                }
+                await m_AuditService.InsertLogAsync(AuditLogCategory.Project, user, AuditLogType.Closed, project.Id);
             }
-            return model;
-        }*/
+            else
+            {
+                await m_AuditService.InsertLogAsync(AuditLogCategory.Project, user, AuditLogType.Opened, project.Id);
+            }
+            return complete;
+        }
     }
 }

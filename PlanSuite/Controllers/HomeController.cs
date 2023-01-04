@@ -109,7 +109,8 @@ namespace PlanSuite.Controllers
                                 BudgetMonetaryUnit = project.BudgetMonetaryUnit,
                                 ProjectUsedBudget = m_ProjectService.GetUsedBudget(project.Id),
                                 OrganisationId = organisation.Id,
-                                OrganisationName = organisation.Name
+                                OrganisationName = organisation.Name,
+                                ProjectComplete = project.ProjectCompleted
                             };
                             viewModel.MemberProjects.Add(model);
                         }
@@ -148,7 +149,8 @@ namespace PlanSuite.Controllers
                             Budget = project.Budget,
                             ProjectBudgetType = (int)project.BudgetType,
                             BudgetMonetaryUnit = project.BudgetMonetaryUnit,
-                            ProjectUsedBudget = m_ProjectService.GetUsedBudget(project.Id)
+                            ProjectUsedBudget = m_ProjectService.GetUsedBudget(project.Id),
+                            ProjectComplete = project.ProjectCompleted
                         };
 
                         if (organisation != null)
@@ -156,7 +158,7 @@ namespace PlanSuite.Controllers
                             model.OrganisationId = organisation.Id;
                             model.OrganisationName = organisation.Name;
                         }
-                        viewModel.MemberProjects.Add(model);
+                        viewModel.OwnedProjects.Add(model);
                     }
 
                     m_Logger.LogInformation($"Grabbing unowned due tasks for user {userId}");
@@ -210,7 +212,8 @@ namespace PlanSuite.Controllers
                                 Budget = project.Budget,
                                 ProjectBudgetType = (int)project.BudgetType,
                                 BudgetMonetaryUnit = project.BudgetMonetaryUnit,
-                                ProjectUsedBudget = m_ProjectService.GetUsedBudget(project.Id)
+                                ProjectUsedBudget = m_ProjectService.GetUsedBudget(project.Id),
+                                ProjectComplete = project.ProjectCompleted
                             };
 
                             if(organisation != null)
@@ -305,7 +308,8 @@ namespace PlanSuite.Controllers
                                             BudgetMonetaryUnit = project.BudgetMonetaryUnit,
                                             ProjectUsedBudget = m_ProjectService.GetUsedBudget(project.Id),
                                             OrganisationId = organisation.Id,
-                                            OrganisationName = organisation.Name
+                                            OrganisationName = organisation.Name,
+                                            ProjectComplete = project.ProjectCompleted
                                         };
 
                                         viewModel.MemberProjects.Add(model);

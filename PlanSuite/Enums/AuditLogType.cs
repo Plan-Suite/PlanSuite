@@ -32,6 +32,7 @@
         RemovedMember,
         AddedMilestone,
         AddedChecklist,
-        Closed
+        Closed,
+        Opened
     }
 }
