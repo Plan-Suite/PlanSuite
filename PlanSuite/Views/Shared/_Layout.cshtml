@@ -86,7 +86,10 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark navagation-bar">
             <div class="container-fluid">
-                @if(!Context.Request.Path.StartsWithSegments("/Identity/Account/ConfirmEmail", StringComparison.InvariantCultureIgnoreCase))
+                @if(!Context.Request.Path.StartsWithSegments("/Identity/Account/ConfirmEmail", StringComparison.InvariantCultureIgnoreCase)
+                && !Context.Request.Path.StartsWithSegments("/finish-registration", StringComparison.InvariantCultureIgnoreCase)
+                && !Context.Request.Path.StartsWithSegments("/create-organisation", StringComparison.InvariantCultureIgnoreCase)
+                && !Context.Request.Path.StartsWithSegments("/welcome", StringComparison.InvariantCultureIgnoreCase))
                 {
                     <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">@ApplicationInfo.APP_NAME</a>
                     @if (user == null)

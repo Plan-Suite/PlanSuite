@@ -1,0 +1,35 @@
+﻿@using PlanSuite.Enums
+@model PlanSuite.Models.Temporary.CreateOrganisationRegistrationModel
+@{
+
+}
+
+<div class="container register-div">
+    <div class="ps-alert ps-alert-error d-none" id="error"></div>
+    @using (Html.BeginForm("CreateOrganisationRegistration", "Join", FormMethod.Post))
+    {
+        @Html.ValidationMessageFor(model => model.Input, "", new { @class="text-danger" })
+        <input type="hidden" asp-for="Input.UserId" value="@Model.UserId" />
+        <h1 class="register-header text-center">Let's get you up and running!</h1>
+        <p class="register-subheading-2">Tell us more information about your organisation.</p>
+        <p class="register-subheading-3">What is your organisations name?</p>
+        <div class="mb-3">
+            @Html.EditorFor(model => model.Input.OrganisationName, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Input.OrganisationName, "", new { @class = "text-danger" })
+        </div>
+        <button type="button" id="nextToPart2" class="btn ps-btn-primary">Continue</button>
+        <p class="register-subheading-3">What is your primary industry?</p>
+        <div class="mb-3">
+            <select class="form-select" asp-for="Input.Industry" asp-items="Html.GetEnumSelectList<Industry>()">
+                <option selected>Select industry...</option>
+            </select>
+            @Html.ValidationMessageFor(model => model.Input.Industry, "", new { @class = "text-danger" })
+        </div>
+        <p class="register-subheading-3">Give us a small brief about your organisation?</p>
+        <div class="mb-3">
+            @Html.TextAreaFor(model => model.Input.Description, 3, 3, new { @class = "form-control" })
+            @Html.ValidationMessageFor(model => model.Input.Description, "", new { @class = "text-danger" })
+        </div>
+        <button type="submit" id="continueBtn" class="btn ps-btn-primary">Finish</button>
+    }
+</div>

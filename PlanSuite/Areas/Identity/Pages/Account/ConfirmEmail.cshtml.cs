@@ -86,7 +86,7 @@ namespace PlanSuite.Areas.Identity.Pages.Account
 
             if (user.EmailConfirmed == true)
             {
-                return Redirect("/Join/FinishRegistration");
+                return RedirectToAction("FinishRegistration", "Join");
             }
 
             user.RegistrationDate = DateTime.Now;
@@ -109,7 +109,7 @@ namespace PlanSuite.Areas.Identity.Pages.Account
             }
             await m_SignInManager.SignInAsync(user, isPersistent: false);
             AppUser = user;
-            return Redirect("/Join/FinishRegistration");
+            return RedirectToAction("FinishRegistration", "Join");
         }
     }
 }

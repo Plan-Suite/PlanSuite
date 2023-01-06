@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using static PlanSuite.Models.Temporary.FinishRegistrationModel;
 
 namespace PlanSuite.Models.Temporary
 {
@@ -29,6 +30,28 @@ namespace PlanSuite.Models.Temporary
             [DataType(DataType.Password)]
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
+        }
+    }
+
+    public class CreateOrganisationRegistrationModel
+    {
+        public Guid UserId { get; set; }
+        public CreateOrganisationRegistrationInputModel Input { get; set; } = new CreateOrganisationRegistrationInputModel();
+
+        public class CreateOrganisationRegistrationInputModel
+        {
+            public Guid UserId { get; set; }
+
+            [DisplayName("Organisation Name")]
+            [DataType(DataType.Text)]
+            public string OrganisationName { get; set; }
+
+            [DisplayName("Organisation Description")]
+            [DataType(DataType.Text)]
+            public string Description { get; set; }
+
+            [DisplayName("Industry")]
+            public int Industry { get; set; }
         }
     }
 }

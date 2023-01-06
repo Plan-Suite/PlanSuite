@@ -31,7 +31,7 @@ namespace PlanSuite.Services
                 return OrganisationErrorCode.OwnerWasNull;
             }
 
-            PaymentTier paymentTier = owner.PaymentTier;
+            /*PaymentTier paymentTier = owner.PaymentTier;
             if(paymentTier == PaymentTier.Free)
             {
                 m_Logger.LogError($"Cannot create organisation as {owner.FullName} is only free tier.");
@@ -44,14 +44,14 @@ namespace PlanSuite.Services
             {
                 m_Logger.LogError($"Cannot create organisation as {owner.FullName} is only plus tier and already owns an organisation.");
                 return OrganisationErrorCode.IsPlusTier;
-            }
+            }*/
 
             m_Logger.LogInformation($"Creating organisation {model.Name}");
             Organisation organisation = new Organisation
             {
                 Name = model.Name,
                 Description = model.Description,
-                Tier = paymentTier
+                Tier = owner.PaymentTier
             };
             await m_Database.Organizations.AddAsync(organisation);
             await m_Database.SaveChangesAsync();

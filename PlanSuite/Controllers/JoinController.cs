@@ -9,6 +9,7 @@ using PlanSuite.Services;
 using PlanSuite.Utility;
 using Stripe;
 using Stripe.Checkout;
+using static PlanSuite.Models.Temporary.CreateOrganisationRegistrationModel;
 
 namespace PlanSuite.Controllers
 {
@@ -21,8 +22,9 @@ namespace PlanSuite.Controllers
         private readonly IUserStore<ApplicationUser> m_UserStore;
         private readonly IUserEmailStore<ApplicationUser> m_EmailStore;
         private readonly ProjectService m_ProjectService;
+        private readonly OrganisationService m_OrganisationService;
 
-        public JoinController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ApplicationDbContext database, ILogger<JoinController> logger, IUserStore<ApplicationUser> userStore, ProjectService projectService)
+        public JoinController(UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, ApplicationDbContext database, ILogger<JoinController> logger, IUserStore<ApplicationUser> userStore, ProjectService projectService, OrganisationService organisationService)
         {
             m_UserManager = userManager;
             m_SignInManager = signInManager;
@@ -31,6 +33,7 @@ namespace PlanSuite.Controllers
             m_UserStore = userStore;
             m_EmailStore = GetEmailStore();
             m_ProjectService = projectService;
+            m_OrganisationService = organisationService;
         }
 
         [Route("welcome")]
@@ -277,6 +280,7 @@ namespace PlanSuite.Controllers
             user.LastName = input.LastName;
             await m_UserManager.UpdateAsync(user);
 
+            // If the user was invited, then we add them to an organisation and/or invited project, else we redirect them to a create organisation page.
             var invite = m_Database.Invitations.Where(invite => invite.Accepted == true && invite.Email.ToUpper() == user.NormalizedEmail).FirstOrDefault();
             if(invite != null)
             {
@@ -294,16 +298,38 @@ namespace PlanSuite.Controllers
                 }
                 m_Database.Invitations.Remove(invite);
                 await m_Database.SaveChangesAsync();
+                return RedirectToAction(nameof(Welcome));
             }
-            return RedirectToAction(nameof(Welcome));
+            return RedirectToAction(nameof(CreateOrganisation));
         }
 
+        [Route("create-organisation")]
+        public async Task<IActionResult> CreateOrganisation()
+        {
+            ApplicationUser user = await m_UserManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return BadRequest("User was null during registration (CreateOrganisation)");
+            }
+
+            CreateOrganisationRegistrationModel viewModel = new CreateOrganisationRegistrationModel();
+            viewModel.UserId = Guid.Parse(user.Id);
+
+            return View(viewModel);
+        }
+
+        [Route("finish-registration")]
         public async Task<IActionResult> FinishRegistration()
         {
             ApplicationUser user = await m_UserManager.GetUserAsync(User);
             if (user == null)
             {
                 return BadRequest("User was null during registration");
+            }
+
+            if (!string.IsNullOrEmpty(user.FirstName))
+            {
+                return RedirectToAction("Index", "Home");
             }
 
             FinishRegistrationModel viewModel = new FinishRegistrationModel();
@@ -317,7 +343,7 @@ namespace PlanSuite.Controllers
         {
             if (string.IsNullOrEmpty(user.FirstName))
             {
-                controllerBase.Redirect("/Join/FinishRegistration");
+                controllerBase.RedirectToAction("FinishRegistration", "Join");
             }
         }
 
@@ -356,7 +382,7 @@ namespace PlanSuite.Controllers
 
             await m_SignInManager.SignInAsync(user, isPersistent: false);
 
-            return Redirect("/Join/FinishRegistration");
+            return RedirectToAction("FinishRegistration", "Join");
         }
 
         private ApplicationUser CreateUser()
@@ -378,6 +404,31 @@ namespace PlanSuite.Controllers
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
             return (IUserEmailStore<ApplicationUser>)m_UserStore;
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateOrganisationRegistration([FromForm] CreateOrganisationRegistrationInputModel createOrganisationRegistrationInput)
+        {
+            if (!m_SignInManager.IsSignedIn(User))
+            {
+                // Redirect the user to the sign in page.
+                return Redirect("/Identity/Account/Login");
+            }
+
+            ApplicationUser user = await m_UserManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return BadRequest("User was null during registration");
+            }
+
+            CreateOrganisationModel model = new CreateOrganisationModel();
+            model.OwnerId = Guid.Parse(user.Id);
+            model.Name = createOrganisationRegistrationInput.OrganisationName;
+            model.Description = createOrganisationRegistrationInput.Description;
+            await m_OrganisationService.OnCreateOrganisation(model);
+
+            return RedirectToAction("Index", "Home");
         }
     }
 }

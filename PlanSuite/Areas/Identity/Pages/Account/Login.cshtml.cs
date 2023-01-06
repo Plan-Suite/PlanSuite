@@ -140,7 +140,7 @@ namespace PlanSuite.Areas.Identity.Pages.Account
 
                     if(string.IsNullOrEmpty(user.FirstName))
                     {
-                        return Redirect("/Join/FinishRegistration");
+                        return RedirectToAction("FinishRegistration", "Join");
                     }
 
                     return LocalRedirect(returnUrl);
