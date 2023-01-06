@@ -21,8 +21,8 @@ namespace PlanSuite.Controllers
     {
         private readonly ApplicationDbContext m_Database;
         private readonly ILogger<HomeController> m_Logger;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly SignInManager<ApplicationUser> m_SignInManager;
+        private readonly UserManager<ApplicationUser> m_UserManager;
         private readonly LocalisationService m_Localisation;
         private readonly AuditService m_AuditService;
         private readonly IEmailSender m_EmailSender;
@@ -32,8 +32,8 @@ namespace PlanSuite.Controllers
         {
             m_Database = context;
             m_Logger = logger;
-            _userManager = userManager;
-            _signInManager = signInManager;
+            m_UserManager = userManager;
+            m_SignInManager = signInManager;
             m_Localisation = LocalisationService.Instance;
             m_AuditService = auditService;
             m_EmailSender = emailSender;
@@ -45,19 +45,19 @@ namespace PlanSuite.Controllers
             CommonCookies.ApplyCommonCookies(HttpContext);
 
             HomeViewModel viewModel = new HomeViewModel();
-            if (_signInManager.IsSignedIn(User))
+            if (m_SignInManager.IsSignedIn(User))
             {
                 viewModel.DueTasks = new List<Models.Persistent.Card>();
                 viewModel.OwnedProjects = new List<HomeViewModel.ProjectModel>();
-                Guid userId = Guid.Parse(_userManager.GetUserId(User));
+                Guid userId = Guid.Parse(m_UserManager.GetUserId(User));
                 viewModel.CreateOrganisation.OwnerId = userId;
 
-                var user = await _userManager.FindByIdAsync(userId.ToString());
+                var user = await m_UserManager.FindByIdAsync(userId.ToString());
                 if(user != null)
                 {
                     JoinController.DoFinishedRegistrationChecks(this, user);
                     user.LastVisited = DateTime.Now;
-                    await _userManager.UpdateAsync(user);
+                    await m_UserManager.UpdateAsync(user);
                 }
 
                 if (orgId >= 1)
@@ -406,7 +406,7 @@ namespace PlanSuite.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(HomeViewModel.CreateProjectModel createProject)
         {
-            if (!_signInManager.IsSignedIn(User))
+            if (!m_SignInManager.IsSignedIn(User))
             {
                 return RedirectToAction(nameof(Index));
             }
@@ -423,7 +423,7 @@ namespace PlanSuite.Controllers
                 createProject.Description = createProject.Name;
             }
 
-            var appUser = await _userManager.GetUserAsync(User);
+            var appUser = await m_UserManager.GetUserAsync(User);
             if(appUser == null)
             {
                 return BadRequest();
@@ -434,7 +434,7 @@ namespace PlanSuite.Controllers
             project.Description = createProject.Description;
             project.CreatedDate = DateTime.Now;
             project.DueDate = createProject.DueDate;
-            project.OwnerId = Guid.Parse(_userManager.GetUserId(claimsPrincipal));
+            project.OwnerId = Guid.Parse(m_UserManager.GetUserId(claimsPrincipal));
             project.OrganisationId = createProject.OrganisationId;
             if(!string.IsNullOrEmpty(createProject.Client))
             {
@@ -455,7 +455,7 @@ namespace PlanSuite.Controllers
             await m_AuditService.InsertLogAsync(AuditLogCategory.Project, appUser, AuditLogType.Created, project.Id);
             await m_Database.SaveChangesAsync();
 
-            m_Logger.LogInformation($"Account {_userManager.GetUserId(claimsPrincipal)} successfully created {project.Id}");
+            m_Logger.LogInformation($"Account {m_UserManager.GetUserId(claimsPrincipal)} successfully created {project.Id}");
 
             return RedirectToAction(nameof(ProjectController.Index), "Project", new { id = project.Id });
         }
@@ -463,7 +463,7 @@ namespace PlanSuite.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(HomeViewModel.EditProjectModel editProject)
         {
-            if (!_signInManager.IsSignedIn(User))
+            if (!m_SignInManager.IsSignedIn(User))
             {
                 return RedirectToAction(nameof(Index));
             }
@@ -476,21 +476,21 @@ namespace PlanSuite.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            string userId = _userManager.GetUserId(claimsPrincipal);
+            string userId = m_UserManager.GetUserId(claimsPrincipal);
             if (project.OwnerId != Guid.Parse(userId))
             {
-                m_Logger.LogError($"WARNING: Account {_userManager.GetUserId(claimsPrincipal)} tried to modify {project.Id} without correct permissions");
+                m_Logger.LogError($"WARNING: Account {m_UserManager.GetUserId(claimsPrincipal)} tried to modify {project.Id} without correct permissions");
                 return RedirectToAction(nameof(Index));
             }
 
-            var appUser = await _userManager.FindByIdAsync(userId);
+            var appUser = await m_UserManager.FindByIdAsync(userId);
             if(appUser == null)
             {
-                m_Logger.LogError($"WARNING: Account {_userManager.GetUserId(claimsPrincipal)} returned null");
+                m_Logger.LogError($"WARNING: Account {m_UserManager.GetUserId(claimsPrincipal)} returned null");
                 return RedirectToAction(nameof(Index));
             }
 
-            m_Logger.LogInformation($"Account {_userManager.GetUserId(claimsPrincipal)} successfully modified {project.Id}");
+            m_Logger.LogInformation($"Account {m_UserManager.GetUserId(claimsPrincipal)} successfully modified {project.Id}");
             project.Name = editProject.Name;
             project.Description = editProject.Description;
             project.DueDate = editProject.DueDate;
@@ -513,7 +513,7 @@ namespace PlanSuite.Controllers
         [HttpPost]
         public IActionResult Delete(HomeViewModel.DeleteProjectModel deleteProject)
         {
-            if (!_signInManager.IsSignedIn(User))
+            if (!m_SignInManager.IsSignedIn(User))
             {
                 return RedirectToAction(nameof(Index));
             }
@@ -526,13 +526,13 @@ namespace PlanSuite.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            if(project.OwnerId != Guid.Parse(_userManager.GetUserId(claimsPrincipal)))
+            if(project.OwnerId != Guid.Parse(m_UserManager.GetUserId(claimsPrincipal)))
             {
-                Console.WriteLine($"WARNING: Account {_userManager.GetUserId(claimsPrincipal)} tried to delete {project.Id} without correct permissions");
+                Console.WriteLine($"WARNING: Account {m_UserManager.GetUserId(claimsPrincipal)} tried to delete {project.Id} without correct permissions");
                 return RedirectToAction(nameof(Index));
             }
 
-            m_Logger.LogInformation($"Account {_userManager.GetUserId(claimsPrincipal)} successfully deleted {project.Id}");
+            m_Logger.LogInformation($"Account {m_UserManager.GetUserId(claimsPrincipal)} successfully deleted {project.Id}");
             m_Database.Projects.Remove(project);
             m_Database.SaveChanges();
 
@@ -562,9 +562,56 @@ namespace PlanSuite.Controllers
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error(ErrorCode errorCode = ErrorCode.Unknown)
+        [Route("/error/{code:int}")]
+        public async Task<IActionResult> Error(int code)
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, ErrorCode = errorCode });
+            ApplicationUser? user = await m_UserManager.GetUserAsync(User);
+
+            ErrorCode errorCode;
+            string errorMessage;
+            string errorImage = "/img";
+            string errorImageAlt;
+
+            switch (code)
+            {
+                case 401:
+                    errorCode = ErrorCode.Unauthorised;
+                    errorMessage = m_Localisation.Get(user, "ERROR_UNAUTHORISED");
+                    errorImage += "/lock.png";
+                    errorImageAlt = "Padlock";
+                    break;
+                case 404:
+                    errorCode = ErrorCode.PageNotFound;
+                    errorMessage = m_Localisation.Get(user, "ERROR_PAGE_NOT_FOUND");
+                    errorImage += "/pagenotfound.png";
+                    errorImageAlt = "Sad face inside magnifying glass";
+                    break;
+                case 500:
+                    errorCode = ErrorCode.ServerError;
+                    errorMessage = m_Localisation.Get(user, "ERROR_SERVER_ERROR");
+                    errorImage += "/servererror.png";
+                    errorImageAlt = "Cloud with exclamation";
+                    break;
+                case 502:
+                    errorCode = ErrorCode.BadGateway;
+                    errorMessage = m_Localisation.Get(user, "ERROR_BAD_GATEWAY");
+                    errorImage += "/badgateway.png";
+                    errorImageAlt = "Globe connected to computer with error between";
+                    break;
+                default:
+                    errorCode = ErrorCode.Unknown;
+                    errorMessage = m_Localisation.Get(user, "ERROR_UNKNOWN");
+                    errorImage += "/error.png";
+                    errorImageAlt = "Exclamation inside triangle";
+                    break;
+            }
+
+            if(user != null)
+            {
+                m_Logger.LogError($"Shown error page for {user.FullName} ({user.Email}) [{DateTime.Now.ToLongTimeString()}]: #{code}: {errorCode}");
+
+            }
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier, ErrorCode = errorCode, ErrorMessage = errorMessage, Code = code, Image = errorImage, ImageAlt = errorImageAlt });
         }
 
         public IActionResult AuthError()
@@ -576,13 +623,13 @@ namespace PlanSuite.Controllers
         [HttpPost]
         public async Task<IActionResult> BillingPortal()
         {
-            if (!_signInManager.IsSignedIn(User))
+            if (!m_SignInManager.IsSignedIn(User))
             {
                 m_Logger.LogWarning("User was not signed in during BillingPortal");
                 return RedirectToAction(nameof(Index));
             }
 
-            var user = await _userManager.GetUserAsync(User);
+            var user = await m_UserManager.GetUserAsync(User);
             if (user == null)
             {
                 m_Logger.LogError("User was null during BillingPortal");
@@ -598,7 +645,7 @@ namespace PlanSuite.Controllers
                 Console.WriteLine(customer.ToJson());
 
                 user.StripeCustomerId = customer.Id;
-                await _userManager.UpdateAsync(user);
+                await m_UserManager.UpdateAsync(user);
             }
             else
             {
@@ -610,7 +657,7 @@ namespace PlanSuite.Controllers
                     Console.WriteLine(customer.ToJson());
 
                     user.StripeCustomerId = customer.Id;
-                    await _userManager.UpdateAsync(user);
+                    await m_UserManager.UpdateAsync(user);
                 }
             }
 

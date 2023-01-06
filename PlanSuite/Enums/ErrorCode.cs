@@ -3,6 +3,10 @@
     public enum ErrorCode
     {
         Unknown,
-        AuthenticationRequestDenied
-    };
+        AuthenticationRequestDenied,
+        PageNotFound,
+        Unauthorised,
+        ServerError,
+        BadGateway
+    }
 }

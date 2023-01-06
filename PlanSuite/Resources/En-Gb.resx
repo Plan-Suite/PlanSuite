@@ -387,4 +387,19 @@
   <data name="VIEW_CARD_PROJECT" xml:space="preserve">
     <value>Project:</value>
   </data>
+  <data name="ERROR_BAD_GATEWAY" xml:space="preserve">
+    <value>Something went wrong between one of ours or a third party server while processing your request.</value>
+  </data>
+  <data name="ERROR_PAGE_NOT_FOUND" xml:space="preserve">
+    <value>The page you have tried to access does not exist, or has been moved.</value>
+  </data>
+  <data name="ERROR_SERVER_ERROR" xml:space="preserve">
+    <value>The page returned a server error whilst processing your request. Our tech geeks have already been informed!</value>
+  </data>
+  <data name="ERROR_UNAUTHORISED" xml:space="preserve">
+    <value>You have tried to access an area that you do not have the right permissions to access.</value>
+  </data>
+  <data name="ERROR_UNKNOWN" xml:space="preserve">
+    <value>Something went wrong, and we arent too sure what went wrong. Rest assured our tech geeks have already been informed!</value>
+  </data>
 </root>

@@ -3,15 +3,13 @@
     ViewData["Title"] = "Error";
 }
 
-<h1 class="text-center">Error</h1>
-<h2 class="text-center">An error occurred while processing your request.</h2>
-
-@if (Model.ShowRequestId)
-{
-    <div class="text-center">
-        <p>
-            <strong>Request ID:</strong> <code>@Model.RequestId</code><br>
-            <strong>Error Code:</strong> <code>@Model.ErrorCode</code>
-        </p>
-    </div>
-}
+<div class="container mb-5 mt-5">
+    <div class="text-center"><img src="@Model.Image" alt="@Model.ImageAlt" class="ps-img-center ps-img-small mb-5"/></div>
+    <h1 class="text-center">@ViewData["Title"].ToString().ToUpper() - @Model.Code</h1>
+    <p class="text-muted text-center">@Model.ErrorMessage</p>
+    @if (Model.ShowRequestId)
+    {
+        <p class="text-muted text-center"><strong>Request ID:</strong> @Model.RequestId</p>
+        <p class="text-muted text-center"><strong>Error Code:</strong> @Model.ErrorCode</p>
+    }
+</div>

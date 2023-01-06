@@ -12,9 +12,9 @@ using System.Security.Claims;
 using NLog;
 using NLog.Web;
 using PlanSuite.Interfaces;
+using Microsoft.AspNetCore.Builder;
 
 var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurrentClassLogger();
-logger.Debug("Init main");
 
 try
 {
@@ -124,6 +124,7 @@ try
         pattern: "{controller=Home}/{action=Index}/{id?}");
 
     app.MapRazorPages();
+    app.UseStatusCodePagesWithReExecute("/error/{0}");
 
     using (var scope = app.Services.CreateScope())
     {
