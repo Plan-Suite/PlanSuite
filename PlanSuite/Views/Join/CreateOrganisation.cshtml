@@ -1,7 +1,7 @@
 ﻿@using PlanSuite.Enums
 @model PlanSuite.Models.Temporary.CreateOrganisationRegistrationModel
 @{
-
+    ViewData["Title"] = "Create Organisation";
 }
 
 <div class="container register-div">
@@ -17,7 +17,6 @@
             @Html.EditorFor(model => model.Input.OrganisationName, new { htmlAttributes = new { @class = "form-control" } })
             @Html.ValidationMessageFor(model => model.Input.OrganisationName, "", new { @class = "text-danger" })
         </div>
-        <button type="button" id="nextToPart2" class="btn ps-btn-primary">Continue</button>
         <p class="register-subheading-3">What is your primary industry?</p>
         <div class="mb-3">
             <select class="form-select" asp-for="Input.Industry" asp-items="Html.GetEnumSelectList<Industry>()">
