@@ -29,5 +29,14 @@ namespace PlanSuite.Utility
                 ? cssClass
                 : "";
         }
+
+        public static string GetReadingTime(this IHtmlHelper htmlHelper, string content)
+        {
+            int wordsPerMinute = 200;
+            int numberOfWords = content.Split(" ").Length;
+            double minutes = numberOfWords / wordsPerMinute;
+            int readingTime = (int)Math.Ceiling(minutes);
+            return $"{readingTime} min read";
+        }
     }
 }

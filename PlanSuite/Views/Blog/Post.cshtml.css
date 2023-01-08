@@ -1,0 +1,45 @@
+﻿.featured-image {
+    border-radius: 8px;
+    margin-bottom: 38px;
+    max-height: 100%;
+    max-width: 100%;
+}
+
+h1 {
+    font-size:40px;
+}
+
+.meta-author {
+    margin-bottom:0;
+}
+
+.meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items:center;
+    font-size: 12px;
+}
+
+.meta-seperator {
+    margin: 0 5px;
+}
+
+.entry-content {
+    font-size: 18px;
+    line-height: 34px;
+    margin-bottom: 70px;
+}
+
+.blog-subscribe {
+    bottom:0;
+    background-color: #000;
+}
+
+.blog-subscribe--isShown {
+    bottom: 0;
+    background-color: var(--white);
+}
+
+.subscription {
+
+}

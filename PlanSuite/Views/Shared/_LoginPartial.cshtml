@@ -19,6 +19,7 @@
 
     @if(User.IsInRole(Constants.AdminRole))
     {
+        <a asp-controller="Blog" asp-action="Index" class="nav-link text-light">Blog</a>
         <li class="nav-item">
             <a asp-controller="Admin" asp-action="Index" class="nav-link text-light">ACP</a>
         </li>

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PlanSuite.Models.Persistent
@@ -37,16 +38,10 @@ namespace PlanSuite.Models.Persistent
         [Column("comments_disabled")]
         public bool CommentsDisabled { get; set; }
 
-        /// <summary>
-        /// Actual URL will be: https://plan-suite.com/blog/YYYY/MM/post-slug-goes-here
-        /// </summary>
-        [NotMapped]
-        public string Url
-        {
-            get
-            {
-                return $"/{DatePosted.Year}/{DatePosted.Month}/{Slug}";
-            }
-        }
+        [Column("image")]
+        public string? Image { get; set; }
+
+        [Column("keywords")]
+        public string Keywords { get; set; }
     }
 }
