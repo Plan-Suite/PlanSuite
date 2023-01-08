@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using PlanSuite.Data;
 using PlanSuite.Models.Persistent;
@@ -14,22 +12,37 @@ namespace PlanSuite.Controllers
         private readonly ApplicationDbContext m_Database;
         private readonly ILogger<BlogController> m_Logger;
         private readonly UserManager<ApplicationUser> m_UserManager;
-        private readonly SignInManager<ApplicationUser> m_SignInManager;
 
-        public BlogController(ApplicationDbContext database, ILogger<BlogController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
+        public BlogController(ApplicationDbContext database, ILogger<BlogController> logger, UserManager<ApplicationUser> userManager)
         {
             m_Database = database;
             m_Logger = logger;
             m_UserManager = userManager;
-            m_SignInManager = signInManager;
         }
 
         [Route("blog")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             m_Logger.LogInformation($"Grabbing last 10 blog posts");
-            // TODO: Show last 10 blog posts
-            return View();
+
+            BlogIndexViewModel viewModel = new BlogIndexViewModel();
+            int count = m_Database.BlogPosts.Count();
+            var blogPosts = await m_Database.BlogPosts.OrderByDescending(x => x.DatePosted).Take(10).ToListAsync();
+
+            foreach (var blogPost in blogPosts)
+            {
+                BlogIndexViewModel.BlogPost post = new BlogIndexViewModel.BlogPost();
+                post.Title = blogPost.Title;
+                post.Summary = blogPost.Summary;
+                post.DatePublished = blogPost.DatePosted;
+                if(!string.IsNullOrEmpty(blogPost.Image))
+                {
+                    post.ImageSrc = blogPost.Image;
+                }
+                post.Url = $"/blog/{blogPost.Slug}";
+                viewModel.BlogPosts.Add(post);
+            }
+            return View(viewModel);
         }
 
         [Route("blog/p={p}")]

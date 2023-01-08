@@ -24,4 +24,18 @@ namespace PlanSuite.Models.Temporary
             public string Email { get; set; }
         }
     }
+
+    public class BlogIndexViewModel
+    {
+        public List<BlogPost> BlogPosts { get; set; } = new List<BlogPost>();
+
+        public class BlogPost
+        {
+            public string Title { get; set; }
+            public string Summary { get; set; }
+            public DateTime DatePublished { get; set; }
+            public string? ImageSrc { get; set; }
+            public string Url { get; set; }
+        }
+    }
 }

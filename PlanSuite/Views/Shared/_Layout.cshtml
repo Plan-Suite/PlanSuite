@@ -12,16 +12,23 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Plan Suite is a ground-breaking project planning and management tool." />
-    <meta name="keywords" content="project" />
-    @if (!Context.Request.Path.StartsWithSegments("/blog/", StringComparison.InvariantCultureIgnoreCase))
+    <meta name="url" content="https://plan-suite.com/" />
+    <meta name="og:url" content="https://plan-suite.com/" />
+    <meta name="twitter:url" content="https://plan-suite.com/" />
+
+    <meta name="twitter:url" content="https://plan-suite.com/" />
+
+    @if (!Context.Request.Path.StartsWithSegments("/blog", StringComparison.InvariantCultureIgnoreCase))
     {
         <title>@ViewData["Title"] - @ApplicationInfo.APP_NAME</title>
+        <meta name="og:title" content="@ViewData["Title"] - @ApplicationInfo.APP_NAME" />
+        <meta name="twitter:title" content="@ViewData["Title"] - @ApplicationInfo.APP_NAME" />
     }
     else
     {
         <title>@ViewData["Title"]</title>
         <meta name="og:title" content="@ViewData["Title"]" />
+        <meta name="twitter:title" content="@ViewData["Title"]" />
     }
     
     @{
@@ -42,6 +49,13 @@
         {
             <meta name="description" content="@description" />
             <meta name="og:description" content="@description" />
+            <meta name="twitter:description" content="@description" />
+        }
+        else
+        {
+            <meta name="description" content="Plan Suite is a ground-breaking project planning and management tool." />
+            <meta name="og:description" content="Plan Suite is a ground-breaking project planning and management tool." />
+            <meta name="twitter:description" content="Plan Suite is a ground-breaking project planning and management tool." />
         }
 
         string author = ViewData["author"] as string;
@@ -53,7 +67,11 @@
         string keywords = ViewData["Keywords"] as string;
         if (!string.IsNullOrEmpty(author))
         {
-            <meta name="keywords" content="@author" />
+            <meta name="keywords" content="@keywords" />
+        }
+        else
+        {
+            <meta name="keywords" content="project" />
         }
 
         string url = ViewData["Url"] as string;
