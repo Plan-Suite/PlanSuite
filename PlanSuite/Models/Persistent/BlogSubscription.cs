@@ -15,5 +15,8 @@ namespace PlanSuite.Models.Persistent
 
         [Column("date_subscribed")]
         public DateTime DateSubscribed { get; set; }
+
+        [Column("subscription_code")]
+        public string Code { get; set; }
     }
 }

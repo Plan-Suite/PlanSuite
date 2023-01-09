@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using PlanSuite.Utility;
+using System.ComponentModel.DataAnnotations;
 
 namespace PlanSuite.Models.Temporary
 {
@@ -22,11 +23,13 @@ namespace PlanSuite.Models.Temporary
             [Required]
             [DataType(DataType.EmailAddress)]
             public string Email { get; set; }
+            public int PostId { get; set; }
         }
     }
 
     public class BlogIndexViewModel
     {
+        public BlogPost LatestPost { get; set; }
         public List<BlogPost> BlogPosts { get; set; } = new List<BlogPost>();
 
         public class BlogPost

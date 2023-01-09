@@ -1,0 +1,144 @@
+﻿@using PlanSuite.Utility
+@model PlanSuite.Models.Persistent.BlogPost
+@{
+    ViewData["Title"] = "Blog Posts";
+    int id = UrlUtility.GetUrlRouteInt(Context.Request, "id");
+    if(id > 0)
+    {
+        Model.Id = id;
+    }
+}
+
+<div class="container">
+    <h1>New Blog Post</h1>
+
+    @using (Html.BeginForm("CreateBlogPost", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        @Html.ValidationSummary(false, "", new { @class = "text-danger" })
+        @Html.HiddenFor(model => model.Id)
+        <div class="mb-3">
+            <label asp-for="ImageFile" class="form-label">Header Image</label>
+            <input asp-for="ImageFile" class="form-control" type="file">
+        </div>
+        <div class="form-group mb-3">
+            <label asp-for="Title" class="control-label"></label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-3">
+            @Html.LabelFor(model => model.Slug, new { htmlAttributes = new { @class = "form-label" } })
+            @Html.EditorFor(model => model.Slug, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Slug, "", new { @class = "text-danger" })
+            <small class="text-muted">Auto generated when title is changed.</small>
+        </div>
+        <div class="form-group mb-3">
+            @Html.LabelFor(model => model.Summary, new { htmlAttributes = new { @class = "form-label" } })
+            @Html.TextAreaFor(model => model.Summary, 3, 3, new { @class = "form-control", maxlength = 160 })
+            @Html.ValidationMessageFor(model => model.Summary, "", new { @class = "text-danger" })
+        </div>
+        <div class="form-group mb-3">
+            @Html.LabelFor(model => model.Content, new { htmlAttributes = new { @class = "form-label" } })
+            @Html.TextAreaFor(model => model.Content, 3, 10, new { @class = "form-control", maxlength = 160 })
+            @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
+        </div>
+        <div class="form-group mb-3">
+            @Html.LabelFor(model => model.Keywords, new { htmlAttributes = new { @class = "form-label" } })
+            @Html.EditorFor(model => model.Keywords, new { htmlAttributes = new { @class = "form-control" } })
+            @Html.ValidationMessageFor(model => model.Keywords, "", new { @class = "text-danger" })
+            <small class="text-muted">Seperate keywords using a comma (,).</small>
+        </div>
+        <div class="form-group mb-3">
+            <input type="submit" value="Create Blog Post" class="btn ps-btn-success" />
+        </div>
+    }
+    <a class="btn ps-btn-primary" asp-controller="Admin" asp-action="BlogPosts">Back to ACP</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/lib/summernote/dist/js/summernote.js"></script>
+    <script src="~/lib/url-slug/dist/index.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#Content').summernote({
+                placeholder: "Content",
+                tabsize: 2,
+                height: 150,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline', 'clear']],
+                    ['font', ['strikethrough', 'superscript', 'subscript']],
+                    ['fontsize', ['fontsize']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['height', ['height']]
+                ],
+                callbacks: {
+                    onImageUpload: function (files) {
+                        for (let i = 0; i < files.length; i++) {
+                            UploadImage(files[i]);
+                        }
+                    }
+                }
+            });
+
+            $("#Content").on("summernote.media.delete", function (we, e) {
+                DeleteImage(e[0].src);
+            });
+
+            $("#Title").on("change keyup paste", function () {
+                var text = $("#Title").val();
+                var slug = urlSlug(text);
+                $("#Slug").val(slug);
+            })
+        });
+
+        function UploadImage(file) {
+            var url = "/Journal/UploadImage";
+
+            var formData = new FormData();
+            formData.append("file", file);
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (FileUrl) {
+                    var imgNode = document.createElement("img");
+                    imgNode.src = `/uploaded_images/${FileUrl.fileUrl}`;
+                    console.log(imgNode.src);
+                    $("#Content").summernote("insertNode", imgNode);
+                },
+                error: function (data) {
+                    console.error(data.responseText);
+                }
+            });
+        }
+
+        function DeleteImage(file) {
+            var url = "/Journal/DeleteImage";
+            console.log("DeleteFile: " + file);
+
+            var formData = new FormData();
+            formData.append("file", file);
+
+            console.log(formData);
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: formData,
+                cache: false,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    console.log(data);
+                },
+                error: function (data) {
+                    console.error(data.responseText);
+                }
+            });
+        }
+    </script>
+}

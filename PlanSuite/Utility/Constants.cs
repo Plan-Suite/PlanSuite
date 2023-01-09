@@ -6,5 +6,6 @@
         public const string DevRole = "Developer";
         public const string SalesRole = "Sales";
         public const string SupportRole = "Support";
+        public const string MarketerRole = "Marketing";
     }
 }

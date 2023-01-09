@@ -1,0 +1,44 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model PlanSuite.Models.Temporary.AdminIndexViewModel
+@{
+    ViewData["Title"] = "Blog Posts";
+}
+<partial name="AdminHeader" />
+
+<div class="container">
+    <div class="d-grid gap-2 mt-2">
+        <a class="btn ps-btn-primary" asp-controller="Admin" asp-action="NewPost"><i class="bi bi-pencil-square"></i> New Post</a>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Date Published</th>
+                <th scope="col">Title</th>
+                <th scope="col">Author</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var blog in Model.BlogPosts)
+            {
+                <tr>
+                    <th scope="row">@blog.Id</th>
+                    <td>@blog.DatePosted.ToString("dd/MMM/yyyy HH:mm:ss")</td>
+                    <td>@blog.Title</td>
+                    <td>Author</td>
+                    <td>
+                        <a class="btn ps-btn-secondary" asp-controller="Blog" asp-action="PostShortLink" asp-route-p="@blog.Id">View</a>
+                        <a class="btn ps-btn-secondary" asp-controller="Admin" asp-action="NewPost" asp-route-id="@blog.Id">Edit</a>
+                        <a class="btn ps-btn-danger" asp-controller="Admin" asp-action="DeletePost" asp-route-id="@blog.Id">Delete</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>

@@ -1,6 +1,7 @@
 ﻿.article-card {
     box-shadow: 0 0 4px 0 rgb(0 0 0 / 15%);
     padding: 10px;
+    min-height: 350px;
 }
 
 .article-link {
@@ -32,4 +33,13 @@
 
 .article-body {
     padding: 20px;
+}
+
+#latestPost {
+    text-align: center;
+    width: 100%;
+}
+
+.featured-image {
+
 }

@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using PlanSuite.Data;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
+using PlanSuite.Utility;
+using static PlanSuite.Models.Temporary.BlogIndexViewModel;
 
 namespace PlanSuite.Controllers
 {
@@ -21,13 +23,19 @@ namespace PlanSuite.Controllers
         }
 
         [Route("blog")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int pageNumber = 1)
         {
-            m_Logger.LogInformation($"Grabbing last 10 blog posts");
+            if(pageNumber < 1)
+            {
+                pageNumber = 1;
+            }
+            m_Logger.LogInformation($"Grabbing last 10 blog posts for page {pageNumber}");
 
             BlogIndexViewModel viewModel = new BlogIndexViewModel();
             int count = m_Database.BlogPosts.Count();
-            var blogPosts = await m_Database.BlogPosts.OrderByDescending(x => x.DatePosted).Take(10).ToListAsync();
+            int pageSize = 10;
+
+            var blogPosts = await m_Database.BlogPosts.OrderByDescending(x => x.DatePosted).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
 
             foreach (var blogPost in blogPosts)
             {
@@ -42,6 +50,9 @@ namespace PlanSuite.Controllers
                 post.Url = $"/blog/{blogPost.Slug}";
                 viewModel.BlogPosts.Add(post);
             }
+
+            m_Logger.LogInformation($"Returned {blogPosts.Count} blog posts from database");
+
             return View(viewModel);
         }
 
@@ -95,6 +106,26 @@ namespace PlanSuite.Controllers
 
             // Show the post that uses that slug. Slugs should be unique
             return View(viewModel);
+        }
+
+        public async Task<IActionResult> Subscribe([FromForm] BlogPostViewModel.SubscribeInput subscribe)
+        {
+            var existingSubscription = await m_Database.BlogSubscriptions.Where(sub => sub.Email.ToUpper() == subscribe.Email.ToUpper()).FirstOrDefaultAsync();
+            if(existingSubscription != null)
+            {
+                return RedirectToAction(nameof(PostShortLink), new { p = subscribe.PostId });
+            }
+
+            BlogSubscription subscription = new BlogSubscription();
+            subscription.DateSubscribed = DateTime.Now;
+            subscription.Email = subscribe.Email;
+            subscription.Code = RandomGenerator.GetUniqueKey(15);
+            m_Logger.LogInformation($"{subscribe.Email} has subscribed to the blog.");
+
+            await m_Database.BlogSubscriptions.AddAsync(subscription);
+            await m_Database.SaveChangesAsync();
+
+            return RedirectToAction(nameof(PostShortLink), new { p = subscribe.PostId });
         }
     }
 }

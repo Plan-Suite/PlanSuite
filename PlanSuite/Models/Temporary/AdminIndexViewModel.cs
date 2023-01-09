@@ -29,6 +29,7 @@ namespace PlanSuite.Models.Temporary
 
         public List<SalesContact> SalesContacts { get; set; }
         public SalesContact SalesContact { get; set; }
+        public List<BlogPost> BlogPosts { get; set; }
 
         decimal CalculateChange(decimal previous, decimal current)
         {
