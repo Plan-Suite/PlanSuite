@@ -218,12 +218,6 @@ namespace PlanSuite.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateBlogPost([FromForm] BlogPost blogPost)
         {
-            if (!User.IsInRole(Constants.AdminRole) && !User.IsInRole(Constants.MarketerRole))
-            {
-                // Throw a not found error instead, since we dont want ppl knowing this exists.
-                return NotFound();
-            }
-
             if(!ModelState.IsValid)
             {
                 return BadRequest();
