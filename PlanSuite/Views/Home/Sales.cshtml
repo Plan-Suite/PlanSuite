@@ -30,11 +30,11 @@
         </div>
         <div class="col zindex-2">
             <div class="sales-modal">
-                <form asp-controller="Home" asp-action="OnSalesContact" method="post">
+                <form asp-controller="Home" asp-action="OnSalesContact" method="post" id="salesContactForm">
+                    <input type="hidden" asp-for="ContactSales.Token" />
                     <div class="form-floating mb-3">
                         <p class="sales-modal-required-info">@Model.Localisation.Get(user, "SALES_MODAL_REQUIRED_INFO")</p>
                     </div>
-
                     <div class="row">
                         <div class="mb-3 col-md">
                             <label asp-for="ContactSales.FirstName" class="form-label">@Model.Localisation.Get(user, "FIRST_NAME") <span class="sales-modal-required-info">*</span></label>
@@ -70,10 +70,24 @@
                         <span asp-validation-for="ContactSales.Message" class="text-danger"></span>
                     </div>
                     <div class="mb-3">
-                        <button type="submit" class="btn ps-btn-primary">@Model.Localisation.Get(user, "SUBMIT")</button>
+                        <button type="submit" class="btn ps-btn-primary">
+                            @Model.Localisation.Get(user, "SUBMIT")
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src='https://www.google.com/recaptcha/api.js?render=@Configuration["CaptchaKey"]'></script>
+    <script>
+        grecaptcha.ready(function () {
+            grecaptcha.execute('@Configuration["CaptchaKey"]', { action: 'contact' }).then(function (token) {
+                $("#ContactSales_Token").val(token);
+            });
+        });
+
+    </script>
+}

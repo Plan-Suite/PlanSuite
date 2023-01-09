@@ -50,6 +50,9 @@ namespace PlanSuite.Models.Temporary
 
             [Required]
             public string Message { get; set; }
+
+            [Required]
+            public string Token { get; set; }
         }
     }
 

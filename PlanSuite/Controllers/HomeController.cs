@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using PlanSuite.Data;
 using PlanSuite.Enums;
+using PlanSuite.Interfaces;
 using PlanSuite.Migrations;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
@@ -27,8 +28,9 @@ namespace PlanSuite.Controllers
         private readonly AuditService m_AuditService;
         private readonly IEmailSender m_EmailSender;
         private readonly ProjectService m_ProjectService;
+        private readonly ICaptchaService m_CaptchaService;
 
-        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AuditService auditService, IEmailSender emailSender, ProjectService projectService)
+        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AuditService auditService, IEmailSender emailSender, ProjectService projectService, ICaptchaService captchaService)
         {
             m_Database = context;
             m_Logger = logger;
@@ -38,6 +40,7 @@ namespace PlanSuite.Controllers
             m_AuditService = auditService;
             m_EmailSender = emailSender;
             m_ProjectService = projectService;
+            m_CaptchaService = captchaService;
         }
 
         public async Task<IActionResult> Index(int orgId = 0)
@@ -366,8 +369,15 @@ namespace PlanSuite.Controllers
                 return BadRequest(ModelState);
             }
 
+
             string jsonString = System.Text.Json.JsonSerializer.Serialize(contactSales);
             Console.WriteLine(jsonString);
+
+            var captchaResult = m_CaptchaService.Verify(contactSales.Token);
+            if(captchaResult.Result.Success == false && captchaResult.Result.Score <= 0.5)
+            {
+                return RedirectToAction(nameof(SalesContacted));
+            }
 
             // Add sales contact to database
             var salesContact = new SalesContact();

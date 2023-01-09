@@ -91,6 +91,7 @@ try
     builder.Host.UseNLog();
 
     builder.Services.AddTransient<LoggingHelper>();
+    builder.Services.AddTransient<ICaptchaService, RecaptchaService>();
 
     var app = builder.Build();
 
