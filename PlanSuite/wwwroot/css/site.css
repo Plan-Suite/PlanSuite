@@ -1,16 +1,19 @@
 @font-face {
     font-family: "Alexandria";
     src: url("/fonts/Alexandria.ttf");
+    font-display: swap;
 }
 
 @font-face {
     font-family: "Source Serif Pro";
     src: url("/fonts/SourceSerifPro.ttf");
+    font-display: swap;
 }
 
 @font-face {
     font-family: "Ubuntu Mono";
     src: url("/fonts/UbuntuMono.ttf");
+    font-display: swap;
 }
 
 :root {

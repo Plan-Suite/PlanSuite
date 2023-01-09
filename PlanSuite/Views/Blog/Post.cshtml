@@ -1,0 +1,85 @@
+﻿@using PlanSuite.Utility
+@model PlanSuite.Models.Temporary.BlogPostViewModel
+@{
+    ViewData["Title"] = Model.Title;
+    ViewData["Description"] = Model.Summary;
+    ViewData["Type"] = "article";
+    ViewData["Keywords"] = Model.Keywords;
+    Model.Subscribe.PostId = Model.Id;
+}
+
+<div class="container">
+    <article id="post-@Model.Id" title="@Model.Title">
+        <div class="col-sm-12">
+            <header>
+                <h1>@Model.Title</h1>
+            </header>
+            <div class="meta">
+                <p>
+                    <span class="meta-author" itemscope="itemscope" itemtype="http://schema.org/Person" itemprop="author">By @Html.Raw(Model.Author)</span>
+                    <span class="meta-seperator">|</span>
+                    <span class="meta-reading-time">@Html.GetReadingTime(Model.Content)</span>
+                    <span class="meta-seperator">|</span>
+                    <span class="meta-date" itemprop="datePublished">@Model.DatePublished.ToString("MMM dd, yyyy")</span>
+                </p>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.ImageSrc))
+            {
+                <div class="text-center">
+                    <img src="~/uploaded_images/@Model.ImageSrc" class="img-fluid featured-image" alt="@Model.ImageAlt" />
+                </div>
+            }
+            <div class="entry-content" itemprop="text">@Html.Raw(Model.Content)</div>
+        </div>
+    </article>
+    @if(!Model.IsSubscribed)
+    {
+        <div class="modal fade" id="subscribeModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4>Subscribe to our blog!</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form asp-action="Subscribe" asp-controller="Blog" method="POST">
+                        @Html.HiddenFor(model => model.Subscribe.PostId)
+                        <div class="modal-body">
+                            <p>We'll send you our latest blog posts as soon as they're released.</p>
+                            <input asp-for="Subscribe.Email" class="form-control" autocomplete="email" aria-required="true" placeholder="Enter your email" />
+                            <span asp-validation-for="Subscribe.Email" class="text-danger"></span>
+                        </div>
+                        <div class="modal-footer d-grid gap-2">
+                            <button type="submit" class="btn ps-btn-primary">Subscribe</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @if (!Model.IsSubscribed)
+    {
+        <script>
+            var modal = document.getElementById('subscribeModal');
+            var myModal = new bootstrap.Modal(modal);
+            var alreadyTriggered = false;
+
+            $(window).on('scroll', function () {
+                if ($(window).scrollTop() >= $('article').offset().top + $('article').outerHeight() - window.innerHeight) {
+                    toastTrigger();
+                }
+            });
+
+            function toastTrigger()
+            {
+                if (!alreadyTriggered)
+                {
+                    myModal.show();
+                    alreadyTriggered = true;
+                }
+            }
+        </script>
+    }
+}

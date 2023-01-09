@@ -12,17 +12,81 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Plan Suite is a ground-breaking project planning and management tool." />
-    <meta name="keywords" content="project" />
-    <title>@ViewData["Title"] - @ApplicationInfo.APP_NAME</title>
+    <meta name="url" content="https://plan-suite.com/" />
+    <meta name="og:url" content="https://plan-suite.com/" />
+    <meta name="twitter:url" content="https://plan-suite.com/" />
+
+    <meta name="twitter:url" content="https://plan-suite.com/" />
+
+    @if (!Context.Request.Path.StartsWithSegments("/blog", StringComparison.InvariantCultureIgnoreCase))
+    {
+        <title>@ViewData["Title"] - @ApplicationInfo.APP_NAME</title>
+        <meta name="og:title" content="@ViewData["Title"] - @ApplicationInfo.APP_NAME" />
+        <meta name="twitter:title" content="@ViewData["Title"] - @ApplicationInfo.APP_NAME" />
+    }
+    else
+    {
+        <title>@ViewData["Title"]</title>
+        <meta name="og:title" content="@ViewData["Title"]" />
+        <meta name="twitter:title" content="@ViewData["Title"]" />
+    }
+    
+    @{
+        string type = ViewData["Type"] as string;
+        if (!string.IsNullOrEmpty(type))
+        {
+            <meta name="og:type" content="@type" />
+        }
+
+        string image = ViewData["Image"] as string;
+        if (!string.IsNullOrEmpty(image))
+        {
+            <meta name="og:image" content="@image" />
+        }
+
+        string description = ViewData["Description"] as string;
+        if (!string.IsNullOrEmpty(description))
+        {
+            <meta name="description" content="@description" />
+            <meta name="og:description" content="@description" />
+            <meta name="twitter:description" content="@description" />
+        }
+        else
+        {
+            <meta name="description" content="Plan Suite is a ground-breaking project planning and management tool." />
+            <meta name="og:description" content="Plan Suite is a ground-breaking project planning and management tool." />
+            <meta name="twitter:description" content="Plan Suite is a ground-breaking project planning and management tool." />
+        }
+
+        string author = ViewData["author"] as string;
+        if (!string.IsNullOrEmpty(author))
+        {
+            <meta name="author" content="@author" />
+        }
+
+        string keywords = ViewData["Keywords"] as string;
+        if (!string.IsNullOrEmpty(author))
+        {
+            <meta name="keywords" content="@keywords" />
+        }
+        else
+        {
+            <meta name="keywords" content="project" />
+        }
+
+        string url = ViewData["Url"] as string;
+        if (!string.IsNullOrEmpty(author))
+        {
+            <meta name="og:url" content="@Context.Request.Host/@url" />
+        }
+    }
+    <meta name="fb:app_id" content="822265182087480"/>
     <link rel='icon' type='image/png' href='~/img/icon@32.png'>
     <link rel='icon' sizes='192x192' href='~/img/icon@192.png'>
     <link rel='apple-touch-icon' href='~/img/icon@152.png'>
     <meta name='msapplication-square310x310logo' content='~/img/icon@310.png'>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/jquery-ui/jquery-ui.min.css" asp-append-version="true">
-    <script src="~/bundles/dep.min.js" asp-append-version="true"></script>
-    <script src="~/lib/jquery-ui-touch-punch/dist/jquery.ui.touch-punch.js" asp-append-version="true"></script>
     <script type="module" src="~/js/site.js" asp-append-version="true"></script>
     <script type="module" src="~/js/cookie.js" asp-append-version="true"></script>
     <script type="module" src="~/js/localisation.js" asp-append-version="true"></script>
@@ -80,7 +144,6 @@
         }
 
     </environment>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.2/font/bootstrap-icons.css">
 </head>
 <body>
     <header>
@@ -126,6 +189,9 @@
     </main>
 
     <partial name="_Footer" />
+    <script src="~/lib/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="~/bundles/dep.min.js" asp-append-version="true"></script>
+    <script src="~/lib/jquery-ui-touch-punch/dist/jquery.ui.touch-punch.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

@@ -23,6 +23,8 @@ namespace PlanSuite.Data
         public DbSet<JournalNote> JournalNotes { get; set; }
         public DbSet<SalesContact> SalesContacts { get; set; }
         public DbSet<Invitation> Invitations { get; set; }
+        public DbSet<BlogPost> BlogPosts { get; set; }
+        public DbSet<BlogSubscription> BlogSubscriptions { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -33,6 +35,7 @@ namespace PlanSuite.Data
         {
             base.OnModelCreating(builder);
             builder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly()).UseCollation("latin1_swedish_ci");
+            builder.Entity<BlogPost>().HasIndex(post => post.Slug).IsUnique();
         }
     }
 }

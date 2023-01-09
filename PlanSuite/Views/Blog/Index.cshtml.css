@@ -1,0 +1,45 @@
+﻿.article-card {
+    box-shadow: 0 0 4px 0 rgb(0 0 0 / 15%);
+    padding: 10px;
+    min-height: 350px;
+}
+
+.article-link {
+    background: transparent;
+    cursor: pointer;
+    color: var(--black);
+    text-decoration: none;
+    transition: all 150ms;
+}
+
+.article-link:hover {
+    color: var(--blue-1);
+}
+
+.article-title {
+    margin: 0 0 10px;
+}
+
+.article-sub-title {
+    margin: 0 0 10px;
+    font-size: .875em;
+    margin-bottom: 15px;
+}
+
+.article-text {
+    color: var(--black);
+    overflow: hidden;
+}
+
+.article-body {
+    padding: 20px;
+}
+
+#latestPost {
+    text-align: center;
+    width: 100%;
+}
+
+.featured-image {
+
+}
