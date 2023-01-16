@@ -43,8 +43,5 @@ namespace PlanSuite.Models.Persistent
 
         [Column("keywords")]
         public string Keywords { get; set; }
-
-        [NotMapped]
-        public IFormFile? ImageFile { get; set; }
     }
 }

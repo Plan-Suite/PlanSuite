@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using PlanSuite.Data;
 using PlanSuite.Interfaces;
@@ -40,7 +41,7 @@ namespace PlanSuite.Controllers
         {
             if(!User.IsInRole(Constants.AdminRole) && !User.IsInRole(Constants.SupportRole) && !User.IsInRole(Constants.DevRole) && !User.IsInRole(Constants.MarketerRole))
             {
-                // Throw a not found error instead, since we dont want ppl knowing this exists.
+                _logger.LogWarning($"{User.Identity.Name} tried to access ACP->Index");
                 return NotFound();
             }
 
@@ -101,7 +102,7 @@ namespace PlanSuite.Controllers
         {
             if (!User.IsInRole(Constants.AdminRole) && !User.IsInRole(Constants.SupportRole))
             {
-                // Throw a not found error instead, since we dont want ppl knowing this exists.
+                _logger.LogWarning($"{User.Identity.Name} tried to access ACP->UserManager");
                 return NotFound();
             }
 
@@ -115,7 +116,7 @@ namespace PlanSuite.Controllers
         {
             if (!User.IsInRole(Constants.AdminRole) && !User.IsInRole(Constants.SalesRole))
             {
-                // Throw a not found error instead, since we dont want ppl knowing this exists.
+                _logger.LogWarning($"{User.Identity.Name} tried to access ACP->ContactRequests");
                 return NotFound();
             }
 
@@ -129,7 +130,7 @@ namespace PlanSuite.Controllers
         {
             if (!User.IsInRole(Constants.AdminRole) && !User.IsInRole(Constants.SalesRole))
             {
-                // Throw a not found error instead, since we dont want ppl knowing this exists.
+                _logger.LogWarning($"{User.Identity.Name} tried to access ACP->SeeContact");
                 return NotFound();
             }
 
@@ -151,7 +152,7 @@ namespace PlanSuite.Controllers
         {
             if (!User.IsInRole(Constants.AdminRole) && !User.IsInRole(Constants.SalesRole))
             {
-                // Throw a not found error instead, since we dont want ppl knowing this exists.
+                _logger.LogWarning($"{User.Identity.Name} tried to access ACP->OnContacted");
                 return NotFound();
             }
 
@@ -186,7 +187,7 @@ namespace PlanSuite.Controllers
         {
             if (!User.IsInRole(Constants.AdminRole) && !User.IsInRole(Constants.MarketerRole))
             {
-                // Throw a not found error instead, since we dont want ppl knowing this exists.
+                _logger.LogWarning($"{User.Identity.Name} tried to access ACP->BlogPosts");
                 return NotFound();
             }
 
@@ -202,75 +203,98 @@ namespace PlanSuite.Controllers
         {
             if (!User.IsInRole(Constants.AdminRole) && !User.IsInRole(Constants.MarketerRole))
             {
-                // Throw a not found error instead, since we dont want ppl knowing this exists.
+                _logger.LogWarning($"{User.Identity.Name} tried to access ACP->NewPost");
                 return NotFound();
             }
 
-            BlogPost model = new BlogPost();
+            WriteBlogPostViewModel model = new WriteBlogPostViewModel();
+            model.Input = new WriteBlogPostViewModel.WriteBlogPost();
             var existingPost = await dbContext.BlogPosts.Where(post => post.Id == id).FirstOrDefaultAsync();
             if(existingPost != null)
             {
-                model = existingPost;
+                model.Input.Title = existingPost.Title;
+                model.Input.Content = existingPost.Content;
+                model.Input.Summary = existingPost.Summary;
+                model.Input.Slug = existingPost.Slug;
+                model.Input.Id = existingPost.Id;
+                model.Input.Keywords = existingPost.Keywords;
+            }
+            else
+            {
+                model.Input.Id = 0;
             }
             return View(model);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateBlogPost([FromForm] BlogPost blogPost)
+        public async Task<IActionResult> CreateBlogPost(WriteBlogPostViewModel.WriteBlogPost input)
         {
-            if(!ModelState.IsValid)
+            Console.WriteLine(JsonUtility.ToJson(input, true));
+            if (!ModelState.IsValid)
             {
-                return BadRequest();
+                return BadRequest(ModelState);
             }
 
             string uploadsFolder = m_PathService.GetWebRootPath("uploaded_images");
             var fileName = string.Empty;
-            Console.WriteLine($"blogPost.ImageFile is null: {blogPost.ImageFile == null}");
-            if (blogPost.ImageFile != null && blogPost.ImageFile.Length > 0)
+            Console.WriteLine($"blogPost.ImageFile is null: {input.Header == null}");
+            if (input.Header != null && input.Header.Length > 0)
             {
                 // TODO: We need to run an antivirus scan on --ANYTHING-- that gets uploaded to the server
 
-                fileName = $"{Guid.NewGuid().ToString()}_{blogPost.ImageFile.FileName}";
-                _logger.LogInformation($"Uploading {fileName} ({blogPost.ImageFile.Length} bytes)...");
+                fileName = $"{Guid.NewGuid().ToString()}_{input.Header.FileName}";
+                _logger.LogInformation($"Uploading {fileName} ({input.Header.Length} bytes)...");
                 string filePath = Path.Combine(uploadsFolder, fileName);
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
-                    await blogPost.ImageFile.CopyToAsync(fileStream);
+                    await input.Header.CopyToAsync(fileStream);
                 }
             }
 
-            if(blogPost.Id > 0)
+            if (input.Id > 0)
             {
-                var existingPost = await dbContext.BlogPosts.Where(post => post.Id == blogPost.Id).FirstOrDefaultAsync();
+                var existingPost = await dbContext.BlogPosts.Where(post => post.Id == input.Id).FirstOrDefaultAsync();
                 if(existingPost == null)
                 {
                     return BadRequest();
                 }
 
-                blogPost.DateModified = DateTime.Now;
-                blogPost.DatePosted = existingPost.DatePosted;
-                blogPost.AuthorId = existingPost.AuthorId;
-                blogPost.Image = fileName;
-                dbContext.Entry(existingPost).CurrentValues.SetValues(blogPost);
+                existingPost.DateModified = DateTime.Now;
+                existingPost.DatePosted = existingPost.DatePosted;
+                existingPost.AuthorId = existingPost.AuthorId;
+                existingPost.Image = fileName;
+                existingPost.Title = input.Title;
+                existingPost.Slug = input.Slug;
+                existingPost.Content = input.Content;
+                existingPost.Keywords = input.Keywords;
+                existingPost.Summary = input.Summary;
+                Console.WriteLine(JsonUtility.ToJson(existingPost, true));
+
+                dbContext.ChangeTracker.DetectChanges();
+                Console.WriteLine(dbContext.ChangeTracker.DebugView.LongView);
 
                 await dbContext.SaveChangesAsync();
                 return RedirectToAction(nameof(BlogPosts));
             }
 
             var user = await _userManager.GetUserAsync(User);
-            blogPost.DatePosted = DateTime.Now;
-            blogPost.AuthorId = Guid.Parse(user.Id);
-            blogPost.Image = fileName;
+            var newBlogPost = new BlogPost();
+            newBlogPost.AuthorId = Guid.Parse(user.Id);
+            newBlogPost.DatePosted = DateTime.Now;
+            newBlogPost.Title = input.Title;
+            newBlogPost.Summary = input.Summary;
+            newBlogPost.Content = input.Content;
+            newBlogPost.Slug = input.Slug;
+            newBlogPost.Image = fileName;
 
-            await dbContext.BlogPosts.AddAsync(blogPost);
+            await dbContext.BlogPosts.AddAsync(newBlogPost);
             await dbContext.SaveChangesAsync();
-
 
             var subbedUsers = dbContext.BlogSubscriptions.ToList();
             foreach(var subUser in subbedUsers)
             {
-                string emailContent = $"{blogPost.Content}\n\n<a style=\"text-align: center;\" href=\"https://plan-suite.com/unsubscribe/{subUser.Id}\">Unsubscribe</a>";
-                await m_EmailSender.SendEmailAsync(subUser.Email, blogPost.Title, emailContent);
+                string emailContent = $"{newBlogPost.Content}\n\n<a style=\"text-align: center;\" href=\"https://plan-suite.com/unsubscribe/{subUser.Id}\">Unsubscribe</a>";
+                await m_EmailSender.SendEmailAsync(subUser.Email, newBlogPost.Title, emailContent);
             }
 
             return RedirectToAction(nameof(BlogPosts));
@@ -280,7 +304,7 @@ namespace PlanSuite.Controllers
         {
             if (!User.IsInRole(Constants.AdminRole) && !User.IsInRole(Constants.MarketerRole))
             {
-                // Throw a not found error instead, since we dont want ppl knowing this exists.
+                _logger.LogWarning($"{User.Identity.Name} tried to access ACP->DeletePost");
                 return NotFound();
             }
 
