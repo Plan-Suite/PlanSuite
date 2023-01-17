@@ -253,9 +253,11 @@ namespace PlanSuite.Controllers
 
             if (input.Id > 0)
             {
+                _logger.LogInformation($"Updating existing post #{input.Id}");
                 var existingPost = await dbContext.BlogPosts.Where(post => post.Id == input.Id).FirstOrDefaultAsync();
                 if(existingPost == null)
                 {
+                    _logger.LogError($"Existing post {input.Id} does not exist.");
                     return BadRequest();
                 }
 
@@ -270,14 +272,28 @@ namespace PlanSuite.Controllers
                 existingPost.Summary = input.Summary;
                 Console.WriteLine(JsonUtility.ToJson(existingPost, true));
 
+                _logger.LogInformation($"Detecting changes for existing post {input.Id}");
                 dbContext.ChangeTracker.DetectChanges();
                 Console.WriteLine(dbContext.ChangeTracker.DebugView.LongView);
 
+                _logger.LogInformation($"Saving changes for existing post {input.Id}");
                 await dbContext.SaveChangesAsync();
                 return RedirectToAction(nameof(BlogPosts));
             }
 
             var user = await _userManager.GetUserAsync(User);
+            if(user == null)
+            {
+                _logger.LogError($"User null while creating blog post {input.Title}.");
+                return BadRequest();
+            }
+
+            _logger.LogInformation($"Creating new blog post with details:\n" +
+                $"Title: {input.Title}\n" +
+                $"Summary: {input.Summary}\n" +
+                $"Slug: {input.Slug}\n" +
+                $"Keywords: {input.Keywords}\n" +
+                $"Content: {input.Content}");
             var newBlogPost = new BlogPost();
             newBlogPost.AuthorId = Guid.Parse(user.Id);
             newBlogPost.DatePosted = DateTime.Now;
@@ -288,9 +304,13 @@ namespace PlanSuite.Controllers
             newBlogPost.Image = fileName;
             newBlogPost.Keywords = input.Keywords;
 
+            _logger.LogInformation($"Adding new post {input.Title} to db");
             await dbContext.BlogPosts.AddAsync(newBlogPost);
+
+            _logger.LogInformation($"Saving new post {input.Title} to db");
             await dbContext.SaveChangesAsync();
 
+            _logger.LogInformation($"Sending email of new blog post to subscribed blog users");
             var subbedUsers = dbContext.BlogSubscriptions.ToList();
             foreach(var subUser in subbedUsers)
             {
@@ -298,6 +318,7 @@ namespace PlanSuite.Controllers
                 await m_EmailSender.SendEmailAsync(subUser.Email, newBlogPost.Title, emailContent);
             }
 
+            _logger.LogInformation($"Redirecting {user.UserName} to {nameof(BlogPosts)}");
             return RedirectToAction(nameof(BlogPosts));
         }
 
