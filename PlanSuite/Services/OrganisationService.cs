@@ -73,6 +73,7 @@ namespace PlanSuite.Services
 
         public async Task<OrganisationErrorCode> OnDeleteOrganisation(DeleteOrganisationModel model)
         {
+            m_Logger.LogInformation($"OnDeleteOrganisation for {model.Id} start");
             // Get owner tier
             var owner = await m_UserManager.FindByIdAsync(model.UserId.ToString());
             if (owner == null)
@@ -120,6 +121,7 @@ namespace PlanSuite.Services
             await m_Database.SaveChangesAsync();
             await m_AuditService.InsertLogAsync(AuditLogCategory.Organisation, owner, AuditLogType.Deleted, model.Id);
 
+            m_Logger.LogInformation($"OnDeleteOrganisation for {model.Id} success");
             return OrganisationErrorCode.Success;
         }
     }

@@ -240,8 +240,7 @@ namespace PlanSuite.Controllers
             Console.WriteLine($"blogPost.ImageFile is null: {input.Header == null}");
             if (input.Header != null && input.Header.Length > 0)
             {
-                // TODO: We need to run an antivirus scan on --ANYTHING-- that gets uploaded to the server
-
+                // TODO: We need to run an antivirus scan on --ANYTHING-- that gets uploaded to the serve
                 fileName = $"{Guid.NewGuid().ToString()}_{input.Header.FileName}";
                 _logger.LogInformation($"Uploading {fileName} ({input.Header.Length} bytes)...");
                 string filePath = Path.Combine(uploadsFolder, fileName);

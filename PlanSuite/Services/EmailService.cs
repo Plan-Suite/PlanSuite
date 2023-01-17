@@ -15,9 +15,11 @@ namespace PlanSuite.Services
         public static string ConfigEmail { get; private set; }
         public static string ConfigName { get; private set; }
 
-        public EmailService()
+        private readonly ILogger<EmailService> m_Logger;
+
+        public EmailService(ILogger<EmailService> logger)
         {
-            
+            m_Logger = logger;
         }
 
         public static async Task InitEmailService(string user, string pass, string configSet, string host, int port, string configEmail, string configName)
@@ -53,6 +55,7 @@ namespace PlanSuite.Services
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
+            m_Logger.LogInformation($"SendEmailAsync: Email:[{email}] Subject:[{subject}] HtmlMessage:[{htmlMessage}]");
             var mailMessage = new MimeMessage();
             mailMessage.From.Add(new MailboxAddress(ConfigName, ConfigEmail));
             mailMessage.To.Add(new MailboxAddress(email, email));
@@ -69,11 +72,11 @@ namespace PlanSuite.Services
                     await smtpClient.ConnectAsync(SmtpHost, SmtpPort, MailKit.Security.SecureSocketOptions.StartTls);
                     await smtpClient.AuthenticateAsync(SmtpUser, SmtpPassword);
                     await smtpClient.SendAsync(mailMessage);
-                    Console.WriteLine($"Sent email to {mailMessage.To.ElementAt(0).Name} with subject {mailMessage.Subject}");
+                    m_Logger.LogInformation($"Sent email to {mailMessage.To.ElementAt(0).Name} with subject {mailMessage.Subject}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Failed to send email: {ex.Message}");
+                    m_Logger.LogError($"Failed to send email: {ex.Message}");
                 }
                 finally
                 {

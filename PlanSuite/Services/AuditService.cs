@@ -11,11 +11,13 @@ namespace PlanSuite.Services
     {
         private readonly ApplicationDbContext m_Database;
         private readonly UserManager<ApplicationUser> m_UserManager;
+        private readonly ILogger<AuditService> m_Logger;
 
-        public AuditService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager)
+        public AuditService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, ILogger<AuditService> logger)
         {
             m_Database = dbContext;
             m_UserManager = userManager;
+            m_Logger = logger;
         }
 
         public async Task InsertLogAsync(AuditLogCategory logCat, ClaimsPrincipal user, AuditLogType logType, object targetId)
@@ -38,7 +40,7 @@ namespace PlanSuite.Services
 
             string auditLogMsg = await AuditLogToHumanReadable(auditLog);
             string logMsg = $"[{auditLog.Timestamp.ToString("dd/MMM/yyyy HH:mm:ss")}] (Category: {auditLog.LogCategory}, Id: #{auditLog.Id}, TargetId: #{auditLog.TargetID}, Action: {auditLog.LogType}, User: {user.FullName}): {auditLogMsg}";
-            Console.WriteLine(logMsg);
+            m_Logger.LogInformation($"AUDIT LOG: {logMsg}");
             DateTime now = DateTime.Now;
 
             // We're not gonna do this on windows since we don't need to save logs when deving
