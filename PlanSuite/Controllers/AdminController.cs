@@ -286,6 +286,7 @@ namespace PlanSuite.Controllers
             newBlogPost.Content = input.Content;
             newBlogPost.Slug = input.Slug;
             newBlogPost.Image = fileName;
+            newBlogPost.Keywords = input.Keywords;
 
             await dbContext.BlogPosts.AddAsync(newBlogPost);
             await dbContext.SaveChangesAsync();
