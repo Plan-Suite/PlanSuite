@@ -229,95 +229,108 @@ namespace PlanSuite.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateBlogPost(WriteBlogPostViewModel.WriteBlogPost input)
         {
-            Console.WriteLine(JsonUtility.ToJson(input, true));
-            if (!ModelState.IsValid)
+            try
             {
-                return BadRequest(ModelState);
-            }
-
-            string uploadsFolder = m_PathService.GetWebRootPath("uploaded_images");
-            var fileName = string.Empty;
-            Console.WriteLine($"blogPost.ImageFile is null: {input.Header == null}");
-            if (input.Header != null && input.Header.Length > 0)
-            {
-                // TODO: We need to run an antivirus scan on --ANYTHING-- that gets uploaded to the serve
-                fileName = $"{Guid.NewGuid().ToString()}_{input.Header.FileName}";
-                _logger.LogInformation($"Uploading {fileName} ({input.Header.Length} bytes)...");
-                string filePath = Path.Combine(uploadsFolder, fileName);
-                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                Console.WriteLine(JsonUtility.ToJson(input, true));
+                _logger.LogInformation($"Creating blog post 1");
+                if (!ModelState.IsValid)
                 {
-                    await input.Header.CopyToAsync(fileStream);
+                    return BadRequest(ModelState);
                 }
-            }
 
-            if (input.Id > 0)
-            {
-                _logger.LogInformation($"Updating existing post #{input.Id}");
-                var existingPost = await dbContext.BlogPosts.Where(post => post.Id == input.Id).FirstOrDefaultAsync();
-                if(existingPost == null)
+                _logger.LogInformation($"Creating blog post 2");
+
+                string uploadsFolder = m_PathService.GetWebRootPath("uploaded_images");
+                var fileName = string.Empty;
+                Console.WriteLine($"blogPost.ImageFile is null: {input.Header == null}");
+                if (input.Header != null && input.Header.Length > 0)
                 {
-                    _logger.LogError($"Existing post {input.Id} does not exist.");
+                    // TODO: We need to run an antivirus scan on --ANYTHING-- that gets uploaded to the serve
+                    fileName = $"{Guid.NewGuid().ToString()}_{input.Header.FileName}";
+                    _logger.LogInformation($"Uploading {fileName} ({input.Header.Length} bytes)...");
+                    string filePath = Path.Combine(uploadsFolder, fileName);
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        _logger.LogInformation($"Copying {fileStream.Name} async...");
+                        await input.Header.CopyToAsync(fileStream);
+                    }
+                }
+
+                _logger.LogInformation($"Creating blog post 3");
+                if (input.Id > 0)
+                {
+                    _logger.LogInformation($"Updating existing post #{input.Id}");
+                    var existingPost = await dbContext.BlogPosts.Where(post => post.Id == input.Id).FirstOrDefaultAsync();
+                    if (existingPost == null)
+                    {
+                        _logger.LogError($"Existing post {input.Id} does not exist.");
+                        return BadRequest();
+                    }
+
+                    existingPost.DateModified = DateTime.Now;
+                    existingPost.DatePosted = existingPost.DatePosted;
+                    existingPost.AuthorId = existingPost.AuthorId;
+                    existingPost.Image = fileName;
+                    existingPost.Title = input.Title;
+                    existingPost.Slug = input.Slug;
+                    existingPost.Content = input.Content;
+                    existingPost.Keywords = input.Keywords;
+                    existingPost.Summary = input.Summary;
+                    Console.WriteLine(JsonUtility.ToJson(existingPost, true));
+
+                    _logger.LogInformation($"Detecting changes for existing post {input.Id}");
+                    dbContext.ChangeTracker.DetectChanges();
+                    Console.WriteLine(dbContext.ChangeTracker.DebugView.LongView);
+
+                    _logger.LogInformation($"Saving changes for existing post {input.Id}");
+                    await dbContext.SaveChangesAsync();
+                    return RedirectToAction(nameof(BlogPosts));
+                }
+
+                _logger.LogInformation($"Creating blog post 4");
+                var user = await _userManager.GetUserAsync(User);
+                if (user == null)
+                {
+                    _logger.LogError($"User null while creating blog post {input.Title}.");
                     return BadRequest();
                 }
 
-                existingPost.DateModified = DateTime.Now;
-                existingPost.DatePosted = existingPost.DatePosted;
-                existingPost.AuthorId = existingPost.AuthorId;
-                existingPost.Image = fileName;
-                existingPost.Title = input.Title;
-                existingPost.Slug = input.Slug;
-                existingPost.Content = input.Content;
-                existingPost.Keywords = input.Keywords;
-                existingPost.Summary = input.Summary;
-                Console.WriteLine(JsonUtility.ToJson(existingPost, true));
+                _logger.LogInformation($"Creating new blog post with details:\n" +
+                    $"Title: {input.Title}\n" +
+                    $"Summary: {input.Summary}\n" +
+                    $"Slug: {input.Slug}\n" +
+                    $"Keywords: {input.Keywords}\n" +
+                    $"Content: {input.Content}");
+                var newBlogPost = new BlogPost();
+                newBlogPost.AuthorId = Guid.Parse(user.Id);
+                newBlogPost.DatePosted = DateTime.Now;
+                newBlogPost.Title = input.Title;
+                newBlogPost.Summary = input.Summary;
+                newBlogPost.Content = input.Content;
+                newBlogPost.Slug = input.Slug;
+                newBlogPost.Image = fileName;
+                newBlogPost.Keywords = input.Keywords;
 
-                _logger.LogInformation($"Detecting changes for existing post {input.Id}");
-                dbContext.ChangeTracker.DetectChanges();
-                Console.WriteLine(dbContext.ChangeTracker.DebugView.LongView);
+                _logger.LogInformation($"Adding new post {input.Title} to db");
+                await dbContext.BlogPosts.AddAsync(newBlogPost);
 
-                _logger.LogInformation($"Saving changes for existing post {input.Id}");
+                _logger.LogInformation($"Saving new post {input.Title} to db");
                 await dbContext.SaveChangesAsync();
-                return RedirectToAction(nameof(BlogPosts));
-            }
 
-            var user = await _userManager.GetUserAsync(User);
-            if(user == null)
+                _logger.LogInformation($"Sending email of new blog post to subscribed blog users");
+                var subbedUsers = dbContext.BlogSubscriptions.ToList();
+                foreach (var subUser in subbedUsers)
+                {
+                    string emailContent = $"{newBlogPost.Content}\n\n<a style=\"text-align: center;\" href=\"https://plan-suite.com/unsubscribe/{subUser.Id}\">Unsubscribe</a>";
+                    await m_EmailSender.SendEmailAsync(subUser.Email, newBlogPost.Title, emailContent);
+                }
+
+                _logger.LogInformation($"Redirecting {user.UserName} to {nameof(BlogPosts)}");
+            }
+            catch (Exception e)
             {
-                _logger.LogError($"User null while creating blog post {input.Title}.");
-                return BadRequest();
+                _logger.LogError($"Exception during WriteBlogPost: {e.Message}\n{e.StackTrace}");
             }
-
-            _logger.LogInformation($"Creating new blog post with details:\n" +
-                $"Title: {input.Title}\n" +
-                $"Summary: {input.Summary}\n" +
-                $"Slug: {input.Slug}\n" +
-                $"Keywords: {input.Keywords}\n" +
-                $"Content: {input.Content}");
-            var newBlogPost = new BlogPost();
-            newBlogPost.AuthorId = Guid.Parse(user.Id);
-            newBlogPost.DatePosted = DateTime.Now;
-            newBlogPost.Title = input.Title;
-            newBlogPost.Summary = input.Summary;
-            newBlogPost.Content = input.Content;
-            newBlogPost.Slug = input.Slug;
-            newBlogPost.Image = fileName;
-            newBlogPost.Keywords = input.Keywords;
-
-            _logger.LogInformation($"Adding new post {input.Title} to db");
-            await dbContext.BlogPosts.AddAsync(newBlogPost);
-
-            _logger.LogInformation($"Saving new post {input.Title} to db");
-            await dbContext.SaveChangesAsync();
-
-            _logger.LogInformation($"Sending email of new blog post to subscribed blog users");
-            var subbedUsers = dbContext.BlogSubscriptions.ToList();
-            foreach(var subUser in subbedUsers)
-            {
-                string emailContent = $"{newBlogPost.Content}\n\n<a style=\"text-align: center;\" href=\"https://plan-suite.com/unsubscribe/{subUser.Id}\">Unsubscribe</a>";
-                await m_EmailSender.SendEmailAsync(subUser.Email, newBlogPost.Title, emailContent);
-            }
-
-            _logger.LogInformation($"Redirecting {user.UserName} to {nameof(BlogPosts)}");
             return RedirectToAction(nameof(BlogPosts));
         }
 
