@@ -16,18 +16,15 @@ namespace PlanSuite.Services
             { Language.English, "En-Gb" }
         };
 
-        private readonly ILogger<LocalisationService> m_Logger;
-
-        public LocalisationService(ILogger<LocalisationService> logger)
+        public LocalisationService()
         {
             Instance = this;
-            m_Logger = logger;
             foreach (var language in SupportedLanguages)
             {
                 var assembly = Assembly.GetExecutingAssembly();
                 string resName = $"PlanSuite.Resources.{language.Value}";
                 LanguageResources.Add(language.Key, new ResourceManager(resName, assembly));
-                m_Logger.LogInformation($"Loaded language resource: {assembly.Location}/{resName}");
+                Console.WriteLine($"Loaded language resource: {assembly.Location}/{resName}");
             }
         }
 
@@ -36,8 +33,6 @@ namespace PlanSuite.Services
         {
             var userLanguage = Language.English;
             string value = LanguageResources[userLanguage].GetString(key);
-
-            m_Logger.LogInformation($"[{userLanguage}] {key}: {value}");
             return value;
         }
     }
