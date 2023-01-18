@@ -1,5 +1,9 @@
 #!/bin/bash
+# We're keeping a sudo cache now so we can run root cmds without needing to input password later.
+sudo -v
+
 today=`date +%d%b%y_%H%M`
+USER=`whoami`
 SQLFILE=~/backup/backup
 DATABASE=plan_suite
 USER=plan-suite
@@ -25,7 +29,7 @@ if dotnet publish ~/build/PlanSuite/PlanSuite/PlanSuite.csproj --configuration R
 then
     echo "-> Copying files"
     cp ~/build/appsettings.json ~/build/Output/appsettings.json
-    cp -R ${OUTPUT}/* /var/www/plansuite
+    sudo cp -R ${OUTPUT}/* /var/www/plansuite
 
     echo "-> Backing up database"
     mysqldump --defaults-file=~/.my.cnf -u ${USER} ${DATABASE}|gzip > ${SQLFILE}-$today.sql.gz
@@ -38,7 +42,8 @@ then
 
     echo "-> Applying correct permissions"
     sudo mkdir -p /var/log/plansuite
-    sudo chown www-data /var/log/plansuite
+    sudo chown -R www-data:www-data /var/log/plansuite
+    sudo chown -R www-data:www-data /var/www/plansuite
 
     echo "-> Restarting website"
     sudo service plansuite restart
