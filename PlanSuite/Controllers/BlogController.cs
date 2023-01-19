@@ -127,5 +127,46 @@ namespace PlanSuite.Controllers
 
             return RedirectToAction(nameof(PostShortLink), new { p = subscribe.PostId });
         }
+
+        [Route("blog/author/{firstName}-{lastName}/{pageNumber?}")]
+        public async Task<IActionResult> Author(string firstName, string lastName, int pageNumber = 1)
+        {
+            var author = await m_UserManager.Users.Where(user => user.FirstName.ToUpper() == firstName.ToUpper() && user.LastName.ToUpper() == lastName.ToUpper()).FirstOrDefaultAsync();
+            if (author == null)
+            {
+                m_Logger.LogWarning($"Cannot find blog author {firstName}-{lastName}");
+                return RedirectToAction(nameof(Index));
+            }
+
+            Guid authorId = Guid.Parse(author.Id);
+            int count = m_Database.BlogPosts.Count();
+            int pageSize = 10;
+            var posts = await m_Database.BlogPosts.Where(post => post.AuthorId == authorId).OrderByDescending(x => x.DatePosted).Skip((pageNumber - 1) * pageSize).Take(pageSize).ToListAsync();
+            if (posts == null || posts.Count < 1)
+            {
+                m_Logger.LogWarning($"Cannot find blog posts with author id {authorId}");
+                return RedirectToAction(nameof(Index));
+            }
+
+            BlogIndexViewModel viewModel = new BlogIndexViewModel();
+            viewModel.AuthorName = author.FullName;
+
+            foreach (var blogPost in posts)
+            {
+                BlogIndexViewModel.BlogPost post = new BlogIndexViewModel.BlogPost();
+                post.Title = blogPost.Title;
+                post.Summary = blogPost.Summary;
+                post.DatePublished = blogPost.DatePosted;
+                if (!string.IsNullOrEmpty(blogPost.Image))
+                {
+                    post.ImageSrc = blogPost.Image;
+                }
+                post.Url = $"/blog/{blogPost.Slug}";
+                viewModel.BlogPosts.Add(post);
+            }
+
+            m_Logger.LogInformation($"Returned {posts.Count} blog posts from database");
+            return View(viewModel);
+        }
     }
 }
