@@ -31,6 +31,7 @@ namespace PlanSuite.Models.Temporary
     {
         public BlogPost LatestPost { get; set; }
         public List<BlogPost> BlogPosts { get; set; } = new List<BlogPost>();
+        public string? AuthorName { get; set; }
 
         public class BlogPost
         {
