@@ -17,4 +17,4 @@ jobs:
                 config: ${{ secrets.CONFIG }}
                 if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
             - name: Pull
-              run: ssh seanny@plan-suite.com "./build.sh"
+              run: ssh -p 5522 seanny@plan-suite.com "./build.sh"
