@@ -1,0 +1,20 @@
+name: Deploy on push
+
+on:
+    push:
+        branches: [ staging ]
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Install SSH Key
+              uses: shimataro/ssh-key-action@v2
+              with:
+                key: ${{ secrets.SSH_PRIVATE_KEY }}
+                name: id_rsa # optional
+                known_hosts: ${{ secrets.SSH_PORT }}
+                config: ${{ secrets.CONFIG }}
+                if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
+            - name: Pull
+              run: ssh -p 5522 seanny@plan-suite.com "./build.sh"
