@@ -87,22 +87,17 @@
                 if (Model.CurrentOrganisationMembership.Role >= ProjectRole.Admin)
                 {
                     <button type="button" class="btn ps-btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createProjectModal"><i class="bi bi-plus-circle"></i> Project</button>
+                    <button type="button" class="btn ps-btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#importModal"><i class="bi bi-plus-circle"></i> Import Project</button>
                 }
             }
             else
             {
-                <button type="button" class="btn ps-btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createProjectModal">
-                    <i class="bi bi-plus-circle"></i> Project
-                </button>
+                <button type="button" class="btn ps-btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createProjectModal"><i class="bi bi-plus-circle"></i> Project</button>
+                <button type="button" class="btn ps-btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#importModal"><i class="bi bi-plus-circle"></i> Import Project</button>
             }
             @if (user != null && user.PaymentTier >= PaymentTier.Plus && Model.CurrentOrganisationMembership == null)
             {
-                <button type="button" class="btn ps-btn-primary btn-sm dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
-                    <span class="visually-hidden">Toggle Dropdown</span>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#createOrganisationModal"><i class="bi bi-plus-circle"></i> Organisation</a></li>
-                </ul>
+                <button type="button" class="btn ps-btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createOrganisationModal"><i class="bi bi-plus-circle"></i> Organisation</button>
             }
         </div>
     </div>
@@ -271,6 +266,32 @@
                         <div class="modal-footer">
                             <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
                             <button type="submit" class="btn ps-btn-danger" id="deleteButton" disabled>@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @* Import Project *@
+    <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="importLabel">Import Project from Trello</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="post" asp-controller="Home" asp-action="ImportTrello">
+                    <div class="modal-body">
+                        <div class="form-floating mb-3">
+                            <p class="text-muted">In your Trello project, open the menu, click <strong>More</strong> then select <strong>Print and export</strong> then select <strong>Export as JSON</strong> then copy and paste the raw text into the text box below</p>
+                            @Html.TextAreaFor(model => model.ImportTrello.Json, 5, 5, new { @class = "form-control", style="height: 500px;" })
+                            @*@Html.LabelFor(model => model.ImportTrello.Json, new { htmlAttributes = new { @class = "form-label" } })*@
+                            @Html.ValidationMessageFor(model => model.ImportTrello.Json, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
+                            <button type="submit" class="btn ps-btn-primary">@Model.Localisation.Get(user, "CREATE_PROJECT")</button>
                         </div>
                     </div>
                 </form>

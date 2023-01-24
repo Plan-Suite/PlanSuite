@@ -904,6 +904,29 @@ namespace PlanSuite.Services
             await m_AuditService.InsertLogAsync(AuditLogCategory.Card, user, AuditLogType.Added, card.Id);
         }
 
+        internal async Task<int> AddTask(ClaimsPrincipal user, int columnId, string name, string description, DateTime? dueDate)
+        {
+            var appUser = await m_UserManager.GetUserAsync(user);
+            if (appUser == null)
+            {
+                return 0;
+            }
+
+            Console.WriteLine($"Adding task {name} to column {columnId}");
+            var card = new Card();
+            card.ColumnId = columnId;
+            card.CardStartDate = DateTime.Now;
+            card.CreatedBy = Guid.Parse(appUser.Id);
+            card.CardName = name;
+            card.CardDescription = description;
+            card.CardDueDate = dueDate;
+
+            await m_Database.Cards.AddAsync(card);
+            await m_Database.SaveChangesAsync();
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Card, user, AuditLogType.Added, card.Id);
+            return card.Id;
+        }
+
         public async Task<bool> MarkCompleteAsync(MarkCompleteModel model, ClaimsPrincipal user)
         {
             // Grab checklist item from database
@@ -927,6 +950,16 @@ namespace PlanSuite.Services
                 await m_AuditService.InsertLogAsync(AuditLogCategory.Project, user, AuditLogType.Opened, project.Id);
             }
             return complete;
+        }
+
+        public async Task<int> AddColumnAsync(int projectId, string name)
+        {
+            var column = new Column();
+            column.ProjectId = projectId;
+            column.Title = name;
+            await m_Database.Columns.AddAsync(column);
+            await m_Database.SaveChangesAsync();
+            return column.Id;
         }
     }
 }
