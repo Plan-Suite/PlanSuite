@@ -257,12 +257,8 @@ namespace PlanSuite.Controllers
 
             Console.WriteLine($"Account {_userManager.GetUserId(User)} successfully added a column to {project.Id}");
 
-            var column = new Column();
-            column.ProjectId = addColumn.ProjectId;
-            column.Title = addColumn.Name;
-            await dbContext.Columns.AddAsync(column);
-            await dbContext.SaveChangesAsync();
-                await m_AuditService.InsertLogAsync(AuditLogCategory.Column, appUser, AuditLogType.Added, column.Id);
+            int colId = await m_ProjectService.AddColumnAsync(addColumn.ProjectId, addColumn.Name);
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Column, appUser, AuditLogType.Added, colId);
 
             return RedirectToAction(nameof(Index), "Project", new { id = project.Id });
         }

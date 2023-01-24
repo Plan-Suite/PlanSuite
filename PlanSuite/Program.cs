@@ -92,6 +92,7 @@ try
 
     builder.Services.AddTransient<LoggingHelper>();
     builder.Services.AddTransient<ICaptchaService, RecaptchaService>();
+    builder.Services.AddTransient<IImportService, ImportService>();
 
     var app = builder.Build();
 

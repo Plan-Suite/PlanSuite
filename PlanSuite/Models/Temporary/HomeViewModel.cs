@@ -17,6 +17,7 @@ namespace PlanSuite.Models.Temporary
         public OrganisationMembership CurrentOrganisationMembership { get; set; }
         public List<ItemList> Organisations { get; set; } = new List<ItemList>();
         public List<Card> DueTasks { get; set; } = new List<Card>();
+        public ImportTrelloModel ImportTrello { get; set; } = new ImportTrelloModel();
 
         public class CreateProjectModel
         {
@@ -66,6 +67,11 @@ namespace PlanSuite.Models.Temporary
             public int OrganisationId { get; set; }
             public string OrganisationName { get; set; }
             public bool ProjectComplete { get; set; }
+        }
+
+        public class ImportTrelloModel
+        {
+            public string Json { get; set; }
         }
     }
 }

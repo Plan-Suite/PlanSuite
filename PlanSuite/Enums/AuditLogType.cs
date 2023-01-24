@@ -33,6 +33,7 @@
         AddedMilestone,
         AddedChecklist,
         Closed,
-        Opened
+        Opened,
+        ImportedTrello
     }
 }

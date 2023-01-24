@@ -29,8 +29,9 @@ namespace PlanSuite.Controllers
         private readonly IEmailSender m_EmailSender;
         private readonly ProjectService m_ProjectService;
         private readonly ICaptchaService m_CaptchaService;
+        private readonly IImportService m_ImportService;
 
-        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AuditService auditService, IEmailSender emailSender, ProjectService projectService, ICaptchaService captchaService)
+        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AuditService auditService, IEmailSender emailSender, ProjectService projectService, ICaptchaService captchaService, IImportService importService)
         {
             m_Database = context;
             m_Logger = logger;
@@ -41,6 +42,7 @@ namespace PlanSuite.Controllers
             m_EmailSender = emailSender;
             m_ProjectService = projectService;
             m_CaptchaService = captchaService;
+            m_ImportService = importService;
         }
 
         public async Task<IActionResult> Index(int orgId = 0)
@@ -681,6 +683,66 @@ namespace PlanSuite.Controllers
             var session = sessionService.Create(options);
 
             return Redirect(session.Url);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ImportTrello(HomeViewModel.ImportTrelloModel importTrello)
+        {
+            if(!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if(User == null || User.Identity == null)
+            {
+                return BadRequest("User was null");
+            }
+
+            var appUser = await m_UserManager.GetUserAsync(User);
+
+            var trelloBoard = m_ImportService.ImportTrelloJson(appUser, importTrello.Json);
+
+            var project = new Project();
+            project.Name = trelloBoard.Name;
+            project.Description = trelloBoard.Description;
+            project.CreatedDate = DateTime.Now;
+            project.DueDate = null;
+            project.OwnerId = Guid.Parse(m_UserManager.GetUserId(User));
+            project.OrganisationId = 0;
+            
+            await m_Database.Projects.AddAsync(project);
+            await m_Database.SaveChangesAsync();
+
+            await m_AuditService.InsertLogAsync(AuditLogCategory.Project, appUser, AuditLogType.ImportedTrello, project.Id);
+            await m_Database.SaveChangesAsync();
+
+            m_Logger.LogInformation($"Trello Import: Created project {project.Name}");
+
+            foreach (var column in trelloBoard.Lists)
+            {
+                int colId = await m_ProjectService.AddColumnAsync(project.Id, column.Name);
+                m_Logger.LogInformation($"Trello Import: Created column {column.Name}");
+
+                foreach(var card in column.Cards)
+                {
+                    int cardId = await m_ProjectService.AddTask(User, colId, card.Name, card.Description, card.Due);
+                    card.CardId = colId;
+
+                    /*for (int i = 0; i < column.Cards; i++)
+                    {
+                        AddChecklistModel addChecklist = new AddChecklistModel();
+                        addChecklist.Id = cardId;
+                        addChecklist.Name = column.Cards[i].Checklists
+                        m_ProjectService.AddChecklist()
+                    }*/
+
+                }
+                m_Logger.LogInformation($"Trello Import: Created {column.Cards.Count} in column {column.Name}");
+
+            }
+            m_Logger.LogInformation($"Account {m_UserManager.GetUserId(User)} successfully imported {project.Name} from Trello");
+
+            return RedirectToAction("Project", "Index", new { id = project.Id });
         }
     }
 }
