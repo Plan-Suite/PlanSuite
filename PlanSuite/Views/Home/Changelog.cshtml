@@ -12,7 +12,7 @@
 }
 <h1>Changelog</h1>
 
-@if(logCount > 0)
+@*@if(logCount > 0)
 {
     foreach(var changeLog in Model.Changelogs)
     {
@@ -28,4 +28,4 @@
         <h5>@Model.Localisation.Get(user, "FIXES")</h5>
         <p>@Html.Raw(Markdown.Parse(changeLog.Fixes))</p>
     }
-}
+}*@

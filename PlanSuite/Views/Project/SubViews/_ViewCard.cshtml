@@ -1,7 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using PlanSuite.Enums
 @using PlanSuite.Models.Persistent
+@using PlanSuite.Services
 @inject UserManager<ApplicationUser> UserManager
+@inject LocalisationService Localisation
 @model PlanSuite.Models.Temporary.ProjectViewModel
 @{
     ApplicationUser user = await UserManager.GetUserAsync(User);
@@ -50,7 +52,7 @@
                     <hr />
                     @* Card Description *@
                     <h6>Card Description <small class="text-muted">(Click description to modify)</small></h6>
-                    <p class="ps-modifiable" id="viewCardText">@Model.Localisation.Get(user,"DEFAULT_CARD_DESC")</p>
+                    <p class="ps-modifiable" id="viewCardText">@Localisation.Get(user,"DEFAULT_CARD_DESC")</p>
                     <div class="d-none" id="viewCardEditText">
                         <div class="mb-3">
                             <textarea class="form-control text-box single-line" id="viewCardEditTextEditor" rows="3" value=""></textarea>

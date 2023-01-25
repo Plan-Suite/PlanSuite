@@ -1,7 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using PlanSuite.Enums
 @using PlanSuite.Models.Persistent
+@using PlanSuite.Services
 @inject UserManager<ApplicationUser> UserManager
+@inject LocalisationService Localisation
 @model PlanSuite.Models.Temporary.ProjectViewModel
 @{
     int projectId = Model.Project.Id;
@@ -15,7 +17,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addMemberLabel">@Model.Localisation.Get(user, "ADD_MEMBER")</h5>
+                <h5 class="modal-title" id="addMemberLabel">@Localisation.Get(user, "ADD_MEMBER")</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             @using (Html.BeginForm("AddMember", "Project", FormMethod.Post))
@@ -54,13 +56,13 @@
                             @Html.DropDownListFor(model => model.AddMember.UserId, organisationMembers.ToArray(), new { @class="form-select" })
 
                             @*<label class="m-1" for="addMemberInput">Organisation Member:</label>
-                    <input type="email" id="addMemberInput" class="form-control" placeholder="@Model.Localisation.Get(user, "EMAIL")" />*@
+                    <input type="email" id="addMemberInput" class="form-control" placeholder="@Localisation.Get(user, "EMAIL")" />*@
                         </div>
                     }
                     <br>
                     <div class="modal-footer">
-                        <button type="submit" class="btn ps-btn-primary" @*data-bs-dismiss="modal" id="addMemberBtn"*@>@Model.Localisation.Get(user, "ADD_MEMBER")</button>
-                        <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CANCEL")</button>
+                        <button type="submit" class="btn ps-btn-primary" @*data-bs-dismiss="modal" id="addMemberBtn"*@>@Localisation.Get(user, "ADD_MEMBER")</button>
+                        <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Localisation.Get(user, "CANCEL")</button>
                     </div>
                 </div>
             }

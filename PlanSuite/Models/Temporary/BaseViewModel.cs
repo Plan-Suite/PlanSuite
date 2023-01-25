@@ -4,6 +4,6 @@ namespace PlanSuite.Models.Temporary
 {
     public abstract class BaseViewModel
     {
-        public LocalisationService Localisation { get; private set; } = LocalisationService.Instance;
+        public LocalisationService Localisation { get; private set; }
     }
 }

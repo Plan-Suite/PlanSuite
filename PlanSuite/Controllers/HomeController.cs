@@ -30,19 +30,21 @@ namespace PlanSuite.Controllers
         private readonly ProjectService m_ProjectService;
         private readonly ICaptchaService m_CaptchaService;
         private readonly IImportService m_ImportService;
+        private readonly HomeService m_HomeService;
 
-        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AuditService auditService, IEmailSender emailSender, ProjectService projectService, ICaptchaService captchaService, IImportService importService)
+        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, LocalisationService localisationService, AuditService auditService, IEmailSender emailSender, ProjectService projectService, ICaptchaService captchaService, IImportService importService, HomeService homeService)
         {
             m_Database = context;
             m_Logger = logger;
             m_UserManager = userManager;
             m_SignInManager = signInManager;
-            m_Localisation = LocalisationService.Instance;
+            m_Localisation = localisationService;
             m_AuditService = auditService;
             m_EmailSender = emailSender;
             m_ProjectService = projectService;
             m_CaptchaService = captchaService;
             m_ImportService = importService;
+            m_HomeService = homeService;
         }
 
         public async Task<IActionResult> Index(int orgId = 0)

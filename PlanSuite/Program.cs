@@ -93,6 +93,9 @@ try
     builder.Services.AddTransient<LoggingHelper>();
     builder.Services.AddTransient<ICaptchaService, RecaptchaService>();
     builder.Services.AddTransient<IImportService, ImportService>();
+    builder.Services.AddTransient<HomeService>();
+
+    builder.Services.AddSingleton<LocalisationService>();
 
     var app = builder.Build();
 
@@ -133,7 +136,6 @@ try
         await ApplicationDbInitialise.Initialize(scope.ServiceProvider);
     }
 
-    new LocalisationService();
     await EmailService.InitEmailService(configuration["EmailUser"].ToString(), configuration["EmailPass"].ToString(), configuration["EmailConfigSet"].ToString(), configuration["EmailHost"].ToString(), int.Parse(configuration["EmailPort"].ToString()), configuration["EmailConfigEmail"].ToString(), configuration["EmailConfigName"].ToString());
     PaymentService.InitPaymentService(configuration["StripeApi"].ToString(), configuration["StripeSecret"].ToString(), configuration["StripePlus"].ToString(), configuration["StripePro"].ToString());
 

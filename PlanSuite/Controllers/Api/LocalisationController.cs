@@ -10,6 +10,13 @@ namespace PlanSuite.Controllers.Api
     [ApiController]
     public class LocalisationController : ControllerBase
     {
+        private readonly LocalisationService m_LocalisationService;
+
+        public LocalisationController(LocalisationService localisationService)
+        {
+            m_LocalisationService = localisationService;
+        }
+
         [HttpGet("GetStrings")]
         public ActionResult<LocalisationResponse> GetStrings(string userLang)
         {
@@ -17,7 +24,7 @@ namespace PlanSuite.Controllers.Api
             response.Data = new Dictionary<string, string>();
             if(userLang.Equals("En-Gb", StringComparison.OrdinalIgnoreCase))
             {
-                var resSet = LocalisationService.Instance.LanguageResources[Enums.Language.English].GetResourceSet(CultureInfo.CurrentCulture, false, false);
+                var resSet = m_LocalisationService.LanguageResources[Enums.Language.English].GetResourceSet(CultureInfo.CurrentCulture, false, false);
                 foreach (DictionaryEntry entry in resSet)
                 {
                     response.Data.Add(entry.Key.ToString(), entry.Value.ToString());

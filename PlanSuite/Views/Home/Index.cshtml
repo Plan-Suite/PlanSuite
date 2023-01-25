@@ -10,6 +10,7 @@
 @using static PlanSuite.Models.Temporary.HomeViewModel
 @inject UserManager<ApplicationUser> UserManager
 @inject SignInManager<ApplicationUser> SignInManager
+@inject LocalisationService Localisation
 @model PlanSuite.Models.Temporary.HomeViewModel
 @{
     if (SignInManager.IsSignedIn(User))
@@ -34,7 +35,7 @@
     budgetUnits.Add(new SelectListItem()
     {
         Value = "None",
-        Text = Model.Localisation.Get(user, "NONE")
+        Text = Localisation.Get(user, "NONE")
     });
 
     var currencyUnits = CurrencyTools.GetAllSymbols();
@@ -58,21 +59,21 @@
 {
     if (orgStatusCode > OrganisationErrorCode.Success)
     {
-        string errorMessage = Model.Localisation.Get(user, "UNKNOWN_ERROR");
+        string errorMessage = Localisation.Get(user, "UNKNOWN_ERROR");
         switch (orgStatusCode)
         {
             case OrganisationErrorCode.IsFreeTier:
             case OrganisationErrorCode.IsPlusTier:
-                errorMessage = Model.Localisation.Get(user, "ORG_CREATE_ERROR_ORG_LIMIT");
+                errorMessage = Localisation.Get(user, "ORG_CREATE_ERROR_ORG_LIMIT");
                 break;
             default:
-                errorMessage = Model.Localisation.Get(user, "ORG_CREATE_ERROR_SERVER");
+                errorMessage = Localisation.Get(user, "ORG_CREATE_ERROR_SERVER");
                 break;
         }
                                         <div class="ps-alert ps-alert-error mt-3"><i class="bi bi-exclamation-triangle"></i> @errorMessage</div>
     }
 
-    string header = "Home";//@Model.Localisation.Get(user, "HOME");
+    string header = "Home";//@Localisation.Get(user, "HOME");
     if (Model.ViewingOrganisation != null)
     {
         header = Model.ViewingOrganisation.Name;
@@ -107,7 +108,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="createProjectLabel">@Model.Localisation.Get(user, "CREATE_NEW_PROJECT")</h5>
+                    <h5 class="modal-title" id="createProjectLabel">@Localisation.Get(user, "CREATE_NEW_PROJECT")</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form method="post" asp-controller="Home" asp-action="Create">
@@ -138,24 +139,24 @@
                                 @{
                                     
                                 }
-                                @Html.LabelFor(model => model.CreateProject.BudgetType, Model.Localisation.Get(user, "BUDGET_TYPE"), new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.LabelFor(model => model.CreateProject.BudgetType, Localisation.Get(user, "BUDGET_TYPE"), new { htmlAttributes = new { @class = "form-label" } })
                                 @Html.DropDownListFor(model => model.CreateProject.BudgetType, budgetTypes.ToArray(), new { @class = "form-select" })
                                 @Html.ValidationMessageFor(model => model.CreateProject.BudgetType, "", new { @class = "text-danger" })
                             </div>
                             <div class="col-auto">
-                                @Html.LabelFor(model => model.CreateProject.Budget, Model.Localisation.Get(user, "BUDGET"), new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.LabelFor(model => model.CreateProject.Budget, Localisation.Get(user, "BUDGET"), new { htmlAttributes = new { @class = "form-label" } })
                                 @Html.EditorFor(model => model.CreateProject.Budget, new { htmlAttributes = new { @class = "form-control" } })
                                 @Html.ValidationMessageFor(model => model.CreateProject.Budget, "", new { @class = "text-danger" })
                             </div>
                             <div class="col-auto">
-                                @Html.LabelFor(model => model.CreateProject.BudgetUnit, Model.Localisation.Get(user, "BUDGET_UNIT"), new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.LabelFor(model => model.CreateProject.BudgetUnit, Localisation.Get(user, "BUDGET_UNIT"), new { htmlAttributes = new { @class = "form-label" } })
                                 @Html.DropDownListFor(model => model.CreateProject.BudgetUnit, budgetUnits.ToArray(), new { @class = "form-select" })
                                 @Html.ValidationMessageFor(model => model.CreateProject.BudgetUnit, "", new { @class = "text-danger" })
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
-                            <button type="submit" class="btn ps-btn-primary">@Model.Localisation.Get(user, "CREATE_PROJECT")</button>
+                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Localisation.Get(user, "CLOSE")</button>
+                            <button type="submit" class="btn ps-btn-primary">@Localisation.Get(user, "CREATE_PROJECT")</button>
                         </div>
                     </div>
                 </form>
@@ -195,7 +196,7 @@
                             {
                                 <div class="form-floating mb-3">
                                     <select id="editProjOrg" class="form-control" asp-for="EditProject.Organisation" asp-items="@(new SelectList(Model.Organisations, "Value", "Name"))">
-                                        <option value="0">@Model.Localisation.Get(user, "NONE")</option>
+                                        <option value="0">@Localisation.Get(user, "NONE")</option>
                                     </select>
                                     @Html.LabelFor(model => model.EditProject.Organisation, new { htmlAttributes = new { @class = "form-label" } })
                                 </div>
@@ -209,7 +210,7 @@
                         {
                             <div class="form-floating mb-3">
                                 <select id="editProjOrg" class="form-control" asp-for="EditProject.Organisation" asp-items="@(new SelectList(Model.Organisations, "Value", "Name"))">
-                                    <option value="0">@Model.Localisation.Get(user, "NONE")</option>
+                                    <option value="0">@Localisation.Get(user, "NONE")</option>
                                 </select>
                             </div>
                         }
@@ -220,24 +221,24 @@
                         </div>
                         <div class="row form-floating mb-3">
                             <div class="col-auto">
-                                @Html.LabelFor(model => model.EditProject.BudgetType, Model.Localisation.Get(user, "BUDGET_TYPE"), new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.LabelFor(model => model.EditProject.BudgetType, Localisation.Get(user, "BUDGET_TYPE"), new { htmlAttributes = new { @class = "form-label" } })
                                 @Html.DropDownListFor(model => model.EditProject.BudgetType, budgetTypes.ToArray(), new { @class = "form-select", id = "editProjBudgetType" })
                                 @Html.ValidationMessageFor(model => model.EditProject.BudgetType, "", new { @class = "text-danger" })
                             </div>
                             <div class="col-auto">
-                                @Html.LabelFor(model => model.EditProject.Budget, Model.Localisation.Get(user, "BUDGET"), new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.LabelFor(model => model.EditProject.Budget, Localisation.Get(user, "BUDGET"), new { htmlAttributes = new { @class = "form-label" } })
                                 @Html.EditorFor(model => model.EditProject.Budget, new { htmlAttributes = new { @class = "form-control", id = "editProjBudget" } })
                                 @Html.ValidationMessageFor(model => model.EditProject.Budget, "", new { @class = "text-danger" })
                             </div>
                             <div class="col-auto">
-                                @Html.LabelFor(model => model.EditProject.BudgetUnit, Model.Localisation.Get(user, "BUDGET_UNIT"), new { htmlAttributes = new { @class = "form-label" } })
+                                @Html.LabelFor(model => model.EditProject.BudgetUnit, Localisation.Get(user, "BUDGET_UNIT"), new { htmlAttributes = new { @class = "form-label" } })
                                 @Html.DropDownListFor(model => model.EditProject.BudgetUnit, budgetUnits.ToArray(), new { @class = "form-select", id = "editProjBudgetUnit" })
                                 @Html.ValidationMessageFor(model => model.EditProject.BudgetUnit, "", new { @class = "text-danger" })
                             </div>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
-                            <button type="submit" class="btn ps-btn-primary">@Model.Localisation.Get(user, "SAVE_CHANGES")</button>
+                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Localisation.Get(user, "CLOSE")</button>
+                            <button type="submit" class="btn ps-btn-primary">@Localisation.Get(user, "SAVE_CHANGES")</button>
                         </div>
                     </div>
                 </form>
@@ -264,8 +265,8 @@
                             <br>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
-                            <button type="submit" class="btn ps-btn-danger" id="deleteButton" disabled>@Model.Localisation.Get(user, "DELETE_PROJECT")</button>
+                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Localisation.Get(user, "CLOSE")</button>
+                            <button type="submit" class="btn ps-btn-danger" id="deleteButton" disabled>@Localisation.Get(user, "DELETE_PROJECT")</button>
                         </div>
                     </div>
                 </form>
@@ -290,8 +291,8 @@
                             @Html.ValidationMessageFor(model => model.ImportTrello.Json, "", new { @class = "text-danger" })
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
-                            <button type="submit" class="btn ps-btn-primary">@Model.Localisation.Get(user, "CREATE_PROJECT")</button>
+                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Localisation.Get(user, "CLOSE")</button>
+                            <button type="submit" class="btn ps-btn-primary">@Localisation.Get(user, "CREATE_PROJECT")</button>
                         </div>
                     </div>
                 </form>
@@ -324,7 +325,7 @@
         }
         else
         {
-            <p>@Model.Localisation.Get(user, "NO_TASKS")</p>
+            <p>@Localisation.Get(user, "NO_TASKS")</p>
         }
 
         <h3 class="ps-page-title"><i class="bi bi-clipboard"></i> Active Projects</h3>
@@ -499,7 +500,7 @@
         }
         else
         {
-            <p>@Model.Localisation.Get(user, "NO_PROJECTS")</p>
+            <p>@Localisation.Get(user, "NO_PROJECTS")</p>
         }
         
         @if (completeProjectCount > 0)
