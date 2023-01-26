@@ -535,7 +535,7 @@ export class ProjectCommon {
                 console.log(response.checklistId == dbId);
                 ProjectCommon.insertChecklistItem(dbId, false, response.id, response.itemName, true);
             },
-            data: JSON.stringify({ checklistId: dbId, itemText: input }),
+            data: JSON.stringify({ checklistId: dbId, itemText: input, completed: false }),
         });
     }
 

@@ -6,6 +6,9 @@ namespace PlanSuite.Models.Persistent
 {
     public class ApplicationUser : IdentityUser
     {
+        [NotMapped]
+        public Guid UserId => Guid.Parse(Id);
+
         public PaymentTier PaymentTier { get; set; }
         public DateTime? PaymentExpiry { get; set; }
         public bool FinishedFirstTimeLogin { get; set; }

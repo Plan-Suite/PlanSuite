@@ -1,6 +1,5 @@
 #!/bin/bash
 # We're keeping a sudo cache now so we can run root cmds without needing to input password later.
-sudo -v
 
 today=`date +%d%b%y_%H%M`
 USER=`whoami`
@@ -9,11 +8,12 @@ DATABASE=plan_suite
 USER=plan-suite
 OUTPUT=~/build/Output
 GIT=git@github.com:Plan-Suite/PlanSuite.git
+BRANCH=staging
 
 echo "-> Downloading latest build"
 cd ~/build
 rm -rf ~/build/PlanSuite
-git clone ${GIT}
+git clone -b ${BRANCH} ${GIT}
 cd ..
 
 echo "-> Cleaning old build"
@@ -29,7 +29,7 @@ if dotnet publish ~/build/PlanSuite/PlanSuite/PlanSuite.csproj --configuration R
 then
     echo "-> Copying files"
     cp ~/build/appsettings.json ~/build/Output/appsettings.json
-    sudo cp -R ${OUTPUT}/* /var/www/plansuite
+    cp -R ${OUTPUT}/* /var/www/plansuite
 
     echo "-> Backing up database"
     mysqldump --defaults-file=~/.my.cnf -u ${USER} ${DATABASE}|gzip > ${SQLFILE}-$today.sql.gz
@@ -39,11 +39,6 @@ then
     cp ~/build/appsettings.json ~/build/PlanSuite/PlanSuite/appsettings.json
     dotnet ef migrations bundle --self-contained -r linux-x64 --configuration Bundle
     ~/build/PlanSuite/PlanSuite/efbundle
-
-    echo "-> Applying correct permissions"
-    sudo mkdir -p /var/log/plansuite
-    sudo chown -R www-data:www-data /var/log/plansuite
-    sudo chown -R www-data:www-data /var/www/plansuite
 
     echo "-> Restarting website"
     sudo service plansuite restart

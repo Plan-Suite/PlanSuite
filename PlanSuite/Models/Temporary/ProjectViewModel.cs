@@ -106,6 +106,7 @@ namespace PlanSuite.Models.Temporary
     {
         public int ChecklistId { get; set; }
         public string ItemText { get; set; }
+        public bool Completed {get;set;}
     }
 
     public class EditChecklistItemTickedStateModel
