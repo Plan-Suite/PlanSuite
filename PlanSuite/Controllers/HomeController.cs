@@ -434,7 +434,6 @@ namespace PlanSuite.Controllers
             }
             m_Logger.LogInformation($"Trello Import: Account {m_UserManager.GetUserId(User)} successfully created {project.Id}");
             return RedirectToAction(nameof(ProjectController.Index), "Project", new { id = project.Id });
-            //return RedirectToAction("Index", "Project", new { id = project.Id });
         }
     }
 }
