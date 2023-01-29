@@ -24,12 +24,14 @@ namespace PlanSuite.Areas.Identity.Pages.Account
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IEmailSender _emailSender;
         private readonly ApplicationDbContext m_Database;
+        private readonly ILogger<ForgotPasswordModel> m_Logger;
 
-        public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender, ApplicationDbContext database)
+        public ForgotPasswordModel(UserManager<ApplicationUser> userManager, IEmailSender emailSender, ApplicationDbContext database, ILogger<ForgotPasswordModel> logger)
         {
             _userManager = userManager;
             _emailSender = emailSender;
             m_Database = database;
+            m_Logger = logger;
         }
 
         /// <summary>
@@ -61,13 +63,13 @@ namespace PlanSuite.Areas.Identity.Pages.Account
                 var user = await _userManager.FindByEmailAsync(Input.Email);
                 if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
                 {
-                    Console.WriteLine($"User does not exist thus no password forgot message has been sent.");
+                    m_Logger.LogWarning($"User does not exist thus no password forgot message has been sent.");
 
                     // Don't reveal that the user does not exist or is not confirmed
                     return RedirectToPage("./ForgotPasswordConfirmation");
                 }
 
-                Console.WriteLine($"User exists, password forgot message has been sent.");
+                m_Logger.LogInformation($"User exists, password forgot message has been sent.");
 
                 // For more information on how to enable account confirmation and password reset please
                 // visit https://go.microsoft.com/fwlink/?LinkID=532713

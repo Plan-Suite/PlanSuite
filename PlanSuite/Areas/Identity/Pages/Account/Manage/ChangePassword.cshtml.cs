@@ -118,7 +118,7 @@ namespace PlanSuite.Areas.Identity.Pages.Account.Manage
             await _signInManager.RefreshSignInAsync(user);
             _logger.LogInformation("User changed their password successfully.");
             StatusMessage = "Your password has been changed.";
-            Console.WriteLine($"SECURITY: Password for {user.FullName} has been changed");
+            _logger.LogInformation($"SECURITY: Password for {user.FullName} has been changed");
 
             return RedirectToPage();
         }

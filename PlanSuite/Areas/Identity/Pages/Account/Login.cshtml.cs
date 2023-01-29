@@ -131,7 +131,7 @@ namespace PlanSuite.Areas.Identity.Pages.Account
                 // To enable password failures to trigger account lockout, set lockoutOnFailure: true
                 var result = await _signInManager.PasswordSignInAsync(user, Input.Password, Input.RememberMe, lockoutOnFailure: false);
                 //var result = await _signInManager.PasswordSignInAsync(Input.UserName, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-                Console.WriteLine($"Attempt login for {Input.Email}");
+                logger.LogInformation($"Attempt login for {Input.Email}");
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User logged in.");
