@@ -1,6 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using PlanSuite.Models.Persistent
+@using PlanSuite.Services
 @inject UserManager<ApplicationUser> UserManager
+@inject LocalisationService Localisation
 @model PlanSuite.Models.Temporary.ProjectViewModel
 @{
     int projectId = Model.Project.Id;
@@ -12,15 +14,15 @@
     <div class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
-        <h5 class="modal-title" id="projectMembersLabel">@Model.Localisation.Get(user, "LEAVE_PROJ")</h5>
+        <h5 class="modal-title" id="projectMembersLabel">@Localisation.Get(user, "LEAVE_PROJ")</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
             <div class="modal-body">
-                <p>@Model.Localisation.Get(user, "LEAVE_PROJ_CONFIRM")</p>
+                <p>@Localisation.Get(user, "LEAVE_PROJ_CONFIRM")</p>
                 <br>
                 <div class="modal-footer">
-                    <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CANCEL")</button>
-                    <button type="button" class="btn ps-btn-danger" data-bs-dismiss="modal" id="onLeaveProjectBtn">@Model.Localisation.Get(user, "LEAVE_PROJ")</button>
+                    <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Localisation.Get(user, "CANCEL")</button>
+                    <button type="button" class="btn ps-btn-danger" data-bs-dismiss="modal" id="onLeaveProjectBtn">@Localisation.Get(user, "LEAVE_PROJ")</button>
                 </div>
             </div>
         </div>

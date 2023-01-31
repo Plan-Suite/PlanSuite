@@ -1,7 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using PlanSuite.Enums
 @using PlanSuite.Models.Persistent
+@using PlanSuite.Services
 @inject UserManager<ApplicationUser> UserManager
+@inject LocalisationService Localisation
 @model PlanSuite.Models.Temporary.ProjectViewModel
 @{
     int projectId = Model.Project.Id;
@@ -110,7 +112,7 @@
                     <br>
                     <div class="modal-footer">
                         <button type="submit" class="btn ps-btn-primary">Create Task</button>
-                        <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CANCEL")</button>
+                        <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Localisation.Get(user, "CANCEL")</button>
                     </div>
                 </div>
             }

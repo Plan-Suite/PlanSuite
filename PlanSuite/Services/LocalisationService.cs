@@ -18,7 +18,6 @@ namespace PlanSuite.Services
 
         public LocalisationService()
         {
-            Instance = this;
             foreach (var language in SupportedLanguages)
             {
                 var assembly = Assembly.GetExecutingAssembly();

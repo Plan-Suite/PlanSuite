@@ -1,7 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using PlanSuite.Models.Persistent
+@using PlanSuite.Services
 @using PlanSuite.Utility
 @inject UserManager<ApplicationUser> UserManager
+@inject LocalisationService Localisation
 @model PlanSuite.Models.Temporary.ProjectViewModel
 @{
     int projectId = Model.Project.Id;
@@ -25,7 +27,7 @@
                 <div class="column" id="@item.Id">
                     <div class="card mb-1 script-ignore">
                         <div class="d-grid gap-2">
-                            <a class="btn ps-btn-white ps-card-item-selector" style="text-align:left;" href="#" id="addTask_@item.Id" data-bs-toggle="modal" data-bs-target="#addTaskModal">@Html.Raw(Model.Localisation.Get(user, "ADD_NEW_CARD"))</a>
+                            <a class="btn ps-btn-white ps-card-item-selector" style="text-align:left;" href="#" id="addTask_@item.Id" data-bs-toggle="modal" data-bs-target="#addTaskModal">@Html.Raw(Localisation.Get(user, "ADD_NEW_CARD"))</a>
                         </div>
                     </div>
                     @foreach (var card in Model.Cards)
@@ -36,7 +38,7 @@
                             string overdue = string.Empty;
                             if (card.CardDueDate != null && card.CardDueDate < DateTime.Now && card.IsFinished == false)
                             {
-                                overdue = $"<span class=\"badge bg-danger\">{Model.Localisation.Get(user, "OVERDUE")}</span>";
+                                overdue = $"<span class=\"badge bg-danger\">{Localisation.Get(user, "OVERDUE")}</span>";
                             }
                             string priority = string.Empty;
                             if (card.CardPriority > PlanSuite.Enums.Priority.None && card.IsFinished == false)
@@ -45,17 +47,17 @@
                                 {
                                     case PlanSuite.Enums.Priority.Low:
                                         priority += "<span class=\"badge bg-success\">";
-                                        priority += Model.Localisation.Get(user, "LOW_PRIORITY");
+                                        priority += Localisation.Get(user, "LOW_PRIORITY");
                                         priority += "</span>";
                                         break;
                                     case PlanSuite.Enums.Priority.Medium:
                                         priority += "<span class=\"badge bg-warning\">";
-                                        priority += Model.Localisation.Get(user, "MED_PRIORITY");
+                                        priority += Localisation.Get(user, "MED_PRIORITY");
                                         priority += "</span>";
                                         break;
                                     case PlanSuite.Enums.Priority.High:
                                         priority += "<span class=\"badge bg-danger\">";
-                                        priority += Model.Localisation.Get(user, "HIGH_PRIORITY");
+                                        priority += Localisation.Get(user, "HIGH_PRIORITY");
                                         priority += "</span>";
                                         break;
                                 }

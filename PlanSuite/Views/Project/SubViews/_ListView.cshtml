@@ -1,6 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using PlanSuite.Models.Persistent
+@using PlanSuite.Services
 @inject UserManager<ApplicationUser> UserManager
+@inject LocalisationService Localisation
 @model PlanSuite.Models.Temporary.ProjectViewModel
 @{
     int projectId = Model.Project.Id;
@@ -27,7 +29,7 @@
                         string overdue = string.Empty;
                         if (card.CardDueDate != null && card.CardDueDate < DateTime.Now && card.IsFinished == false)
                         {
-                            overdue = $"<span class=\"badge bg-danger\">{Model.Localisation.Get(user, "OVERDUE")}</span>";
+                            overdue = $"<span class=\"badge bg-danger\">{Localisation.Get(user, "OVERDUE")}</span>";
                         }
                         string priority = string.Empty;
                         if (card.CardPriority > PlanSuite.Enums.Priority.None && card.IsFinished == false)
@@ -36,17 +38,17 @@
                             {
                                 case PlanSuite.Enums.Priority.Low:
                                     priority += "<span class=\"badge bg-success\">";
-                                    priority += Model.Localisation.Get(user, "LOW");
+                                    priority += Localisation.Get(user, "LOW");
                                     priority += "</span>";
                                     break;
                                 case PlanSuite.Enums.Priority.Medium:
                                     priority += "<span class=\"badge bg-warning\">";
-                                    priority += Model.Localisation.Get(user, "MEDIUM");
+                                    priority += Localisation.Get(user, "MEDIUM");
                                     priority += "</span>";
                                     break;
                                 case PlanSuite.Enums.Priority.High:
                                     priority += "<span class=\"badge bg-danger\">";
-                                    priority += Model.Localisation.Get(user, "HIGH");
+                                    priority += Localisation.Get(user, "HIGH");
                                     priority += "</span>";
                                     break;
                             }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using PlanSuite.Data;
 using PlanSuite.Enums;
 using PlanSuite.Interfaces;
@@ -30,19 +31,21 @@ namespace PlanSuite.Controllers
         private readonly ProjectService m_ProjectService;
         private readonly ICaptchaService m_CaptchaService;
         private readonly IImportService m_ImportService;
+        private readonly HomeService m_HomeService;
 
-        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AuditService auditService, IEmailSender emailSender, ProjectService projectService, ICaptchaService captchaService, IImportService importService)
+        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, LocalisationService localisationService, AuditService auditService, IEmailSender emailSender, ProjectService projectService, ICaptchaService captchaService, IImportService importService, HomeService homeService)
         {
             m_Database = context;
             m_Logger = logger;
             m_UserManager = userManager;
             m_SignInManager = signInManager;
-            m_Localisation = LocalisationService.Instance;
+            m_Localisation = localisationService;
             m_AuditService = auditService;
             m_EmailSender = emailSender;
             m_ProjectService = projectService;
             m_CaptchaService = captchaService;
             m_ImportService = importService;
+            m_HomeService = homeService;
         }
 
         public async Task<IActionResult> Index(int orgId = 0)
@@ -52,277 +55,13 @@ namespace PlanSuite.Controllers
             HomeViewModel viewModel = new HomeViewModel();
             if (m_SignInManager.IsSignedIn(User))
             {
-                viewModel.DueTasks = new List<Models.Persistent.Card>();
-                viewModel.OwnedProjects = new List<HomeViewModel.ProjectModel>();
-                Guid userId = Guid.Parse(m_UserManager.GetUserId(User));
-                viewModel.CreateOrganisation.OwnerId = userId;
-
-                var user = await m_UserManager.FindByIdAsync(userId.ToString());
+                var user = await m_UserManager.GetUserAsync(User);
                 if(user != null)
                 {
                     JoinController.DoFinishedRegistrationChecks(this, user);
                     user.LastVisited = DateTime.Now;
                     await m_UserManager.UpdateAsync(user);
-                }
-
-                if (orgId >= 1)
-                {
-                    m_Logger.LogInformation($"Grabbing projects for organisation {orgId} for user {userId}");
-
-                    // Validate if they are actually in said organisation.
-
-                    var orgMember = m_Database.OrganizationsMembership.Where(member => 
-                        member.UserId == userId &&
-                        member.OrganisationId == orgId &&
-                        member.Role >= ProjectRole.User).FirstOrDefault();
-                    if(orgMember == null)
-                    {
-                        m_Logger.LogWarning($"User is not a member of organisation {orgId}");
-                        return RedirectToAction(nameof(Index));
-                    }
-
-                    var organisation = m_Database.Organizations.Where(org => org.Id == orgId).FirstOrDefault();
-                    if(organisation == null)
-                    {
-                        m_Logger.LogWarning($"Organisation {orgId} does not exist");
-                        return RedirectToAction(nameof(Index));
-                    }
-
-                    viewModel.Organisations.Add(new ItemList()
-                    {
-                        Name = organisation.Name,
-                        Value = organisation.Id
-                    });
-
-                    // Show organisation projects
-                    m_Logger.LogInformation($"Grabbing organisation projects for organisation {orgId} for user {userId}");
-                    var organisationProjects = m_Database.Projects.Where(p => p.OrganisationId == orgId).ToList();
-                    if (organisationProjects != null && organisationProjects.Count > 0)
-                    {
-                        foreach(var project in organisationProjects)
-                        {
-                            HomeViewModel.ProjectModel model = new HomeViewModel.ProjectModel
-                            {
-                                Id = project.Id,
-                                Name = project.Name,
-                                Description = project.Description,
-                                CreatedDate = project.CreatedDate,
-                                DueDate = project.DueDate,
-                                Client = project.Client,
-                                Budget = project.Budget,
-                                ProjectBudgetType = (int)project.BudgetType,
-                                BudgetMonetaryUnit = project.BudgetMonetaryUnit,
-                                ProjectUsedBudget = m_ProjectService.GetUsedBudget(project.Id),
-                                OrganisationId = organisation.Id,
-                                OrganisationName = organisation.Name,
-                                ProjectComplete = project.ProjectCompleted
-                            };
-                            viewModel.MemberProjects.Add(model);
-                        }
-                    }
-                    m_Logger.LogInformation($"Added {organisationProjects.Count} projects to user {userId} viewModel");
-
-                    viewModel.ViewingOrganisation = organisation;
-                    viewModel.CurrentOrganisationMembership = orgMember;
-                    viewModel.CreateProject.OrganisationId = orgId;
-
-                    return View(viewModel);
-                }
-
-                m_Logger.LogInformation($"Grabbing projects for user {userId}");
-                // Get projects where user is owner
-                var ownedProjects = m_Database.Projects.Where(p => p.OwnerId == userId && p.OrganisationId < 1).ToList();
-                if (ownedProjects != null && ownedProjects.Count > 0)
-                {
-                    m_Logger.LogInformation($"Grabbing {ownedProjects.Count} owned projects for user {userId}");
-                    foreach (var project in ownedProjects)
-                    {
-                        Organisation organisation = null;
-                        if (project.OrganisationId > 0)
-                        {
-                            organisation = await m_Database.Organizations.Where(org => org.Id == project.OrganisationId).FirstOrDefaultAsync();
-                        }
-
-                        HomeViewModel.ProjectModel model = new HomeViewModel.ProjectModel
-                        {
-                            Id = project.Id,
-                            Name = project.Name,
-                            Description = project.Description,
-                            CreatedDate = project.CreatedDate,
-                            DueDate = project.DueDate,
-                            Client = project.Client,
-                            Budget = project.Budget,
-                            ProjectBudgetType = (int)project.BudgetType,
-                            BudgetMonetaryUnit = project.BudgetMonetaryUnit,
-                            ProjectUsedBudget = m_ProjectService.GetUsedBudget(project.Id),
-                            ProjectComplete = project.ProjectCompleted
-                        };
-
-                        if (organisation != null)
-                        {
-                            model.OrganisationId = organisation.Id;
-                            model.OrganisationName = organisation.Name;
-                        }
-                        viewModel.OwnedProjects.Add(model);
-                    }
-
-                    m_Logger.LogInformation($"Grabbing unowned due tasks for user {userId}");
-                    foreach(var project in ownedProjects)
-                    {
-                        var columns = m_Database.Columns.Where(c => c.ProjectId == project.Id).ToList();
-                        if (columns != null && columns.Count > 0)
-                        {
-                            foreach (var column in columns)
-                            {
-                                var cards = m_Database.Cards.Where(card => card.ColumnId == column.Id && card.IsFinished == false).ToList();
-                                if (cards != null && cards.Count > 0)
-                                {
-                                    foreach (var card in cards)
-                                    {
-                                        if (card.CardDueDate != null && card.CardDueDate <= DateTime.Now.AddMonths(1))
-                                        {
-                                            viewModel.DueTasks.Add(card);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // Get projects where user is member
-                var projectAccesses = m_Database.ProjectsAccess.Where(access => access.UserId == userId).ToList();
-                if (projectAccesses != null && projectAccesses.Count > 0)
-                {
-                    m_Logger.LogInformation($"Grabbing {projectAccesses.Count} member projects for user {userId}");
-                    foreach (var access in projectAccesses)
-                    {
-                        var project = m_Database.Projects.Where(project => project.Id == access.ProjectId && access.ProjectRole >= ProjectRole.User).FirstOrDefault();
-                        if (project != null)
-                        {
-                            Organisation organisation = null;
-                            if(project.OrganisationId > 0)
-                            {
-                                organisation = await m_Database.Organizations.Where(org => org.Id == project.OrganisationId).FirstOrDefaultAsync();
-                            }
-
-                            HomeViewModel.ProjectModel model = new HomeViewModel.ProjectModel
-                            {
-                                Id = project.Id,
-                                Name = project.Name,
-                                Description = project.Description,
-                                CreatedDate = project.CreatedDate,
-                                DueDate = project.DueDate,
-                                Client = project.Client,
-                                Budget = project.Budget,
-                                ProjectBudgetType = (int)project.BudgetType,
-                                BudgetMonetaryUnit = project.BudgetMonetaryUnit,
-                                ProjectUsedBudget = m_ProjectService.GetUsedBudget(project.Id),
-                                ProjectComplete = project.ProjectCompleted
-                            };
-
-                            if(organisation != null)
-                            {
-                                model.OrganisationId = organisation.Id;
-                                model.OrganisationName = organisation.Name;
-                            }
-
-                            viewModel.MemberProjects.Add(model);
-
-                            m_Logger.LogInformation($"Grabbing due tasks for user {userId} for project {project.Id}");
-                            var columns = m_Database.Columns.Where(c => c.ProjectId == project.Id).ToList();
-                            if (columns != null && columns.Count > 0)
-                            {
-                                foreach (var column in columns)
-                                {
-                                    var cards = m_Database.Cards.Where(card => card.ColumnId == column.Id && card.IsFinished == false).ToList();
-                                    if (cards != null && cards.Count > 0)
-                                    {
-                                        foreach (var card in cards)
-                                        {
-                                            if (card.CardDueDate != null && card.CardDueDate <= DateTime.Now.AddMonths(1))
-                                            {
-                                                viewModel.DueTasks.Add(card);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                // get all organisations user is member of and then return said organisation owned projects projects
-                var organisationMemberships = m_Database.OrganizationsMembership.Where(member => member.UserId == userId).ToList();
-                if (organisationMemberships != null && organisationMemberships.Count > 0)
-                {
-                    m_Logger.LogInformation($"Grabbing organisation projects for {organisationMemberships.Count} organisations for user {userId}");
-                    foreach (var organisationMemership in organisationMemberships)
-                    {
-                        int organisationId = organisationMemership.OrganisationId;
-                        var organisation = m_Database.Organizations.Where(o => o.Id == organisationId).FirstOrDefault();
-                        if (organisation != null)
-                        {
-                            // Confirm if user is actually a member of said organisation
-                            var organisationMembership = m_Database.OrganizationsMembership.Where(member => member.OrganisationId == organisationId && member.UserId == userId && member.Role >= ProjectRole.User).FirstOrDefault();
-                            if (organisationMembership != null)
-                            {
-                                if(organisationMembership.Role >= ProjectRole.Admin)
-                                {
-                                    viewModel.Organisations.Add(new ItemList()
-                                    {
-                                        Name = organisation.Name,
-                                        Value = organisation.Id
-                                    });
-                                }
-                                var organisationProjects = m_Database.Projects.Where(p => p.OrganisationId == organisationId).ToList();
-                                if (organisationProjects != null && organisationProjects.Count > 0)
-                                {
-                                    foreach (var project in organisationProjects)
-                                    {
-                                        m_Logger.LogInformation($"Grabbing organisation due tasks for user {userId} for organisation {organisation.Id} project {project.Id}");
-                                        var columns = m_Database.Columns.Where(c => c.ProjectId == project.Id).ToList();
-                                        if (columns != null && columns.Count > 0)
-                                        {
-                                            foreach (var column in columns)
-                                            {
-                                                var cards = m_Database.Cards.Where(card => card.ColumnId == column.Id && card.IsFinished == false).ToList();
-                                                if (cards != null && cards.Count > 0)
-                                                {
-                                                    foreach (var card in cards)
-                                                    {
-                                                        if (card.CardDueDate != null && card.CardDueDate <= DateTime.Now.AddMonths(1))
-                                                        {
-                                                            viewModel.DueTasks.Add(card);
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-
-                                        HomeViewModel.ProjectModel model = new HomeViewModel.ProjectModel
-                                        {
-                                            Id = project.Id,
-                                            Name = project.Name,
-                                            Description = project.Description,
-                                            CreatedDate = project.CreatedDate,
-                                            DueDate = project.DueDate,
-                                            Client = project.Client,
-                                            Budget = project.Budget,
-                                            ProjectBudgetType = (int)project.BudgetType,
-                                            BudgetMonetaryUnit = project.BudgetMonetaryUnit,
-                                            ProjectUsedBudget = m_ProjectService.GetUsedBudget(project.Id),
-                                            OrganisationId = organisation.Id,
-                                            OrganisationName = organisation.Name,
-                                            ProjectComplete = project.ProjectCompleted
-                                        };
-
-                                        viewModel.MemberProjects.Add(model);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    viewModel = await m_HomeService.GetHomeViewModelAsync(user, orgId);
                 }
             }
             return View(viewModel);
@@ -441,33 +180,10 @@ namespace PlanSuite.Controllers
                 return BadRequest();
             }
 
-            var project = new Project();
-            project.Name = createProject.Name;
-            project.Description = createProject.Description;
-            project.CreatedDate = DateTime.Now;
-            project.DueDate = createProject.DueDate;
-            project.OwnerId = Guid.Parse(m_UserManager.GetUserId(claimsPrincipal));
-            project.OrganisationId = createProject.OrganisationId;
-            if(!string.IsNullOrEmpty(createProject.Client))
-            {
-                project.Client = createProject.Client;
-            }
-            if(createProject.Budget > 0.0m && appUser.PaymentTier >= PaymentTier.Plus)
-            {
-                project.Budget = createProject.Budget;
-                project.BudgetType = createProject.BudgetType;
-                if(project.BudgetType == ProjectBudgetType.Cost)
-                {
-                    project.BudgetMonetaryUnit = createProject.BudgetUnit;
-                }
-            }
-            await m_Database.Projects.AddAsync(project);
-            await m_Database.SaveChangesAsync();
+            var project = await m_HomeService.CreateProjectAsync(appUser, createProject);
 
             await m_AuditService.InsertLogAsync(AuditLogCategory.Project, appUser, AuditLogType.Created, project.Id);
             await m_Database.SaveChangesAsync();
-
-            m_Logger.LogInformation($"Account {m_UserManager.GetUserId(claimsPrincipal)} successfully created {project.Id}");
 
             return RedirectToAction(nameof(ProjectController.Index), "Project", new { id = project.Id });
         }
@@ -480,73 +196,32 @@ namespace PlanSuite.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            ClaimsPrincipal claimsPrincipal = HttpContext.User as ClaimsPrincipal;
-            var project = m_Database.Projects.FirstOrDefault(p => p.Id == editProject.Id);
-            if(project == null)
-            {
-                m_Logger.LogError($"No project with id {editProject.Id} found");
-                return RedirectToAction(nameof(Index));
-            }
-
-            string userId = m_UserManager.GetUserId(claimsPrincipal);
-            if (project.OwnerId != Guid.Parse(userId))
-            {
-                m_Logger.LogError($"WARNING: Account {m_UserManager.GetUserId(claimsPrincipal)} tried to modify {project.Id} without correct permissions");
-                return RedirectToAction(nameof(Index));
-            }
-
-            var appUser = await m_UserManager.FindByIdAsync(userId);
+            var appUser = await m_UserManager.GetUserAsync(User);
             if(appUser == null)
             {
-                m_Logger.LogError($"WARNING: Account {m_UserManager.GetUserId(claimsPrincipal)} returned null");
+                m_Logger.LogError($"WARNING: Account {m_UserManager.GetUserId(User)} returned null");
                 return RedirectToAction(nameof(Index));
             }
 
-            m_Logger.LogInformation($"Account {m_UserManager.GetUserId(claimsPrincipal)} successfully modified {project.Id}");
-            project.Name = editProject.Name;
-            project.Description = editProject.Description;
-            project.DueDate = editProject.DueDate;
-            project.OrganisationId = editProject.Organisation;
-            project.Client = editProject.Client;
-            if (editProject.Budget > 0.0m && appUser.PaymentTier >= PaymentTier.Plus)
-            {
-                project.Budget = editProject.Budget;
-                project.BudgetType = editProject.BudgetType;
-                if (project.BudgetType == ProjectBudgetType.Cost)
-                {
-                    project.BudgetMonetaryUnit = editProject.BudgetUnit;
-                }
-            }
-            await m_Database.SaveChangesAsync();
-
+            var project = await m_HomeService.EditProjectAsync(appUser, editProject);
             return RedirectToAction(nameof(Index));
         }
 
         [HttpPost]
-        public IActionResult Delete(HomeViewModel.DeleteProjectModel deleteProject)
+        public async Task<IActionResult> Delete(HomeViewModel.DeleteProjectModel deleteProject)
         {
             if (!m_SignInManager.IsSignedIn(User))
             {
                 return RedirectToAction(nameof(Index));
             }
 
-            ClaimsPrincipal claimsPrincipal = HttpContext.User as ClaimsPrincipal;
-            var project = m_Database.Projects.FirstOrDefault(p => p.Id == deleteProject.Id);
-            if (project == null)
+            var appUser = await m_UserManager.GetUserAsync(User);
+            if (appUser == null)
             {
-                Console.WriteLine($"No project with id {deleteProject.Id} found");
+                m_Logger.LogError($"WARNING: Account {m_UserManager.GetUserId(User)} returned null");
                 return RedirectToAction(nameof(Index));
             }
-
-            if(project.OwnerId != Guid.Parse(m_UserManager.GetUserId(claimsPrincipal)))
-            {
-                Console.WriteLine($"WARNING: Account {m_UserManager.GetUserId(claimsPrincipal)} tried to delete {project.Id} without correct permissions");
-                return RedirectToAction(nameof(Index));
-            }
-
-            m_Logger.LogInformation($"Account {m_UserManager.GetUserId(claimsPrincipal)} successfully deleted {project.Id}");
-            m_Database.Projects.Remove(project);
-            m_Database.SaveChanges();
+            await m_HomeService.DeleteProjectAsync(appUser, deleteProject);
 
             return RedirectToAction(nameof(Index));
         }
@@ -690,15 +365,22 @@ namespace PlanSuite.Controllers
         {
             if(!ModelState.IsValid)
             {
+                m_Logger.LogError($"Returned bad model state during TrelloImport: {ModelState}");
                 return BadRequest(ModelState);
             }
 
             if(User == null || User.Identity == null)
             {
+                m_Logger.LogError($"User or User.Identity was null during TrelloImport");
                 return BadRequest("User was null");
             }
 
             var appUser = await m_UserManager.GetUserAsync(User);
+            if (appUser == null)
+            {
+                m_Logger.LogError($"appUser was null during TrelloImport");
+                return BadRequest("appUser was null");
+            }
 
             var trelloBoard = m_ImportService.ImportTrelloJson(appUser, importTrello.Json);
 
@@ -709,7 +391,7 @@ namespace PlanSuite.Controllers
             project.DueDate = null;
             project.OwnerId = Guid.Parse(m_UserManager.GetUserId(User));
             project.OrganisationId = 0;
-            
+
             await m_Database.Projects.AddAsync(project);
             await m_Database.SaveChangesAsync();
 
@@ -726,23 +408,32 @@ namespace PlanSuite.Controllers
                 foreach(var card in column.Cards)
                 {
                     int cardId = await m_ProjectService.AddTask(User, colId, card.Name, card.Description, card.Due);
-                    card.CardId = colId;
+                    card.CardId = cardId;
 
-                    /*for (int i = 0; i < column.Cards; i++)
+                    foreach(var checklist in card.Checklists)
                     {
                         AddChecklistModel addChecklist = new AddChecklistModel();
                         addChecklist.Id = cardId;
-                        addChecklist.Name = column.Cards[i].Checklists
-                        m_ProjectService.AddChecklist()
-                    }*/
+                        addChecklist.Name = checklist.Name;
+                        var newChecklist = await m_ProjectService.AddChecklist(addChecklist, User);
 
+                        foreach(var checklistItem in checklist.ChecklistItems)
+                        {
+                            AddChecklistItemModel addChecklistItem = new AddChecklistItemModel();
+                            addChecklistItem.ChecklistId = newChecklist.Id;
+                            addChecklistItem.ItemText = checklistItem.Name;
+                            addChecklistItem.Completed = checklistItem.Complete;
+
+                            await m_ProjectService.AddChecklistItem(addChecklistItem, User);
+                        }
+                        m_Logger.LogInformation($"Trello Import: Created {checklist.ChecklistItems.Count} checklistItems in checklist {checklist.Name}");
+                    }
+                    m_Logger.LogInformation($"Trello Import: Created {card.Checklists.Count} checklists in task {card.Name}");
                 }
-                m_Logger.LogInformation($"Trello Import: Created {column.Cards.Count} in column {column.Name}");
-
+                m_Logger.LogInformation($"Trello Import: Created {column.Cards.Count} tasks in column {column.Name}");
             }
-            m_Logger.LogInformation($"Account {m_UserManager.GetUserId(User)} successfully imported {project.Name} from Trello");
-
-            return RedirectToAction("Project", "Index", new { id = project.Id });
+            m_Logger.LogInformation($"Trello Import: Account {m_UserManager.GetUserId(User)} successfully created {project.Id}");
+            return RedirectToAction(nameof(ProjectController.Index), "Project", new { id = project.Id });
         }
     }
 }

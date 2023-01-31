@@ -1,7 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using PlanSuite.Models.Persistent
+@using PlanSuite.Services
 @model PlanSuite.Models.Temporary.HomeViewModel
 @inject UserManager<ApplicationUser> UserManager
+@inject LocalisationService Localisation
 @{
     ApplicationUser user = await UserManager.GetUserAsync(User);
     Console.WriteLine(user.Id);
@@ -10,7 +12,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="createOrganisationLabel">@Model.Localisation.Get(user, "CREATE_NEW_ORGANISATION")</h5>
+                <h5 class="modal-title" id="createOrganisationLabel">@Localisation.Get(user, "CREATE_NEW_ORGANISATION")</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             @using (Html.BeginForm("Create", "Organisation", FormMethod.Post))
@@ -28,8 +30,8 @@
                         @Html.ValidationMessageFor(model => model.CreateOrganisation.Description, "", new { @class = "text-danger" })
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
-                        <button type="submit" class="btn ps-btn-primary">@Model.Localisation.Get(user, "CREATE_ORGANISATION")</button>
+                        <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Localisation.Get(user, "CLOSE")</button>
+                        <button type="submit" class="btn ps-btn-primary">@Localisation.Get(user, "CREATE_ORGANISATION")</button>
                     </div>
                 </div>
             }

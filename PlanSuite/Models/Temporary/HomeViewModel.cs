@@ -4,7 +4,7 @@ using PlanSuite.Models.Persistent;
 
 namespace PlanSuite.Models.Temporary
 {
-    public class HomeViewModel : BaseViewModel
+    public class HomeViewModel
     {
         public CreateProjectModel CreateProject { get; set; } = new CreateProjectModel();
         public CreateOrganisationModel CreateOrganisation { get; set; } = new CreateOrganisationModel();

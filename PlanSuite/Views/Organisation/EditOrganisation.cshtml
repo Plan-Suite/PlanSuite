@@ -1,7 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using PlanSuite.Enums
 @using PlanSuite.Models.Persistent
+@using PlanSuite.Services
 @model PlanSuite.Models.Temporary.EditOrganisationViewModel
+@inject LocalisationService Localisation
 @inject UserManager<ApplicationUser> UserManager
 @{
     var user = await UserManager.GetUserAsync(User);
@@ -14,7 +16,7 @@
     Model.DeleteOrganisation.Name = Model.Organisation.Name;
     Model.DeleteOrganisation.UserId = Guid.Parse(user.Id);
 
-    ViewData["Title"] = Model.Localisation.Get(user, "EDIT_ORGANISATION");
+    ViewData["Title"] = Localisation.Get(user, "EDIT_ORGANISATION");
 }
 
 <script type="module" src="~/js/organisation/editOrganisation.js" asp-append-version="true"></script>
@@ -36,8 +38,8 @@
                 @Html.ValidationMessageFor(model => model.EditOrganisation.Description, "", new { @class = "text-danger" })
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn ps-btn-danger" data-bs-toggle="modal" data-bs-target="#deleteOrganisationModal"><i class="bi bi-trash"></i> @Model.Localisation.Get(user, "DELETE")</button>
-                <button type="submit" class="btn ps-btn-primary"><i class="bi bi-pencil-square"></i> @Model.Localisation.Get(user, "EDIT")</button>
+                <button type="button" class="btn ps-btn-danger" data-bs-toggle="modal" data-bs-target="#deleteOrganisationModal"><i class="bi bi-trash"></i> @Localisation.Get(user, "DELETE")</button>
+                <button type="submit" class="btn ps-btn-primary"><i class="bi bi-pencil-square"></i> @Localisation.Get(user, "EDIT")</button>
             </div>
         </div>
     }
@@ -47,7 +49,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="deleteOrganisationLabel">@Model.Localisation.Get(user, "DELETE_ORGANISATION")</h5>
+                    <h5 class="modal-title" id="deleteOrganisationLabel">@Localisation.Get(user, "DELETE_ORGANISATION")</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 @using (Html.BeginForm("Delete", "Organisation", FormMethod.Post))
@@ -63,8 +65,8 @@
                             <br>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Model.Localisation.Get(user, "CLOSE")</button>
-                            <button type="submit" class="btn ps-btn-danger" id="deleteButton" disabled>@Model.Localisation.Get(user, "DELETE")</button>
+                            <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Localisation.Get(user, "CLOSE")</button>
+                            <button type="submit" class="btn ps-btn-danger" id="deleteButton" disabled>@Localisation.Get(user, "DELETE")</button>
                         </div>
                     </div>
                     
