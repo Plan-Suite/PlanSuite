@@ -1,17 +1,16 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using PlanSuite.Data;
+using PlanSuite.Enums;
 using PlanSuite.Interfaces;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
 using PlanSuite.Utility;
 using System.Diagnostics;
-using System.Security.Cryptography.Xml;
 
 namespace PlanSuite.Controllers
 {
@@ -25,6 +24,7 @@ namespace PlanSuite.Controllers
         private readonly AdminService m_AdminService;
         private readonly IEmailSender m_EmailSender;
         private readonly IPathService m_PathService;
+        private readonly SecurityService m_Security;
 
         public AdminController(ApplicationDbContext context, ILogger<HomeController> logger, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, AdminService adminService, IEmailSender emailSender, IPathService pathService)
         {
@@ -98,11 +98,11 @@ namespace PlanSuite.Controllers
             return View(model);
         }
 
-        public IActionResult UserManager()
+        public async Task<IActionResult> UserManager()
         {
             if (!User.IsInRole(Constants.AdminRole) && !User.IsInRole(Constants.SupportRole))
             {
-                _logger.LogWarning($"{User.Identity.Name} tried to access ACP->UserManager");
+                await m_Security.WriteLogAsync(User, LogAction.Other, "Admin", $"{User.Identity.Name} tried to access ACP->UserManager");
                 return NotFound();
             }
 
@@ -112,11 +112,11 @@ namespace PlanSuite.Controllers
             return View(model);
         }
 
-        public IActionResult ContactRequests()
+        public async Task<IActionResult> ContactRequests()
         {
             if (!User.IsInRole(Constants.AdminRole) && !User.IsInRole(Constants.SalesRole))
             {
-                _logger.LogWarning($"{User.Identity.Name} tried to access ACP->ContactRequests");
+                await m_Security.WriteLogAsync(User, LogAction.Other, "Admin", $"{User.Identity.Name} tried to access ACP->ContactRequests");
                 return NotFound();
             }
 
@@ -126,11 +126,11 @@ namespace PlanSuite.Controllers
             return View(model);
         }
 
-        public IActionResult SeeContact(int id)
+        public async Task<IActionResult> SeeContact(int id)
         {
             if (!User.IsInRole(Constants.AdminRole) && !User.IsInRole(Constants.SalesRole))
             {
-                _logger.LogWarning($"{User.Identity.Name} tried to access ACP->SeeContact");
+                await m_Security.WriteLogAsync(User, LogAction.Other, "Admin", $"{User.Identity.Name} tried to access ACP->SeeContact");
                 return NotFound();
             }
 
@@ -138,7 +138,7 @@ namespace PlanSuite.Controllers
             model.Section = "Contact Requests";
             GetSalesContactRequests(model);
 
-            var contact = dbContext.SalesContacts.Where(contact => contact.Id == id).FirstOrDefault();
+            var contact = await dbContext.SalesContacts.Where(contact => contact.Id == id).FirstOrDefaultAsync();
             if(contact == null)
             {
                 return NotFound();
@@ -152,7 +152,7 @@ namespace PlanSuite.Controllers
         {
             if (!User.IsInRole(Constants.AdminRole) && !User.IsInRole(Constants.SalesRole))
             {
-                _logger.LogWarning($"{User.Identity.Name} tried to access ACP->OnContacted");
+                await m_Security.WriteLogAsync(User, LogAction.Other, "Admin", $"{User.Identity.Name} tried to access ACP->OnContacted");
                 return NotFound();
             }
 
@@ -183,11 +183,11 @@ namespace PlanSuite.Controllers
             }
         }
 
-        public IActionResult BlogPosts()
+        public async Task<IActionResult> BlogPosts()
         {
             if (!User.IsInRole(Constants.AdminRole) && !User.IsInRole(Constants.MarketerRole))
             {
-                _logger.LogWarning($"{User.Identity.Name} tried to access ACP->BlogPosts");
+                await m_Security.WriteLogAsync(User, LogAction.Other, "Admin", $"{User.Identity.Name} tried to access ACP->BlogPosts");
                 return NotFound();
             }
 
@@ -203,7 +203,7 @@ namespace PlanSuite.Controllers
         {
             if (!User.IsInRole(Constants.AdminRole) && !User.IsInRole(Constants.MarketerRole))
             {
-                _logger.LogWarning($"{User.Identity.Name} tried to access ACP->NewPost");
+                await m_Security.WriteLogAsync(User, LogAction.Other, "Admin", $"{User.Identity.Name} tried to access ACP->NewPost");
                 return NotFound();
             }
 
@@ -338,7 +338,7 @@ namespace PlanSuite.Controllers
         {
             if (!User.IsInRole(Constants.AdminRole) && !User.IsInRole(Constants.MarketerRole))
             {
-                _logger.LogWarning($"{User.Identity.Name} tried to access ACP->DeletePost");
+                await m_Security.WriteLogAsync(User, LogAction.Other, "Admin", $"{User.Identity.Name} tried to access ACP->DeletePost");
                 return NotFound();
             }
 

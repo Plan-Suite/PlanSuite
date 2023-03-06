@@ -29,6 +29,7 @@ try
     builder.Services.AddScoped<AuditService>();
     builder.Services.AddScoped<TaskService>();
     builder.Services.AddScoped<IPathService, PathService>();
+    builder.Services.AddScoped<SecurityService>();
 
     var configuration = System.Environment.GetEnvironmentVariables();
     builder.Services.AddTransient<IEmailSender, EmailService>();

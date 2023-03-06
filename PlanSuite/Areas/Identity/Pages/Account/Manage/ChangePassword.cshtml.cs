@@ -2,10 +2,13 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
+using crypto;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
+using PlanSuite.Services;
 using System.ComponentModel.DataAnnotations;
 
 namespace PlanSuite.Areas.Identity.Pages.Account.Manage
@@ -15,6 +18,7 @@ namespace PlanSuite.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<ChangePasswordModel> _logger;
+        private readonly SecurityService m_Security;
 
         public ChangePasswordModel(
             UserManager<ApplicationUser> userManager,
@@ -118,7 +122,8 @@ namespace PlanSuite.Areas.Identity.Pages.Account.Manage
             await _signInManager.RefreshSignInAsync(user);
             _logger.LogInformation("User changed their password successfully.");
             StatusMessage = "Your password has been changed.";
-            _logger.LogInformation($"SECURITY: Password for {user.FullName} has been changed");
+
+            await m_Security.WriteLogAsync(user, LogAction.Update, "Change Password", $"Password for {user.FullName} has been changed");
 
             return RedirectToPage();
         }

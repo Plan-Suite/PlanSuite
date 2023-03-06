@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using crypto;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc.Routing;
 using PlanSuite.Data;
@@ -19,8 +20,9 @@ namespace PlanSuite.Services
         private readonly RoleManager<IdentityRole> m_RoleManager;
         private readonly IEmailSender m_EmailSender;
         private readonly ILogger<AdminService> m_Logger;
+        private readonly SecurityService m_Security;
 
-        public AdminService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IEmailSender emailSender, ILogger<AdminService> logger)
+        public AdminService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, RoleManager<IdentityRole> roleManager, IEmailSender emailSender, ILogger<AdminService> logger, SecurityService securityService)
         {
             m_Database = dbContext;
             m_UserManager = userManager;
@@ -28,6 +30,7 @@ namespace PlanSuite.Services
             m_RoleManager = roleManager;
             m_EmailSender = emailSender;
             m_Logger = logger;
+            m_Security = securityService;
         }
 
         public async Task<GetUsersModel> GetUser(string? username, string? email)
@@ -104,12 +107,12 @@ namespace PlanSuite.Services
             if (!hasRole)
             {
                 await m_UserManager.AddToRoleAsync(user, Constants.AdminRole);
-                Console.WriteLine($"SECURITY: Added {user.FullName} to {Constants.AdminRole}");
+                await m_Security.WriteLogAsync(user, LogAction.Update, "Admin", $"Added {user.FullName} to {Constants.AdminRole}");
             }
             else
             {
                 await m_UserManager.RemoveFromRoleAsync(user, Constants.AdminRole);
-                Console.WriteLine($"SECURITY: Removed {user.FullName} from {Constants.AdminRole}");
+                await m_Security.WriteLogAsync(user, LogAction.Update, "Admin", $"Removed {user.FullName} from {Constants.AdminRole}");
             }
 
             return true;
@@ -143,6 +146,7 @@ namespace PlanSuite.Services
             // Generate the payment receipt
             string message = PlanSuite.Controllers.Api.PaymentController.GetPaymentReceiptString(sale, 0);
             await m_EmailSender.SendEmailAsync(user.Email, "PlanSuite Payment Receipt", message);
+            await m_Security.WriteLogAsync(user, LogAction.Update, "Admin", $"Role set to {paymentTier}");
             return true;
         }
 
@@ -160,6 +164,7 @@ namespace PlanSuite.Services
             {
                 return false;
             }
+            await m_Security.WriteLogAsync(user, LogAction.Other, "Admin", $"Password reset request sent by admin");
             return true;
         }
 

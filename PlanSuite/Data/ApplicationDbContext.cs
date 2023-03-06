@@ -25,6 +25,7 @@ namespace PlanSuite.Data
         public DbSet<Invitation> Invitations { get; set; }
         public DbSet<BlogPost> BlogPosts { get; set; }
         public DbSet<BlogSubscription> BlogSubscriptions { get; set; }
+        public DbSet<SecurityLog> SecurityLogs { get; set; }
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
