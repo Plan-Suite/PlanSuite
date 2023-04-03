@@ -1,17 +1,14 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using PlanSuite.Data;
 using PlanSuite.Enums;
-using PlanSuite.Migrations;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
 using PlanSuite.Utility;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.Metrics;
-using System.Security.Claims;
 using System.Text.Json;
+
 
 namespace PlanSuite.Controllers
 {
@@ -44,7 +41,7 @@ namespace PlanSuite.Controllers
                 return RedirectToAction(nameof(Index), "Home");
             }
 
-            var project = dbContext.Projects.FirstOrDefault(p => p.Id == id);
+            var project = await dbContext.Projects.FirstOrDefaultAsync(p => p.Id == id);
             if (project == null)
             {
                 Console.WriteLine($"No project with id {id} found");
@@ -63,7 +60,7 @@ namespace PlanSuite.Controllers
             ProjectViewModel viewModel = new ProjectViewModel();
             viewModel.Project = project;
 
-            var organisation = dbContext.Organizations.Where(o => o.Id == project.OrganisationId).FirstOrDefault();
+            var organisation = await dbContext.Organizations.Where(o => o.Id == project.OrganisationId).FirstOrDefaultAsync();
             if(organisation != null)
             {
                 viewModel.Organisation = organisation;
@@ -79,21 +76,21 @@ namespace PlanSuite.Controllers
                 viewModel.PaymentTier = user.PaymentTier;
             }
 
-            var milestones = dbContext.ProjectMilestones.Where(m => m.ProjectId == project.Id).ToList();
+            var milestones = await dbContext.ProjectMilestones.Where(m => m.ProjectId == project.Id).ToListAsync();
             if (milestones != null && milestones.Count > 0)
             {
                 viewModel.Milestones = milestones;
                 Console.WriteLine($"Grabbed {milestones.Count} milestones for project {project.Id}");
             }
 
-            var columns = dbContext.Columns.Where(c => c.ProjectId == project.Id).ToList();
+            var columns = await dbContext.Columns.Where(c => c.ProjectId == project.Id).ToListAsync();
             if(columns != null && columns.Count > 0)
             {
                 viewModel.Columns = columns;
                 Console.WriteLine($"Grabbed {columns.Count} columns for project {project.Id}");
                 foreach (var column in columns)
                 {
-                    var cards = dbContext.Cards.Where(c => c.ColumnId == column.Id).ToList();
+                    var cards = await dbContext.Cards.Where(c => c.ColumnId == column.Id).ToListAsync();
                     if (cards != null && cards.Count > 0)
                     {
                         foreach(var card in cards)
@@ -134,7 +131,7 @@ namespace PlanSuite.Controllers
                 viewModel.ProjectMembers.Add(project.OwnerId, userName);
             }
 
-            var members = dbContext.ProjectsAccess.Where(projAccess => projAccess.ProjectId == project.Id).ToList();
+            var members = await dbContext.ProjectsAccess.Where(projAccess => projAccess.ProjectId == project.Id).ToListAsync();
             foreach(var member in members)
             {
                 var projMember = await _userManager.FindByIdAsync(member.UserId.ToString());
@@ -152,7 +149,7 @@ namespace PlanSuite.Controllers
             if(project.OrganisationId > 0)
             {
                 Console.WriteLine($"Getting org members {project.OrganisationId}");
-                var memberships = dbContext.OrganizationsMembership.Where(orgMember => orgMember.OrganisationId == project.OrganisationId).ToList();
+                var memberships = await dbContext.OrganizationsMembership.Where(orgMember => orgMember.OrganisationId == project.OrganisationId).ToListAsync();
                 foreach (var member in memberships)
                 {
                     Console.WriteLine($"Member {member.UserId}");
@@ -185,7 +182,7 @@ namespace PlanSuite.Controllers
                 return RedirectToAction(nameof(Index), "Home");
             }
 
-            var project = dbContext.Projects.FirstOrDefault(p => p.Id == projectId);
+            var project = await dbContext.Projects.FirstOrDefaultAsync(p => p.Id == projectId);
             if (project == null)
             {
                 Console.WriteLine($"No project with id {projectId} found");
@@ -203,26 +200,26 @@ namespace PlanSuite.Controllers
             viewModel.Project = project;
             viewModel.AuditLogs = new List<AuditLog>();
 
-            var projectLogs = dbContext.AuditLogs.Where(log => log.LogCategory == AuditLogCategory.Project && log.TargetID == projectId.ToString()).ToList();
+            var projectLogs = await dbContext.AuditLogs.Where(log => log.LogCategory == AuditLogCategory.Project && log.TargetID == projectId.ToString()).ToListAsync();
             viewModel.AuditLogs.AddRange(projectLogs);
 
-            var milestones = dbContext.ProjectMilestones.Where(m => m.ProjectId == projectId).ToList();
+            var milestones = await dbContext.ProjectMilestones.Where(m => m.ProjectId == projectId).ToListAsync();
             foreach (var milestone in milestones)
             {
-                var milestoneLogs = dbContext.AuditLogs.Where(log => log.LogCategory == AuditLogCategory.Milestone && log.TargetID == milestone.Id.ToString()).ToList();
+                var milestoneLogs = await dbContext.AuditLogs.Where(log => log.LogCategory == AuditLogCategory.Milestone && log.TargetID == milestone.Id.ToString()).ToListAsync();
                 viewModel.AuditLogs.AddRange(milestoneLogs);
             }
 
-            var columns = dbContext.Columns.Where(m => m.ProjectId == projectId).ToList();
+            var columns = await dbContext.Columns.Where(m => m.ProjectId == projectId).ToListAsync();
             foreach (var column in columns)
             {
-                var columnLogs = dbContext.AuditLogs.Where(log => log.LogCategory == AuditLogCategory.Column && log.TargetID == column.Id.ToString()).ToList();
+                var columnLogs = await dbContext.AuditLogs.Where(log => log.LogCategory == AuditLogCategory.Column && log.TargetID == column.Id.ToString()).ToListAsync();
                 viewModel.AuditLogs.AddRange(columnLogs);
 
-                var cards = dbContext.Cards.Where(card => card.ColumnId == column.Id).ToList();
+                var cards = await dbContext.Cards.Where(card => card.ColumnId == column.Id).ToListAsync();
                 foreach (var card in cards)
                 {
-                    var cardLogs = dbContext.AuditLogs.Where(log => log.LogCategory == AuditLogCategory.Card && log.TargetID == card.Id.ToString()).ToList();
+                    var cardLogs = await dbContext.AuditLogs.Where(log => log.LogCategory == AuditLogCategory.Card && log.TargetID == card.Id.ToString()).ToListAsync();
                     viewModel.AuditLogs.AddRange(cardLogs);
                 }
             }
@@ -240,7 +237,7 @@ namespace PlanSuite.Controllers
                 return RedirectToAction(nameof(Index), "Home");
             }
 
-            var project = dbContext.Projects.FirstOrDefault(p => p.Id == addColumn.ProjectId);
+            var project = await dbContext.Projects.FirstOrDefaultAsync(p => p.Id == addColumn.ProjectId);
             if (project == null)
             {
                 Console.WriteLine($"No project with id {addColumn.ProjectId} found");
@@ -273,7 +270,7 @@ namespace PlanSuite.Controllers
 
             Console.WriteLine(JsonSerializer.Serialize(addCard));
 
-            var column = dbContext.Columns.FirstOrDefault(p => p.Id == addCard.ColumnId);
+            var column = await dbContext.Columns.FirstOrDefaultAsync(p => p.Id == addCard.ColumnId);
             if (column == null)
             {
                 Console.WriteLine($"No column with id {addCard.ColumnId} found");
@@ -297,7 +294,7 @@ namespace PlanSuite.Controllers
 
             Console.WriteLine(JsonSerializer.Serialize(addTask));
 
-            var column = dbContext.Columns.FirstOrDefault(p => p.Id == addTask.ColumnId);
+            var column = await dbContext.Columns.FirstOrDefaultAsync(p => p.Id == addTask.ColumnId);
             if (column == null)
             {
                 Console.WriteLine($"No column with id {addTask.ColumnId} found");
@@ -334,7 +331,7 @@ namespace PlanSuite.Controllers
 
             Console.WriteLine(JsonSerializer.Serialize(addMilestone));
 
-            var project = dbContext.Projects.FirstOrDefault(p => p.Id == addMilestone.ProjectId);
+            var project = await dbContext.Projects.FirstOrDefaultAsync(p => p.Id == addMilestone.ProjectId);
             if (project == null)
             {
                 Console.WriteLine($"No project with id {addMilestone.ProjectId} found");

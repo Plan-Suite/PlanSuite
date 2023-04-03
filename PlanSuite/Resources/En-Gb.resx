@@ -402,4 +402,16 @@
   <data name="ERROR_UNKNOWN" xml:space="preserve">
     <value>Something went wrong, and we arent too sure what went wrong. Rest assured our tech geeks have already been informed!</value>
   </data>
+  <data name="BUDGET_UNIT" xml:space="preserve">
+    <value>Budget Unit</value>
+  </data>
+  <data name="ORGANISATION" xml:space="preserve">
+    <value>Organisation</value>
+  </data>
+  <data name="TOTAL_DAYS" xml:space="preserve">
+    <value>{0} days</value>
+  </data>
+  <data name="CREATE_NEW_TASK" xml:space="preserve">
+    <value>Create New Task</value>
+  </data>
 </root>

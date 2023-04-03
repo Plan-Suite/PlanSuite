@@ -168,7 +168,7 @@
     </div>
     <ul class="nav nav-tabs">
         @{
-            string listActive = string.Empty, cardActive = string.Empty;
+            string listActive = string.Empty, cardActive = string.Empty, progressActive = string.Empty;
             switch(indexView)
             {
                 default:
@@ -178,6 +178,9 @@
                 case ProjectIndexView.List:
                     listActive = "active";
                     break;
+                case ProjectIndexView.Gantt:
+                    progressActive = "active";
+                    break;
             }
         }
         <li class="nav-item">
@@ -186,10 +189,17 @@
         <li class="nav-item">
             <a class="nav-link ps-link-primary @cardActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Cards)">Boards</a>
         </li>
+        <li class="nav-item">
+            <a class="nav-link ps-link-primary @progressActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Gantt)">Progress Chart</a>
+        </li>
     </ul>
     @if(indexView == ProjectIndexView.List)
     {
         <partial name="SubViews/_ListView" />
+    }
+    else if(indexView == ProjectIndexView.Gantt)
+    {
+        <partial name="SubViews/_Gantt" />
     }
     else
     {
