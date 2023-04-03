@@ -28,6 +28,13 @@ namespace PlanSuite.Models.Temporary
         public AddMemberModel AddMember { get; set; } = new AddMemberModel();
         public decimal UsedBudget { get; set; }
         public MarkCompleteModel MarkComplete = new MarkCompleteModel();
+        public List<ChecklistItemModel> ChecklistItems = new List<ChecklistItemModel>();
+
+        public class ChecklistItemModel
+        {
+            public int ChecklistItemCard { get; set; }
+            public bool checklistItemTicked { get; set; }
+        }
 
         public class AddMemberModel
         {

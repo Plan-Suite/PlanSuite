@@ -7,7 +7,7 @@ using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
 using PlanSuite.Utility;
-using System.Text.Json;
+using System.Text.Json; 
 
 
 namespace PlanSuite.Controllers
@@ -108,6 +108,20 @@ namespace PlanSuite.Controllers
                                 }
                                 await dbContext.SaveChangesAsync();
                             }
+                            var checklists = await dbContext.CardChecklists.Where(chk => chk.ChecklistCard == card.Id).ToListAsync();
+                            foreach(var checklist in checklists)
+                            {
+                                var checklistItems = await dbContext.ChecklistItems.Where(chkItm => chkItm.ChecklistId == checklist.Id).ToListAsync();
+                                foreach(var checklistItem in checklistItems)
+                                {
+                                    viewModel.ChecklistItems.Add(new ProjectViewModel.ChecklistItemModel
+                                    {
+                                        ChecklistItemCard = card.Id,
+                                        checklistItemTicked = checklistItem.ItemTicked
+                                    });
+                                }
+                            }
+
                         }
                         viewModel.Cards.AddRange(cards);
                         Console.WriteLine($"Grabbed {cards.Count} cards for project {project.Id}");
@@ -122,7 +136,7 @@ namespace PlanSuite.Controllers
             // Get project members
             var owner = await _userManager.FindByIdAsync(project.OwnerId.ToString());
             if (owner != null)
-            {
+            { 
                 string userName = owner.Email;
                 if (!string.IsNullOrEmpty(owner.FirstName))
                 {

@@ -47,4 +47,18 @@ namespace PlanSuite.Models.Persistent
         [Column("card_budget")]
         public decimal Budget { get; set; }
     }
+
+    [Table("task_dependencies")]
+    public class TaskDependency
+    {
+        [Key]
+        [Column("id")]
+        public int Id { get; set; }
+
+        [Column("task_id")]
+        public int TaskId { get; set; }
+
+        [Column("task_to_depend_on")]
+        public int TaskToDependOn { get; set; }
+    }
 }

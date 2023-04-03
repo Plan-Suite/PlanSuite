@@ -193,9 +193,9 @@
         </li>
         @if (Model.PaymentTier >= PaymentTier.Plus)
         {
-        <li class="nav-item">
+            <li class="nav-item">
                 <a class="nav-link ps-link-primary @progressActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Gantt)">@Localisation.Get(user, "PROGRESS_VIEW_NAME")</a>
-        </li>
+            </li>
         }
     </ul>
     @if(indexView == ProjectIndexView.List)
