@@ -2,9 +2,11 @@
 @using Microsoft.AspNetCore.Identity
 @using PlanSuite.Enums
 @using PlanSuite.Models.Persistent
+@using PlanSuite.Services;
 @using PlanSuite.Utility
 @using System.Web
 @inject UserManager<ApplicationUser> UserManager
+@inject LocalisationService Localisation
 @model PlanSuite.Models.Temporary.ProjectViewModel
 @{
     ViewData["Title"] = Model.Project.Name;
