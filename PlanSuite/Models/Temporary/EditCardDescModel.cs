@@ -51,6 +51,15 @@ namespace PlanSuite.Models.Temporary
         public ProjectBudgetType BudgetType { get; set; }
         public string ProjectName { get; set; }
         public int ProjectId { get; set; }
+        public List<DependencyJsonModel> Dependencies { get; set; } = new List<DependencyJsonModel>();
+        public List<EditCardNameModel> AvailableTasks { get; set; } = new List<EditCardNameModel>();
+    }
+
+    public class DependencyJsonModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string? AssigneeName { get; set; }
     }
 
     public class AuditLogJsonModel

@@ -253,6 +253,16 @@ namespace PlanSuite.Services
                     auditLogs.Add(auditLogModel);
                 }
 
+                List<EditCardNameModel> availableTasks = new List<EditCardNameModel>();
+                var tasksOnProjects = m_Database.Cards.Where(m => m.Id == projId).ToList();
+                foreach (var task in tasksOnProjects)
+                {
+                    EditCardNameModel taskOnProject = new EditCardNameModel();
+                    taskOnProject.Name = task.CardName;
+                    taskOnProject.CardId = task.Id;
+                    availableTasks.Add(taskOnProject);
+                }
+
                 // return
                 GetCardReturnJson json = new GetCardReturnJson()
                 {
@@ -276,7 +286,8 @@ namespace PlanSuite.Services
                     BudgetType = budgetType,
                     BudgetUnit = budgetUnit,
                     ProjectName = project.Name,
-                    ProjectId = project.Id
+                    ProjectId = project.Id,
+                    AvailableTasks = availableTasks
                 };
                 Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(json));
                 return json;
