@@ -198,7 +198,7 @@
                                     <select id="editProjOrg" class="form-control" asp-for="EditProject.Organisation" asp-items="@(new SelectList(Model.Organisations, "Value", "Name"))">
                                         <option value="0">@Localisation.Get(user, "NONE")</option>
                                     </select>
-                                    @Html.LabelFor(model => model.EditProject.Organisation, new { htmlAttributes = new { @class = "form-label" } })
+                                    @Html.LabelFor(model => model.EditProject.Organisation, Localisation.Get(user, "ORGANISATION"), new { htmlAttributes = new { @class = "form-label" } })
                                 </div>
                             }
                             else
@@ -212,6 +212,7 @@
                                 <select id="editProjOrg" class="form-control" asp-for="EditProject.Organisation" asp-items="@(new SelectList(Model.Organisations, "Value", "Name"))">
                                     <option value="0">@Localisation.Get(user, "NONE")</option>
                                 </select>
+                                @Html.LabelFor(model => model.EditProject.Organisation, Localisation.Get(user, "ORGANISATION"), new { htmlAttributes = new { @class = "form-label" } })
                             </div>
                         }
                         <div class="form-floating mb-3">

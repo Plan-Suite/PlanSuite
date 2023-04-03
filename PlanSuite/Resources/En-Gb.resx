@@ -402,4 +402,76 @@
   <data name="ERROR_UNKNOWN" xml:space="preserve">
     <value>Something went wrong, and we arent too sure what went wrong. Rest assured our tech geeks have already been informed!</value>
   </data>
+  <data name="BUDGET_UNIT" xml:space="preserve">
+    <value>Budget Unit</value>
+  </data>
+  <data name="ORGANISATION" xml:space="preserve">
+    <value>Organisation</value>
+  </data>
+  <data name="TOTAL_DAYS" xml:space="preserve">
+    <value>{0} days</value>
+  </data>
+  <data name="CREATE_NEW_TASK" xml:space="preserve">
+    <value>Create New Task</value>
+  </data>
+  <data name="ADD_COLUMN" xml:space="preserve">
+    <value>Add Column</value>
+  </data>
+  <data name="ALERT_PROJECT_COMPLETE" xml:space="preserve">
+    <value>This project has been marked as complete.</value>
+  </data>
+  <data name="AUDIT_LOGS" xml:space="preserve">
+    <value>Audit Logs</value>
+  </data>
+  <data name="BOARDS" xml:space="preserve">
+    <value>Boards</value>
+  </data>
+  <data name="DATA_VIEW" xml:space="preserve">
+    <value>Data View</value>
+  </data>
+  <data name="DURATION" xml:space="preserve">
+    <value>Duration</value>
+  </data>
+  <data name="END_DATE" xml:space="preserve">
+    <value>End Date</value>
+  </data>
+  <data name="LEAVE_PROJECT" xml:space="preserve">
+    <value>Leave Project</value>
+  </data>
+  <data name="LIST" xml:space="preserve">
+    <value>List</value>
+  </data>
+  <data name="MARK_ACTIVE" xml:space="preserve">
+    <value>Mark Active</value>
+  </data>
+  <data name="MARK_COMPLETE" xml:space="preserve">
+    <value>Mark Complete</value>
+  </data>
+  <data name="MILESTONES" xml:space="preserve">
+    <value>Milestones</value>
+  </data>
+  <data name="MORE" xml:space="preserve">
+    <value>More</value>
+  </data>
+  <data name="NAME" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="PROGRESS" xml:space="preserve">
+    <value>Progress</value>
+  </data>
+  <data name="PROGRESS_VIEW_HELP_1" xml:space="preserve">
+    <value>Click on a table row to view the task assosciated with it.</value>
+  </data>
+  <data name="PROGRESS_VIEW_NAME" xml:space="preserve">
+    <value>Progress Chart</value>
+  </data>
+  <data name="SAVE_COLUMN" xml:space="preserve">
+    <value>Save Column</value>
+  </data>
+  <data name="SEE_MEMBERS" xml:space="preserve">
+    <value>See Members</value>
+  </data>
+  <data name="START_DATE" xml:space="preserve">
+    <value>Start Date</value>
+  </data>
 </root>

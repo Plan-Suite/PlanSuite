@@ -1,4 +1,5 @@
-﻿@model PlanSuite.Models.Temporary.AdminIndexViewModel
+﻿@using PlanSuite.Utility
+@model PlanSuite.Models.Temporary.AdminIndexViewModel
 @{
     ViewData["Title"] = "User Management";
 }
@@ -19,35 +20,48 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Modal title</h5>
+        <h5 class="modal-title">Edit User</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
           <form>
               <input type="hidden" id="EditUserId" value="" />
-              <div class="mb-3">
-                  <label for="editUsername" class="form-label">Username</label>
-                  <input type="text" class="form-control" id="editUsername" aria-describedby="editUsernameHelp">
-                  <div id="editUsernameHelp" class="form-text">Make sure the username is correct.</div>
+              <div class="row mb-3">
+                <div class="col-auto">
+                    <label for="editUsername" class="form-label">Firstname</label>
+                    <input type="text" class="form-control" id="editUsername" aria-describedby="editUsernameHelp">
+                </div>
+                <div class="col-auto">
+                    <label for="editUsername" class="form-label">Lastname</label>
+                    <input type="text" class="form-control" id="editUsername" aria-describedby="editUsernameHelp">
+                </div>
               </div>
               <div class="mb-3">
                   <label for="editEmail" class="form-label">Email</label>
-                  <input type="email" class="form-control" id="editEmail" aria-describedby="editEmailHelp">
-                  <div id="editEmailHelp" class="form-text">Make sure the email is correct.</div>
+                  <input type="email" class="form-control" id="editEmail" aria-describedby="editEmailHelp"> 
               </div>
               <div class="mb-3">
-                  <label for="giveAdmin" class="form-label">Give Administrator</label><br />
-                  <button type="button" class="btn ps-btn-secondary btn-sm" id="giveAdminBtn">Give Administrator Powers</button>
+                <select class="form-select" aria-label="Select Role">
+                    <option selected>Assign Role</option>
+                    <option value="1">@Constants.AdminRole</option>
+                    <option value="2">@Constants.DevRole</option>
+                    <option value="3">@Constants.SalesRole</option>
+                    <option value="4">@Constants.SupportRole</option>
+                    <option value="5">@Constants.MarketerRole</option>
+                </select>
+
+                <label for="giveAdmin" class="form-label">Give Administrator</label><br />
+                 <button type="button" class="btn ps-btn-secondary btn-sm" id="giveAdminBtn">Give Administrator Powers</button>
               </div>
               <div class="mb-3">
                   <label for="setRole" class="form-label">Set Role</label><br />
                   <button type="button" class="btn ps-btn-secondary btn-sm" id="setPlusRole">Plus</button>
                   <button type="button" class="btn ps-btn-secondary btn-sm" id="setProRole">Pro</button>
               </div>
-              @*<div class="mb-3">
-            <label for="passwordReset" class="form-label">Password Reset</label><br />
-            <button type="button" class="btn ps-btn-secondary btn-sm" id="sendPasswordResetBtn">Send Password Reset</button>
-        s</div>*@
+              <div class="mb-3">
+                   <label for="passwordReset" class="form-label">Password Reset</label><br />
+                   <button type="button" class="btn ps-btn-secondary btn-sm" id="sendPasswordResetBtn">Send Password Reset</button>
+              </div>
               <div class="modal-footer">
                   <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
                   <button type="button" class="btn ps-btn-primary" data-bs-dismiss="modal" id="saveChangesBtn">Save changes</button>

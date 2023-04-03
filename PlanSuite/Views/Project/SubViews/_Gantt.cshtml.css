@@ -1,0 +1,48 @@
+﻿table thead th {
+    font-weight: bold;
+    text-align: center;
+}
+
+table tbody tr:nth-child(odd) {
+    background-color: var(--white-3);
+}
+
+table tbody td {
+    text-align: center;
+}
+
+table tbody .progress {
+    height: 20px;
+    margin: 0;
+}
+
+table tbody .progress-bar {
+    font-size: 0.7rem;
+    line-height: 1.5;
+}
+
+table tbody .task-normal {
+    background-color: var(--blue-1);
+}
+
+table tbody .task-completed {
+    background-color: var(--green-1);
+}
+
+table tbody .task-warning {
+    background-color: var(--yellow-1);
+}
+
+table tbody .task-overdue {
+    background-color: var(--red-1);
+}
+
+.progress-add-task {
+    background-color: var(--blue-1) !important;
+    color: var(--white) !important;
+}
+
+    .progress-add-task:hover {
+        background-color: var(--blue-3) !important;
+        cursor: pointer;
+    }

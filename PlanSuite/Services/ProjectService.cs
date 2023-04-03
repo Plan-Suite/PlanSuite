@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using crypto;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using PlanSuite.Data;
@@ -17,14 +18,16 @@ namespace PlanSuite.Services
         private readonly AuditService m_AuditService;
         private readonly IEmailSender m_EmailSender;
         private readonly ILogger<ProjectService> m_Logger;
+        private readonly SecurityService m_Security;
 
-        public ProjectService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, AuditService auditService, IEmailSender emailSender, ILogger<ProjectService> logger)
+        public ProjectService(ApplicationDbContext dbContext, UserManager<ApplicationUser> userManager, AuditService auditService, IEmailSender emailSender, ILogger<ProjectService> logger, SecurityService security)
         {
             m_Database = dbContext;
             m_UserManager = userManager;
             m_AuditService = auditService;
             m_EmailSender = emailSender;
             m_Logger = logger;
+            m_Security = security;
         }
 
         public PaymentTier GetProjectTier(int projectId)
@@ -752,7 +755,7 @@ namespace PlanSuite.Services
 
             var user = await m_UserManager.FindByIdAsync(model.UserId.ToString());
             await m_AuditService.InsertLogAsync(AuditLogCategory.Project, user, AuditLogType.Left, model.ProjectId.ToString());
-            Console.WriteLine($"SECURITY: User {model.UserId} left project {model.ProjectId}");
+            await m_Security.WriteLogAsync(user, LogAction.Update, "Project", $"User {model.UserId} left project {model.ProjectId}");
             m_Database.ProjectsAccess.Remove(access);
             await m_Database.SaveChangesAsync();
         }

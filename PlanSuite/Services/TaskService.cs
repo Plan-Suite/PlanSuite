@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using PlanSuite.Data;
-using PlanSuite.Models.Persistent;
 
 namespace PlanSuite.Services
 {

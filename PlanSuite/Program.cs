@@ -29,6 +29,7 @@ try
     builder.Services.AddScoped<AuditService>();
     builder.Services.AddScoped<TaskService>();
     builder.Services.AddScoped<IPathService, PathService>();
+    builder.Services.AddScoped<SecurityService>();
 
     var configuration = System.Environment.GetEnvironmentVariables();
     builder.Services.AddTransient<IEmailSender, EmailService>();
@@ -98,6 +99,8 @@ try
     builder.Services.AddSingleton<LocalisationService>();
 
     var app = builder.Build();
+
+    app.UseSecurityHeaders();
 
     app.UseForwardedHeaders(new ForwardedHeadersOptions
     {

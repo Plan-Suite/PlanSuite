@@ -1,80 +1,108 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @using PlanSuite.Models.Persistent
+@using PlanSuite.Services;
 @inject UserManager<ApplicationUser> UserManager
+@inject LocalisationService Localisation
 @model PlanSuite.Models.Temporary.ProjectViewModel
 @{
+    var user = await UserManager.GetUserAsync(User);
 }
 
-<div class="d-flex justify-content-center" id="ganttLoading">
-    <div class="spinner-border" role="status"></div>
-</div>
+<p>@Localisation.Get(user, "PROGRESS_VIEW_HELP_1")</p>
+@foreach (var column in Model.Columns)
+{
+    <div class="container mt-1 table-responsive progress-list-col" id="colIndex_@Model.Columns.IndexOf(column)">
+        <h5 class="task-list-name">@column.Title</h5>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>@Localisation.Get(user, "NAME")</th>
+                    <th>@Localisation.Get(user, "START_DATE")</th>
+                    <th>@Localisation.Get(user, "END_DATE")</th>
+                    <th>@Localisation.Get(user, "DURATION")</th>
+                    <th>@Localisation.Get(user, "PROGRESS")</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var task in Model.Cards)
+                {
+                    if(task.ColumnId == column.Id)
+                    {
+                        string duration = Localisation.Get(user, "NOT_AVAILABLE");
+                        if (task.CardStartDate != null && task.CardDueDate != null)
+                        {
+                            DateTime startTime = (DateTime)task.CardStartDate;
+                            DateTime endTime = (DateTime)task.CardDueDate;
+                            TimeSpan span = endTime.Subtract(startTime);
+                            duration = string.Format(Localisation.Get(user, "TOTAL_DAYS"), (int)span.TotalDays);
+                        }
 
-<div id="chart_div"></div>
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-<script type="text/javascript">
-	google.charts.load('current', {'packages':['gantt']});
-    google.charts.setOnLoadCallback(onLoad);
-    
-    function onLoad()
-    {
-        var tasks = [];
-        var ganttLoading = $("#ganttLoading");
-        
-        $.ajax({
-            type: "GET",
-            dataType: "json",
-            contentType: "application/json",
-            url: `/api/Project/getcards?projectId=${@Model.Project.Id}`,
-            success: function (result) {
-                if (result.cards != null) {
-                    result.cards.forEach(function (element) {
-                        console.log(element);
-                        var task = {
-                            id: element.id,
-                            name: element.name,
-                            start: element.startDate,
-                            end: element.dueDate
-                        };
-                        tasks.push(task);
-                    });
+                        // Progress formula: (checklistItemsCompleted / checklistItemCount) * 100
+                        int checklistItemsCompleted = 0, checklistItemCount = 0;
+                        foreach(var checklistItem in Model.ChecklistItems)
+                        {
+                            if(checklistItem.ChecklistItemCard == task.Id)
+                            {
+                                checklistItemCount++;
+                                if(checklistItem.checklistItemTicked == true)
+                                {
+                                    checklistItemsCompleted++;
+                                }
+                            }
+                        }
 
-                    var data = new google.visualization.DataTable();
-                    data.addColumn('string', 'Task ID');
-                    data.addColumn('string', 'Task Name');
-                    data.addColumn('string', 'Resource');
-                    data.addColumn('date', 'Start Date');
-                    data.addColumn('date', 'End Date');
-                    data.addColumn('number', 'Duration');
-                    data.addColumn('number', 'Percent Complete');
-                    data.addColumn('string', 'Dependencies');
+                        float currentProgress = 0;
+                        if (checklistItemCount > 0)
+                        {
+                            Console.WriteLine($"{task.CardName} ({checklistItemsCompleted} / {checklistItemCount}) * 100");
+                            currentProgress = (float)checklistItemsCompleted / checklistItemCount * 100;
+                            currentProgress = (float)Math.Round(currentProgress);
+                            Console.WriteLine($"{task.CardName} currentProgress: {currentProgress}");
+                        }
 
-                    tasks.forEach(function (element) {
-                        console.log(element.start + ": " + Date.parse(element.start));
-                        data.addRows([
-                            [element.name, element.name, null,
-                            new Date(element.start), new Date(element.end), null, 100, null]
-                        ]);
-                    });
+                        <tr class="cursor-pointer progress-task-item" id="@task.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal">
+                            @{
+                                string taskIcon = string.Empty;
+                                string taskStatus = "task-normal";
+                                if (task.CardDueDate != null)
+                                {
+                                    if (task.IsFinished)
+                                    {
+                                        taskStatus = "task-completed";
+                                        currentProgress = 100f;
+                                    }
+                                    else if (DateTime.Now > task.CardDueDate)
+                                    {
+                                        taskStatus = "task-overdue";
+                                        taskIcon = "<span class=\"bi bi-exclamation-triangle\"></span>";
+                                    }
+                                    else if (DateTime.Now < task.CardDueDate && DateTime.Now.AddDays(5) > task.CardDueDate)
+                                    {
+                                        taskStatus = "task-warning";
+                                        taskIcon = "<span class=\"bi bi-exclamation-circle\"></span>";
+                                    }
+                                }
+                            }
 
-                    let height = screen.height;
-
-                    var options = {
-                        title: '@Model.Project.Name',
-                        height: height - 190
-                    };
-
-                    var chart = new google.visualization.Gantt(document.getElementById('chart_div'));
-
-                    chart.draw(data, options);
-
-                    google.visualization.events.addListener(chart, 'select', function () {
-                        //viewCardButton(chart.getSelection().)
-                        console.log(chart.getSelection()[0].row);
-                    });
-
-                    ganttLoading.addClass("d-none");
+                            <td>@Html.Raw(taskIcon) @task.CardName</td>
+                            <td>@task.CardStartDate</td>
+                            <td>@task.CardDueDate</td>
+                            <td>@duration</td>
+                            <td>
+                                <div class="progress">
+                                    <div class="progress-bar @taskStatus" role="progressbar" style="width: @currentProgress%;" aria-valuenow="@currentProgress" aria-valuemin="0" aria-valuemax="100">
+                                        @currentProgress%
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
                 }
-            }
-        });
-    }
-</script>
+                <tr class="progress-add-task" id="@column.Id" data-bs-toggle="modal" data-bs-target="#addTaskModal">
+                    <td colspan="5"><i class="bi bi-plus-circle"></i> @Localisation.Get(user, "CREATE_NEW_TASK")</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+}
+<script type="module" src="~/js/project/progressView.js" asp-append-version="true"></script>
