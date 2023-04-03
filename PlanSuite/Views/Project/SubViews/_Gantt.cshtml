@@ -8,7 +8,7 @@
     var user = await UserManager.GetUserAsync(User);
 }
 
-<p>Click on a table row to view the task assosciated with it.</p>
+<p>@Localisation.Get(user, "PROGRESS_VIEW_HELP_1")</p>
 @foreach (var column in Model.Columns)
 {
     <div class="container mt-1 table-responsive progress-list-col" id="colIndex_@Model.Columns.IndexOf(column)">
@@ -16,11 +16,11 @@
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Duration</th>
-                    <th>Progress</th>
+                    <th>@Localisation.Get(user, "NAME")</th>
+                    <th>@Localisation.Get(user, "START_DATE")</th>
+                    <th>@Localisation.Get(user, "END_DATE")</th>
+                    <th>@Localisation.Get(user, "DURATION")</th>
+                    <th>@Localisation.Get(user, "PROGRESS")</th>
                 </tr>
             </thead>
             <tbody>

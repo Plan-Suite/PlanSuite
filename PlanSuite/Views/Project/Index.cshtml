@@ -33,11 +33,11 @@
 
     <h1 class="text-center">@Model.Project.Name</h1>
     <hr />
-    <div class="ps-alert ps-alert-success d-none" id="addUserSuccess" role="alert">Sucessfully added new user to project.</div>
-    <div class="ps-alert ps-alert-danger d-none" id="addUserFail" role="alert">Failed to add user to project.</div>
+    <div class="ps-alert ps-alert-success d-none" id="addUserSuccess" role="alert">@Localisation.Get(user, "ADD_USER_SUCCESS")</div>
+    <div class="ps-alert ps-alert-danger d-none" id="addUserFail" role="alert">@Localisation.Get(user, "ADD_USER_FAIL")</div>
     @if(Model.Project.ProjectCompleted == true)
     {
-        <div class="ps-alert ps-alert-warning text-center" role="alert">This project has been marked as complete.</div>
+        <div class="ps-alert ps-alert-warning text-center" role="alert">@Localisation.Get(user, "ALERT_PROJECT_COMPLETE")</div>
     }
     <h4 class="text-muted">@Model.Project.Description</h4>
     <p class="text-muted"><strong>Project Created:</strong> @Model.Project.CreatedDate<br /><strong>Project Due Date:</strong>
@@ -84,8 +84,8 @@
                         <br>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn ps-btn-primary">Save Column</button>
+                        <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">@Localisation.Get(user, "CLOSE")</button>
+                        <button type="submit" class="btn ps-btn-primary">@Localisation.Get(user, "SAVE_COLUMN")</button>
                     </div>
                 </div>
             </form>
@@ -123,10 +123,10 @@
 
     @* Project Navbar *@
     <div class="col col-sm-10">
-        <button type="button" class="btn m-1 ps-btn-success float-start" data-bs-toggle="modal" data-bs-target="#addColumnModal" id="addColumnBtn"><i class="bi bi-layout-three-columns"></i> Add Column</button>
+        <button type="button" class="btn m-1 ps-btn-success float-start" data-bs-toggle="modal" data-bs-target="#addColumnModal" id="addColumnBtn"><i class="bi bi-layout-three-columns"></i> @Localisation.Get(user, "ADD_COLUMN")</button>
         @if(Model.PaymentTier >= PaymentTier.Plus)
         {
-            <button type="button" class="btn m-1 ps-btn-secondary" data-bs-toggle="modal" data-bs-target="#milestonesModal" id="listMilestonesBtn"><i class="bi bi-signpost"></i> Milestones</button>
+            <button type="button" class="btn m-1 ps-btn-secondary" data-bs-toggle="modal" data-bs-target="#milestonesModal" id="listMilestonesBtn"><i class="bi bi-signpost"></i> @Localisation.Get(user, "MILESTONES")</button>
         }
         @if(Model.ProjectRole >= PlanSuite.Enums.ProjectRole.Admin)
         {
@@ -134,34 +134,34 @@
                 @Html.HiddenFor(model => Model.MarkComplete.ProjectId)
                 @if(Model.Project.ProjectCompleted)
                 {
-                    <button type="submit" class="btn m-1 ps-btn-secondary"><i class="bi bi-door-open"></i> Mark Active</button>
+                    <button type="submit" class="btn m-1 ps-btn-secondary"><i class="bi bi-door-open"></i> @Localisation.Get(user, "MARK_ACTIVE")</button>
                 }
                 else
                 {
-                    <button type="submit" class="btn m-1 ps-btn-secondary"><i class="bi bi-door-closed"></i> Mark Complete</button>
+                    <button type="submit" class="btn m-1 ps-btn-secondary"><i class="bi bi-door-closed"></i> @Localisation.Get(user, "MARK_COMPLETE")</button>
                 }
             </form>
         }
         <div class="btn-group" role="group">
-            <button id="btnGroupDrop1" type="button" class="btn m-1 ps-btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i> More</button>
+            <button id="btnGroupDrop1" type="button" class="btn m-1 ps-btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i class="bi bi-three-dots"></i> @Localisation.Get(user, "MORE")</button>
             <ul class="dropdown-menu" aria-labelledby="btnGroupDrop1">
-                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#projectMembersModal" id="seeMembersBtn"><i class="bi bi-people"></i> See Members</a></li>
+                <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#projectMembersModal" id="seeMembersBtn"><i class="bi bi-people"></i> @Localisation.Get(user, "SEE_MEMBERS")</a></li>
                 @if (Model.PaymentTier >= PaymentTier.Plus)
                 {
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#pieChartModel"><i class="bi bi-pie-chart"></i> Data View</a></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#pieChartModel"><i class="bi bi-pie-chart"></i> @Localisation.Get(user, "DATA_VIEW")</a></li>
                 }
                 @if(Model.ProjectRole >= PlanSuite.Enums.ProjectRole.Admin)
                 {
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addMemberModal"><i class="bi bi-person-plus"></i> Add Member</a></li>
-                    <li><a class="dropdown-item" asp-controller="Project" asp-action="Logs" asp-route-projectId="@Model.Project.Id"><i class="bi bi-clipboard2-check"></i> Audit Logs</a></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#addMemberModal"><i class="bi bi-person-plus"></i> @Localisation.Get(user, "ADD_MEMBER")</a></li>
+                    <li><a class="dropdown-item" asp-controller="Project" asp-action="Logs" asp-route-projectId="@Model.Project.Id"><i class="bi bi-clipboard2-check"></i> @Localisation.Get(user, "AUDIT_LOGS")</a></li>
 
                     // asp-controller="Project" asp-action="Logs" asp-route-id="@item.Id"
                 }
                 @if(Model.ProjectRole != PlanSuite.Enums.ProjectRole.Owner)
                 {
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#leaveProjectModal"><i class="bi bi-box-arrow-left"></i> Leave Project</a></li>
+                    <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#leaveProjectModal"><i class="bi bi-box-arrow-left"></i> @Localisation.Get(user, "LEAVE_PROJECT")</a></li>
                 }
             </ul>
         </div>
@@ -184,20 +184,23 @@
             }
         }
         <li class="nav-item">
-            <a class="nav-link ps-link-primary @listActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.List)">List</a>
+            <a class="nav-link ps-link-primary @listActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.List)">@Localisation.Get(user, "LIST")</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link ps-link-primary @cardActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Cards)">Boards</a>
+            <a class="nav-link ps-link-primary @cardActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Cards)">@Localisation.Get(user, "BOARDS")</a>
         </li>
+        @if (Model.PaymentTier >= PaymentTier.Plus)
+        {
         <li class="nav-item">
-            <a class="nav-link ps-link-primary @progressActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Gantt)">Progress Chart</a>
+                <a class="nav-link ps-link-primary @progressActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Gantt)">@Localisation.Get(user, "PROGRESS_VIEW_NAME")</a>
         </li>
+        }
     </ul>
     @if(indexView == ProjectIndexView.List)
     {
         <partial name="SubViews/_ListView" />
     }
-    else if(indexView == ProjectIndexView.Gantt)
+    else if (indexView == ProjectIndexView.Gantt && Model.PaymentTier >= PaymentTier.Plus)
     {
         <partial name="SubViews/_Gantt" />
     }
