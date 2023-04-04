@@ -82,6 +82,11 @@
                                         taskIcon = "<span class=\"bi bi-exclamation-circle\"></span>";
                                     }
                                 }
+                                else if (task.CardDueDate == null && task.IsFinished)
+                                {
+                                    taskStatus = "task-completed";
+                                    currentProgress = 100f;
+                                }
                             }
 
                             <td>@Html.Raw(taskIcon) @task.CardName</td>
