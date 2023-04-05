@@ -8,13 +8,22 @@ jobs:
     build:
         runs-on: ubuntu-latest
         steps:
-            - name: Install SSH Key
-              uses: shimataro/ssh-key-action@v2
-              with:
-                key: ${{ secrets.SSH_PRIVATE_KEY }}
-                name: id_rsa # optional
-                known_hosts: ${{ secrets.SSH_PORT }}
-                config: ${{ secrets.CONFIG }}
-                if_key_exists: fail # replace / ignore / fail; optional (defaults to fail)
+            - name: Configure SSH
+              run: |
+                mkdir -p ~/.ssh/
+                echo "$SSH_PRIVATE_KEY" > ~/.ssh/staging.key
+                chmod 600 ~/.ssh/staging.key
+                cat >>~/.ssh/config <<END
+                Host staging
+                    HostName $SSH_HOST
+                    User $SSH_USER
+                    Port $SSH_PORT
+                    IdentityFile ~/.ssh/staging.key
+                    StrictHostKeyChecking no
+                END
+              env:
+                SSH_USER: ${{ secrets.SSH_USER }}
+                SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+                SSH_HOST: ${{ secrets.SSH_HOST }}
             - name: Pull
-              run: ssh -p 5522 seanny@plan-suite.com "./build.sh"
+              run: ssh staging "./build.sh"
