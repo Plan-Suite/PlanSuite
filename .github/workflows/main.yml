@@ -13,7 +13,6 @@ jobs:
                 mkdir -p ~/.ssh/
                 echo "$SSH_PRIVATE_KEY" > ~/.ssh/staging.key
                 chmod 600 ~/.ssh/staging.key
-                echo "SSH on $SSH_USER @ $SSH_HOST on port $SSH_PORT"
                 cat >>~/.ssh/config <<END
                 Host staging
                     HostName $SSH_HOST
@@ -26,5 +25,6 @@ jobs:
                 SSH_USER: ${{ secrets.SSH_USER }}
                 SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
                 SSH_HOST: ${{ secrets.SSH_HOST }}
+                SSH_PORT: ${{ secrets.SSH_PORT }}
             - name: Pull
               run: ssh staging "./build.sh"
