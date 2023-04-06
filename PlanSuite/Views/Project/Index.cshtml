@@ -170,7 +170,7 @@
     </div>
     <ul class="nav nav-tabs">
         @{
-            string listActive = string.Empty, cardActive = string.Empty, progressActive = string.Empty;
+            string listActive = string.Empty, cardActive = string.Empty, calendarActive = string.Empty, progressActive = string.Empty;
             switch(indexView)
             {
                 default:
@@ -179,6 +179,9 @@
                     break;
                 case ProjectIndexView.List:
                     listActive = "active";
+                    break;
+                case ProjectIndexView.Calendar:
+                    calendarActive = "active";
                     break;
                 case ProjectIndexView.Gantt:
                     progressActive = "active";
@@ -194,6 +197,9 @@
         @if (Model.PaymentTier >= PaymentTier.Plus)
         {
             <li class="nav-item">
+                <a class="nav-link ps-link-primary @calendarActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Calendar)">@Localisation.Get(user, "CALENDAR_VIEW_NAME")</a>
+            </li>
+            <li class="nav-item">
                 <a class="nav-link ps-link-primary @progressActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Gantt)">@Localisation.Get(user, "PROGRESS_VIEW_NAME")</a>
             </li>
         }
@@ -201,6 +207,10 @@
     @if(indexView == ProjectIndexView.List)
     {
         <partial name="SubViews/_ListView" />
+    }
+    else if (indexView == ProjectIndexView.Calendar && Model.PaymentTier >= PaymentTier.Plus)
+    {
+        <partial name="SubViews/_Calendar" />
     }
     else if (indexView == ProjectIndexView.Gantt && Model.PaymentTier >= PaymentTier.Plus)
     {

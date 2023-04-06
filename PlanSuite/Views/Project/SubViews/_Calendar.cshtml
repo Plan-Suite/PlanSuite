@@ -1,0 +1,42 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Models.Persistent
+@using PlanSuite.Services;
+@inject UserManager<ApplicationUser> UserManager
+@inject LocalisationService Localisation
+@model PlanSuite.Models.Temporary.ProjectViewModel
+@{
+    var user = await UserManager.GetUserAsync(User);
+}
+
+<script src="~/lib/fullCalendar/dist/fullCalendar.min.js"></script>
+<link rel="stylesheet" href="~/css/Calendar.css" asp-append-version="true" />
+
+<div class="mt-2">
+    <p>@Localisation.Get(user, "CALENDAR_VIEW_HELP_1")</p>
+    <input type="hidden" id="CalendarViewProjectId" value="@Model.Project.Id" />
+    <div id="calendar"></div>
+</div>
+
+<script type="module">
+    import { ProjectCommon } from "/js/project/projectCommon.js";
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            timeZone: 'UTC',
+            initialView: 'dayGridMonth',
+            firstDay: 1,
+            events: "/api/Project/GetCalendarTasks?id=@Model.Project.Id",
+            format: 'json',
+            eventClick: function (info) {
+                console.log(`view card ${info.event.id}`);
+                ProjectCommon.viewCardButton(info.event.id);
+
+                // Show card
+                $("#viewCardModal").modal('show');
+            }
+        });
+
+        calendar.render();
+    });
+</script>

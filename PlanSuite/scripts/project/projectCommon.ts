@@ -368,6 +368,14 @@ export class ProjectCommon {
                 $('#viewCardProject').html(`<strong>${localisation.Get("VIEW_CARD_PROJECT")}</strong> <a class="ps-link-primary" href="/projects/${projectId}">${project}</a>`);
                 $('#viewCardMilestone').html(`<strong>${localisation.Get("VIEW_CARD_MILESTONE")}</strong> ${milestone}`);
                 $('#viewCardBudget').html(`<strong>${localisation.Get("VIEW_CARD_BUDGET")}</strong> ${budget}`);
+
+                response.dependencies.forEach(function (dependency) {
+                    var fromWho: string = "";
+                    if (dependency.assigneeName != null) {
+                        fromWho = ` from ${dependency.assigneeName}`;
+                    }
+                    logHolder.append(`<div class="ps-alert ps-alert-warning">Dependent on <a href="#" id="viewCardName_${dependency.id}" data-bs-toggle="modal" data-bs-target="#viewCardModal">${dependency.name}</a>${fromWho}.</div>`);
+                });
             },
         });
     }
@@ -637,6 +645,17 @@ export class ProjectCommon {
                 }
 
                 $("#milestone").val(milestoneId).change();
+
+                // get dependencies
+                $("#dependencies").empty();
+
+                Object.entries(response.projectMilestones).forEach(([k, v]) => {
+                    $("#dependencies").append(`<option value="${k}">${v}</option>`);
+                });
+
+                // set milestone
+                var dependencies = $('#dependencies').val();
+                console.log(dependencies);
             }
         });
     }

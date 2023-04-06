@@ -474,4 +474,10 @@
   <data name="START_DATE" xml:space="preserve">
     <value>Start Date</value>
   </data>
+  <data name="CALENDAR_VIEW_NAME" xml:space="preserve">
+    <value>Calendar View</value>
+  </data>
+  <data name="CALENDAR_VIEW_HELP_1" xml:space="preserve">
+    <value>The calendar only shows tasks that have both a start and an end date.</value>
+  </data>
 </root>

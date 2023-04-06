@@ -217,5 +217,13 @@ namespace PlanSuite.Controllers.Api
             Console.WriteLine($"GetChartData: {id}");
             return m_ProjectService.GetChartData(id);
         }
+
+        // POST: GetCalendarTasks
+        [HttpGet("GetCalendarTasks")]
+        public async Task<List<GetCalendarTasksModel.CalendarTask>> GetCalendarTasks(int id, string? start = null, string? end = null)
+        {
+            Console.WriteLine($"GetCalendarTasks: {id}");
+            return await m_ProjectService.GetCalendarTasks(id, start, end);
+        }
     }
 }

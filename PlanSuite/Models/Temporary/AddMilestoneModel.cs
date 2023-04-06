@@ -62,4 +62,25 @@ namespace PlanSuite.Models.Temporary
     {
         public int ProjectId { get; set; }
     }
+
+    public class GetCalendarTasksModel
+    {
+        public class CalendarTask
+        {
+            public string Id { get; set; }
+            public string Title { get; set; }
+            public string Start { get; set; }
+            public string End { get; set; }
+        }
+
+        public List<CalendarTask> Events { get; set; }
+    }
+
+    public class CalendarTasksModel
+    {
+        public int Id { get; set; }
+        public long Start { get; set; }
+        public long End { get; set; }
+        public string TimeZone { get; set; }
+    }
 }

@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PlanSuite.Data;
 using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Utility;
+using System.Globalization;
 using System.Security.Claims;
 
 namespace PlanSuite.Services
@@ -974,6 +976,51 @@ namespace PlanSuite.Services
             await m_Database.Columns.AddAsync(column);
             await m_Database.SaveChangesAsync();
             return column.Id;
+        }
+
+        public async Task<List<GetCalendarTasksModel.CalendarTask>> GetCalendarTasks(int id, string? start = null, string? end = null)
+        {
+            m_Logger.LogInformation($"GetCalendarTasks: Checking if project {id} exists");
+            var project = await m_Database.Projects.Where(item => item.Id == id).FirstOrDefaultAsync();
+            if (project == null)    
+            {
+                return null;
+            }
+
+            m_Logger.LogInformation($"GetCalendarTasks: Getting columns for project {id}");
+            var cols = await m_Database.Columns.Where(col => col.ProjectId == project.Id).ToListAsync();
+            if(cols == null || cols.Count < 1)
+            {
+                return null;
+            }
+
+            GetCalendarTasksModel tasksModel = new GetCalendarTasksModel();
+            tasksModel.Events = new List<GetCalendarTasksModel.CalendarTask>();
+            foreach (var col in cols)
+            {
+                m_Logger.LogInformation($"GetCalendarTasks: Getting tasks for column {col.Id} that have both a start and end date");
+                var cards = await m_Database.Cards.Where(card => card.ColumnId == col.Id).ToListAsync();
+                if (cards == null || cards.Count < 1)
+                {
+                    continue;
+                }
+
+                foreach(var card in cards)
+                {
+                    if(card.CardStartDate == null || card.CardDueDate == null)
+                    {
+                        continue;
+                    }
+
+                    GetCalendarTasksModel.CalendarTask calendarTask = new GetCalendarTasksModel.CalendarTask();
+                    calendarTask.Id = card.Id.ToString();
+                    calendarTask.Title = card.CardName;
+                    calendarTask.Start = card.CardStartDate?.ToString("yyyy-MM-dd");
+                    calendarTask.End = card.CardDueDate?.ToString("yyyy-MM-dd");
+                    tasksModel.Events.Add(calendarTask);
+                }
+            }
+            return tasksModel.Events;
         }
     }
 }
