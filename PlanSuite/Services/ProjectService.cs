@@ -1017,6 +1017,11 @@ namespace PlanSuite.Services
                     calendarTask.Title = card.CardName;
                     calendarTask.Start = card.CardStartDate?.ToString("yyyy-MM-dd");
                     calendarTask.End = card.CardDueDate?.ToString("yyyy-MM-dd");
+                    calendarTask.Completed = card.IsFinished;
+                    if(calendarTask.Completed)
+                    {
+                        calendarTask.BackgroundColor = "rgba(58,95,218, 0.5)";
+                    }
                     tasksModel.Events.Add(calendarTask);
                 }
             }

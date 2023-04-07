@@ -71,6 +71,8 @@ namespace PlanSuite.Models.Temporary
             public string Title { get; set; }
             public string Start { get; set; }
             public string End { get; set; }
+            public bool Completed { get; set; }
+            public string BackgroundColor { get; set; } = "#3A5FDA";
         }
 
         public List<CalendarTask> Events { get; set; }
