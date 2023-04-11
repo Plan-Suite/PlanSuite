@@ -1,0 +1,7 @@
+﻿.footer-text {
+    font-size: 1.15rem;
+}
+
+.footer-social:hover {
+    color: var(--black);
+}

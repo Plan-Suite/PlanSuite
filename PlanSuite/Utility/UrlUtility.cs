@@ -7,6 +7,16 @@ namespace PlanSuite.Utility
 {
     public static class UrlUtility
     {
+        public static string GetUrlRouteString(HttpRequest request, string routeKey)
+        {
+            string routeVal = GetUrlRouteValue(UriHelper.GetDisplayUrl(request), routeKey);
+            if (!string.IsNullOrEmpty(routeVal))
+            {
+                return routeVal;
+            }
+            return routeVal;
+        }
+
         public static int GetUrlRouteInt(HttpRequest request, string routeKey)
         {
             int routeValue = 0;
