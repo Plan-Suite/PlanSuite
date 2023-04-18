@@ -110,8 +110,8 @@ function onSearch() {
         contentType: "application/json",
         url: url,
         success: function (result) {
-            if (result.getUserModels != null) {
-                result.getUserModels.forEach(function (element) {
+            if (result.users != null) {
+                result.users.forEach(function (element) {
                     console.log(element);
                     var tr = `<tr>\
                       <th scope="row">${element.username}</th>\

@@ -72,7 +72,7 @@ namespace PlanSuite.Models.Temporary
             public string Start { get; set; }
             public string End { get; set; }
             public bool Completed { get; set; }
-            public string BackgroundColor { get; set; } = "#3A5FDA";
+            public string BackgroundColor { get; set; } = "#3A5FDA"; // I dont like this one bit, would prefer if we could define this on the client-side
         }
 
         public List<CalendarTask> Events { get; set; }

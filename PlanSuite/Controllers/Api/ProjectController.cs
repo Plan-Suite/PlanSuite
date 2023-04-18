@@ -218,12 +218,27 @@ namespace PlanSuite.Controllers.Api
             return m_ProjectService.GetChartData(id);
         }
 
-        // POST: GetCalendarTasks
-        [HttpGet("GetCalendarTasks")]
-        public async Task<List<GetCalendarTasksModel.CalendarTask>> GetCalendarTasks(int id, string? start = null, string? end = null)
+        /// <summary>
+        /// Get a list of calendar tasks by referencing the project id, and optionally filtering by a start date, end date and team member.
+        /// </summary>
+        /// <param name="id">Project Id</param>
+        /// <param name="start">Start Date</param>
+        /// <param name="end">End Date</param>
+        /// <param name="teamMember">Team Member to only show tasks from</param>
+        /// <returns></returns>
+        [HttpPost("GetCalendarTasks")]
+        public async Task<List<GetCalendarTasksModel.CalendarTask>> GetCalendarTasksAsync([FromForm] int id, [FromForm] Guid teamMember, string? start = null, string? end = null)
         {
-            Console.WriteLine($"GetCalendarTasks: {id}");
-            return await m_ProjectService.GetCalendarTasks(id, start, end);
+            Console.WriteLine($"GetCalendarTasks: {id} (teamMember: {teamMember})");
+            return await m_ProjectService.GetCalendarTasksAsync(id, teamMember, start, end);
+        }
+
+        // POST: EditTaskDates
+        [HttpPost("EditTaskDates")]
+        public async Task EditTaskDatesAsync([FromForm] int id, string newStartDate, string newDueDate)
+        {
+            Console.WriteLine($"EditTaskDates: {id}, {newStartDate}, {newDueDate}");
+            await m_ProjectService.EditTaskDates(id, newStartDate, newDueDate);
         }
     }
 }

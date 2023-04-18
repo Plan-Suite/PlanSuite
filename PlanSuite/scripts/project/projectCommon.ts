@@ -380,6 +380,19 @@ export class ProjectCommon {
         });
     }
 
+    static editTaskDates(dbId, newStartDate, newDueDate) {
+        $.ajax({
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json",
+            url: "/api/Project/EditTaskDueDate",
+            beforeSend: function (request) {
+                request.setRequestHeader("RequestVerificationToken", verificationToken);
+            },
+            data: JSON.stringify({ id: dbId, newStartDate: newStartDate, newDueDate: newDueDate }),
+        });
+    }
+
     static addChecklist(id, name, checklistItems) {
         var checklistHolder = $("#checklistHolder");
         checklistHolder.removeClass("d-none");

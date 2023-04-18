@@ -1,0 +1,27 @@
+﻿#unscheduledTasks ul {
+    list-style-type: none;
+}
+
+    #unscheduledTasks ul li {
+        margin-bottom: 5px;
+        text-align: center;
+        background-color: var(--blue-1);
+        padding: 0.5rem;
+    }
+
+        #unscheduledTasks ul li a {
+            text-decoration: none;
+            color: var(--white);
+            display: block;
+        }
+
+        #unscheduledTasks ul li a:hover {
+            text-decoration: underline;
+        }
+
+#unscheduledTasks span {
+
+}
+
+#calendarLink {
+}

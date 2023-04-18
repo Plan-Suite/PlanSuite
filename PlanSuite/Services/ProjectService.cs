@@ -40,6 +40,11 @@ namespace PlanSuite.Services
                 return PaymentTier.Free;
             }
 
+            return GetProjectTier(project);
+        }
+
+        public PaymentTier GetProjectTier(Project project)
+        {
             var owner = GetProjectOwner(project);
             if (owner == null)
             {
@@ -978,7 +983,7 @@ namespace PlanSuite.Services
             return column.Id;
         }
 
-        public async Task<List<GetCalendarTasksModel.CalendarTask>> GetCalendarTasks(int id, string? start = null, string? end = null)
+        public async Task<List<GetCalendarTasksModel.CalendarTask>> GetCalendarTasksAsync(int id, Guid teamMember, string? start = null, string? end = null)
         {
             m_Logger.LogInformation($"GetCalendarTasks: Checking if project {id} exists");
             var project = await m_Database.Projects.Where(item => item.Id == id).FirstOrDefaultAsync();
@@ -998,8 +1003,17 @@ namespace PlanSuite.Services
             tasksModel.Events = new List<GetCalendarTasksModel.CalendarTask>();
             foreach (var col in cols)
             {
-                m_Logger.LogInformation($"GetCalendarTasks: Getting tasks for column {col.Id} that have both a start and end date");
-                var cards = await m_Database.Cards.Where(card => card.ColumnId == col.Id).ToListAsync();
+                m_Logger.LogInformation($"GetCalendarTasks: Getting tasks for column {col.Id} that have both a start and end date, and have assignee of {teamMember}");
+                List<Card> cards;
+                if(teamMember == Guid.Empty)
+                {
+                    cards = await m_Database.Cards.Where(card => card.ColumnId == col.Id).ToListAsync();
+                }
+                else
+                {
+                    cards = await m_Database.Cards.Where(card => card.ColumnId == col.Id && card.CardAssignee == teamMember).ToListAsync();
+                }
+
                 if (cards == null || cards.Count < 1)
                 {
                     continue;
@@ -1020,12 +1034,31 @@ namespace PlanSuite.Services
                     calendarTask.Completed = card.IsFinished;
                     if(calendarTask.Completed)
                     {
+                        // I dont like this one bit, would prefer if we could define this on the client-side
                         calendarTask.BackgroundColor = "rgba(58,95,218, 0.5)";
                     }
                     tasksModel.Events.Add(calendarTask);
                 }
             }
             return tasksModel.Events;
+        }
+
+        public async Task EditTaskDates(int id, string newStartDate, string newDueDate)
+        {
+            m_Logger.LogInformation($"Editing task {id} dates: newStartDate: {newStartDate}, newDueDate: {newDueDate}");
+            DateTime startDate = DateTime.Parse(newStartDate);
+            DateTime dueDate = DateTime.Parse(newDueDate);
+            var task = await m_Database.Cards.Where(task => task.Id == id).FirstOrDefaultAsync();
+            if(task == null)
+            {
+                m_Logger.LogError($"Could not find task {id}");
+                return;
+            }
+
+            task.CardStartDate = startDate;
+            task.CardDueDate = dueDate;
+            await m_Database.SaveChangesAsync();
+            m_Logger.LogInformation($"Finished editing task {id} dates");
         }
     }
 }
