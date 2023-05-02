@@ -57,7 +57,7 @@ namespace PlanSuite.Controllers
             if (user.FinishedFirstTimeLogin == true)
             {
                 // User has already completed their first time login, so we're just gonna redirect them to the index page.
-                return Redirect("/Home/Index");
+                return RedirectToAction("Index", "Home");
             }
 
             return View(model);
@@ -101,7 +101,7 @@ namespace PlanSuite.Controllers
             if (user.FinishedFirstTimeLogin == true)
             {
                 // User has already completed their first time login, so we're just gonna redirect them to the index page.
-                return Redirect("/Home/Index");
+                return RedirectToAction("Index", "Home");
             }
 
             m_Logger.LogInformation($"Setting free tier for {user.FullName}");
@@ -109,7 +109,7 @@ namespace PlanSuite.Controllers
             user.FinishedFirstTimeLogin = true;
             await m_UserManager.UpdateAsync(user);
 
-            return Redirect("/Home/Index");
+            return RedirectToAction("Index", "Home");
         }
 
         public async Task<IActionResult> UpgradePlan()

@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Enums;
 @using PlanSuite.Models.Persistent
 @using PlanSuite.Services;
 @using PlanSuite.Utility;
@@ -9,66 +10,72 @@
     var user = await UserManager.GetUserAsync(User);
     int view = UrlUtility.GetUrlRouteInt(Context.Request, "view");
     Guid filterByTeamMember = UrlUtility.GetUrlRouteGuid(Context.Request, "filterByTeamMember");
+    TaskCompletionFilter taskCompletionFilter = (TaskCompletionFilter)UrlUtility.GetUrlRouteInt(Context.Request, "filterByTaskCompleted");
 }
 
 <script src="~/lib/fullCalendar/dist/fullCalendar.min.js" asp-append-version="true"></script>
 <link rel="stylesheet" href="~/css/Calendar.css" asp-append-version="true" />
 
-<p class="mt-2"><a href="#" class="btn ps-btn-secondary" data-bs-toggle="modal" data-bs-target="#teamMemberModal"><i class="bi bi-person"></i> Filter by Team Member</a></p>
-<div id="calendarViewError" class="ps-alert ps-alert-error d-none"><i class="bi bi-exclamation-circle"></i> @Localisation.Get(user, "CALENDAR_VIEW_ERROR_1")</div>
-<div id="calendarViewLoading">
-    <div class="d-flex justify-content-center">
-        <div class="spinner-border" role="status">
-            <span class="visually-hidden">Loading...</span>
+<div id="calendarHolder">
+    <div id="calendarViewError" class="ps-alert ps-alert-error d-none"><i class="bi bi-exclamation-circle"></i> @Localisation.Get(user, "CALENDAR_VIEW_ERROR_1")</div>
+    <div id="calendarViewLoading">
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </div>
     </div>
-</div>
-<input type="hidden" id="CalendarViewProjectId" value="@Model.Project.Id" />
-<div id="calendar"></div>
-
-<div class="modal" tabindex="-1" id="teamMemberModal">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Filter by Team Member</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="list-group">
-                @if(filterByTeamMember == Guid.Empty)
-                {
-                    <a asp-controller="Project" asp-route-id="@Model.Project.Id" asp-route-view="@view" class="list-group-item list-group-item-action active">Nobody</a>
-                }
-                else
-                {
-                    <a asp-controller="Project" asp-route-id="@Model.Project.Id" asp-route-view="@view" class="list-group-item list-group-item-action">Nobody</a>
-                }
-                @foreach(var teamMember in Model.TeamMembers)
-                {
-                    if(filterByTeamMember == teamMember.Key)
-                    {
-                        <a asp-controller="Project" asp-route-id="@Model.Project.Id" asp-route-view="@view" asp-route-filterByTeamMember="@teamMember.Key" class="list-group-item list-group-item-action active" aria-current="true">@teamMember.Value</a>
-                    }
-                    else
-                    {
-                        <a asp-controller="Project" asp-route-id="@Model.Project.Id" asp-route-view="@view" asp-route-filterByTeamMember="@teamMember.Key" class="list-group-item list-group-item-action">@teamMember.Value</a>
-                    }
-                }
+    <input type="hidden" id="CalendarViewProjectId" value="@Model.Project.Id" />
+    <div id="calendar" class="mt-2"></div>
+    <div id="mySidenav" class="sidenav">
+        @foreach(var card in Model.Cards)
+        {
+            <div class="ps-board-task ps-board-task-pending mb-1 draggable ui-draggable ui-draggable-handle" id="@card.Id">
+                <div class="d-grid gap-2" style="min-height:60px;">
+                    <a class="btn" style="text-align:left;" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal"><i class="bi bi-card-checklist"></i> @card.CardName</a>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
+        }
     </div>
 </div>
 
 <script type="module">
     import { ProjectCommon } from "/js/project/projectCommon.js";
 
+    var navOpened = false;
+    var pixels = 250;
+    var calendar;
+
+    function openNav() {
+        document.getElementById("mySidenav").style.width = `${pixels}px`;
+        if(window.innerWidth < 1800)
+        {
+            document.getElementById("calendarHolder").style.marginLeft = `${pixels}px`;
+        }
+        navOpened = true;
+        setTimeout(function() {
+            calendar.render();
+        }, 500);
+        /*$("#mySidenav").children().each(function() {
+            $(this).draggable({
+                appendTo: 'body',
+                helper: 'clone'
+            });
+        });*/
+    }
+
+    function closeNav() {
+        document.getElementById("mySidenav").style.width = "0";
+        document.getElementById("calendarHolder").style.marginLeft = "0";
+        navOpened = false;
+        setTimeout(function () {
+            calendar.render();
+        }, 500);
+    }
+
     function getHeaderProps() {
         return {
-            left: window.innerWidth >= 765 ? 'today,prev,next' : 'prev,next',
+            left: window.innerWidth >= 765 ? 'today,prev,next,unscheduledTasks' : 'prev,next',
             center: window.innerWidth >= 765 ? 'title' : '',
             right: window.innerWidth >= 765 ? 'multiMonthYear,dayGridMonth,dayGridWeek' : ''
         }
@@ -79,8 +86,12 @@
             unscheduledTasks: {
                 text: 'Unscheduled Task',
                 click: function () {
-                    var offcanvasEl = document.getElementById("unscheduledTasks");
-                    new bootstrap.Offcanvas(offcanvasEl);
+                    if(navOpened) {
+                        closeNav();
+                    }
+                    else {
+                        openNav();
+                    }
                 }
             }
         }
@@ -93,7 +104,8 @@
                 method: "POST",
                 extraParams: {
                     id: "@Model.Project.Id",
-                    teamMember: "@filterByTeamMember"
+                    teamMember: "@filterByTeamMember",
+                    taskCompleted: "@taskCompletionFilter"
                 },
                 failure: function () {
                     $("#calendarViewError").removeClass("d-none");
@@ -107,9 +119,13 @@
         ]
     }
 
+    $("#unschedTaskClose").on("click", function() {
+        closeNav();
+    });
+
     document.addEventListener('DOMContentLoaded', function () {
         var calendarEl = document.getElementById('calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
+        calendar = new FullCalendar.Calendar(calendarEl, {
             timeZone: 'UTC',
             themeSystem: 'bootstrap5',
             customButtons: getCustomButtons(),
@@ -119,6 +135,8 @@
             eventSources: getEvents(),
             selectable: true,
             editable: true,
+            droppable: true,
+            dropAccept: '.event-button',
             eventsSet: function (events) {
                 events.forEach(element => {
                     if (element._def.extendedProps.completed == true)
@@ -144,12 +162,11 @@
                 );
                 ProjectCommon.editTaskDates(info.event.id, info.event.start.toISOString(), info.event.end.toISOString());
             },
-            eventDrop: function (info) {
+            drop: function (info) {
                 console.log(
-                    info.event.id + " start is now " + info.event.start.toISOString() + "\n" +
-                    info.event.id + " end is now " + info.event.end.toISOString() + "\n"
+                    info.event.id + " was dropped on " + info.event.start.toISOString()
                 );
-                ProjectCommon.editTaskDates(info.event.id, info.event.start.toISOString(), info.event.end.toISOString());
+                //ProjectCommon.editTaskDates(info.event.id, info.event.start.toISOString(), info.event.end.toISOString());
             },
             windowResize: function(info) {
                 calendar.changeView(window.innerWidth >= 765 ? 'dayGridMonth' : 'dayGridWeek')
@@ -158,5 +175,29 @@
         });
 
         calendar.render();
+
+        $(".draggable").draggable({
+            revert: "invalid",
+            appendTo: "body",
+            helper: "clone"
+        });
+        $('.fc-daygrid-day-frame').droppable({
+            accept: '.draggable',
+            drop: function (event, ui) {
+                var dropped = ui.draggable;
+                var droppedOn = $(this);
+                var droppedOnParent = $(this).parent();
+
+                var taskId = dropped.attr("id");
+                var date = droppedOnParent.data("date");
+                var dateTime = new Date(date).toISOString();
+                console.log(
+                    taskId + " was dropped on " + dateTime
+                );
+
+                $(dropped).remove();
+                ProjectCommon.editTaskDates(taskId, dateTime, dateTime);
+            }
+        });
     });
 </script>

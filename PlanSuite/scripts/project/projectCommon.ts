@@ -385,7 +385,7 @@ export class ProjectCommon {
             type: "POST",
             dataType: "json",
             contentType: "application/json",
-            url: "/api/Project/EditTaskDueDate",
+            url: "/api/Project/EditTaskDates",
             beforeSend: function (request) {
                 request.setRequestHeader("RequestVerificationToken", verificationToken);
             },

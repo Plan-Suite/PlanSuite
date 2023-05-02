@@ -31,10 +31,13 @@ namespace PlanSuite.Controllers
             m_AuditService = auditService;
         }
 
-        // /projects/id?filterByTeamMember=X
+        // /projects/id?filterByTeamMember=X&filterByTaskCompleted=X&filterByTaskOverdue=X&filterByPriority=X
         [Route("projects/{id}")]
-        public async Task<IActionResult> Index(int id, Guid? filterByTeamMember = null)
+        public async Task<IActionResult> Index(int id, Guid? filterByTeamMember = null, int filterByTaskCompleted = 0, int filterByTaskOverdue = 0, int filterByPriority = 0)
         {
+            TaskCompletionFilter taskCompleted = (TaskCompletionFilter)filterByTaskCompleted;
+            TaskOverdueFilter taskOverdue = (TaskOverdueFilter)filterByTaskOverdue;
+            Priority taskPriority = (Priority)filterByPriority;
             CommonCookies.ApplyCommonCookies(HttpContext);
             if (!_signInManager.IsSignedIn(User))
             {
@@ -107,14 +110,41 @@ namespace PlanSuite.Controllers
                 Console.WriteLine($"Grabbed {columns.Count} columns for project {project.Id}");
                 foreach (var column in columns)
                 {
-                    List<Card> cards;
-                    if (filterByTeamMember != null)
+                    List<Card> cards = await dbContext.Cards.Where(c => c.ColumnId == column.Id).ToListAsync();
+
+                    // Get cards if they have an assignee
+                    if (filterByTeamMember != Guid.Empty)
                     {
-                        cards = await dbContext.Cards.Where(c => c.ColumnId == column.Id && c.CardAssignee == filterByTeamMember).ToListAsync();
+                        cards = cards.Where(card => card.CardAssignee == filterByTeamMember).ToList();
                     }
-                    else
+
+                    // Get cards if they have a assignee task completion filter assigned
+                    if (taskCompleted == TaskCompletionFilter.Completed)
                     {
-                        cards = await dbContext.Cards.Where(c => c.ColumnId == column.Id).ToListAsync();
+                        cards = cards.Where(card => card.IsFinished == true).ToList();
+                    }
+                    else if (taskCompleted == TaskCompletionFilter.NotCompleted)
+                    {
+                        cards = cards.Where(card => card.IsFinished == false).ToList();
+                    }
+
+                    // Get cards if they have are overdue, also don't show cards that are finished (since they're not overdue)
+                    if (taskOverdue == TaskOverdueFilter.Overdue)
+                    {
+                        cards = cards.Where(card => card.CardDueDate != null && DateTime.Now > card.CardDueDate && card.IsFinished == false).ToList();
+                    }
+                    else if (taskOverdue == TaskOverdueFilter.NotOverdue)
+                    {
+                        cards = cards.Where(card => card.CardDueDate != null && DateTime.Now <= card.CardDueDate && card.IsFinished == false).ToList();
+                    }
+
+                    if (taskOverdue == TaskOverdueFilter.Overdue)
+                    {
+                        cards = cards.Where(card => card.CardDueDate != null && DateTime.Now > card.CardDueDate && card.IsFinished == false).ToList();
+                    }
+                    else if (taskOverdue == TaskOverdueFilter.NotOverdue)
+                    {
+                        cards = cards.Where(card => card.CardDueDate != null && DateTime.Now <= card.CardDueDate && card.IsFinished == false).ToList();
                     }
 
                     if (cards != null && cards.Count > 0)

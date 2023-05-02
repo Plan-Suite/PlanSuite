@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
@@ -227,15 +228,21 @@ namespace PlanSuite.Controllers.Api
         /// <param name="teamMember">Team Member to only show tasks from</param>
         /// <returns></returns>
         [HttpPost("GetCalendarTasks")]
-        public async Task<List<GetCalendarTasksModel.CalendarTask>> GetCalendarTasksAsync([FromForm] int id, [FromForm] Guid teamMember, string? start = null, string? end = null)
+        public async Task<List<GetCalendarTasksModel.CalendarTask>> GetCalendarTasksAsync([FromForm] int id, [FromForm] Guid teamMember, [FromForm] TaskCompletionFilter taskCompleted, string? start = null, string? end = null)
         {
-            Console.WriteLine($"GetCalendarTasks: {id} (teamMember: {teamMember})");
-            return await m_ProjectService.GetCalendarTasksAsync(id, teamMember, start, end);
+            Console.WriteLine($"GetCalendarTasks: {id} (teamMember: {teamMember} | taskCompleted: {taskCompleted})");
+            return await m_ProjectService.GetCalendarTasksAsync(id, teamMember, taskCompleted, start, end);
         }
 
-        // POST: EditTaskDates
+        /// <summary>
+        /// Edit task start and due dates
+        /// </summary>
+        /// <param name="id">Task to edit</param>
+        /// <param name="newStartDate">New task start date</param>
+        /// <param name="newDueDate">New task due date</param>
+        /// <returns>Void</returns>
         [HttpPost("EditTaskDates")]
-        public async Task EditTaskDatesAsync([FromForm] int id, string newStartDate, string newDueDate)
+        public async Task EditTaskDatesAsync([FromBody] int id, string newStartDate, string newDueDate)
         {
             Console.WriteLine($"EditTaskDates: {id}, {newStartDate}, {newDueDate}");
             await m_ProjectService.EditTaskDates(id, newStartDate, newDueDate);

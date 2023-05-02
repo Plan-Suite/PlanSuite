@@ -983,7 +983,7 @@ namespace PlanSuite.Services
             return column.Id;
         }
 
-        public async Task<List<GetCalendarTasksModel.CalendarTask>> GetCalendarTasksAsync(int id, Guid teamMember, string? start = null, string? end = null)
+        public async Task<List<GetCalendarTasksModel.CalendarTask>> GetCalendarTasksAsync(int id, Guid teamMember, TaskCompletionFilter taskCompleted, string? start = null, string? end = null)
         {
             m_Logger.LogInformation($"GetCalendarTasks: Checking if project {id} exists");
             var project = await m_Database.Projects.Where(item => item.Id == id).FirstOrDefaultAsync();
@@ -1003,15 +1003,23 @@ namespace PlanSuite.Services
             tasksModel.Events = new List<GetCalendarTasksModel.CalendarTask>();
             foreach (var col in cols)
             {
-                m_Logger.LogInformation($"GetCalendarTasks: Getting tasks for column {col.Id} that have both a start and end date, and have assignee of {teamMember}");
-                List<Card> cards;
-                if(teamMember == Guid.Empty)
+                m_Logger.LogInformation($"GetCalendarTasks: Getting tasks for column {col.Id} that have both a start and end date, and have assignee of {teamMember}, and task completion of {taskCompleted}");
+                List<Card> cards = await m_Database.Cards.Where(card => card.ColumnId == col.Id).ToListAsync();
+
+                // Get cards if they have an assignee
+                if (teamMember != Guid.Empty)
                 {
-                    cards = await m_Database.Cards.Where(card => card.ColumnId == col.Id).ToListAsync();
+                    cards = cards.Where(card => card.CardAssignee == teamMember).ToList();
                 }
-                else
+
+                // Get cards if they have a assignee task completion filter assigned
+                if (taskCompleted == TaskCompletionFilter.Completed)
                 {
-                    cards = await m_Database.Cards.Where(card => card.ColumnId == col.Id && card.CardAssignee == teamMember).ToListAsync();
+                    cards = cards.Where(card => card.IsFinished == true).ToList();
+                }
+                else if (taskCompleted == TaskCompletionFilter.NotCompleted)
+                {
+                    cards = cards.Where(card => card.IsFinished == false).ToList();
                 }
 
                 if (cards == null || cards.Count < 1)

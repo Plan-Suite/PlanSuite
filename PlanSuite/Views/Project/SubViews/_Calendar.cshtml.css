@@ -1,27 +1,70 @@
-﻿#unscheduledTasks ul {
-    list-style-type: none;
+﻿.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: var(--white);
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 0px;
+    border-right: 2px solid var(--black);
 }
 
-    #unscheduledTasks ul li {
-        margin-bottom: 5px;
+    .sidenav button {
+        padding: 8px;
+        font-size: 30px;
+        transition: 0.3s;
         text-align: center;
-        background-color: var(--blue-1);
-        padding: 0.5rem;
+        border: none;
+        background-color: var(--red-1);
+        color: var(--white);
+        float: right;
     }
 
-        #unscheduledTasks ul li a {
-            text-decoration: none;
-            color: var(--white);
-            display: block;
+    .sidenav .event-button:active {
+        /*position: fixed;*/
+    }
+
+    .sidenav a {
+        padding: 8px;
+        margin: 5px 5px 5px 5px;
+        text-decoration: none;
+        font-size: 25px;
+        display: block;
+        transition: 0.3s;
+        font-size: 1em;
+    }
+
+        .sidenav a:hover {
+            color: #f1f1f1;
+            cursor: grab;
         }
 
-        #unscheduledTasks ul li a:hover {
-            text-decoration: underline;
+        .sidenav a:active {
+            color: #f1f1f1;
+            cursor: grabbing;
         }
 
-#unscheduledTasks span {
+    .sidenav .closebtn {
+        position: absolute;
+        top: 0;
+        right: 25px;
+        font-size: 36px;
+        margin-left: 50px;
+    }
 
+#calendarHolder {
+    transition: margin-left .5s;
+    padding: 16px;
 }
 
-#calendarLink {
+@media screen and (max-height: 450px) {
+    .sidenav {
+        padding-top: 15px;
+    }
+
+        .sidenav a {
+            font-size: 18px;
+        }
 }

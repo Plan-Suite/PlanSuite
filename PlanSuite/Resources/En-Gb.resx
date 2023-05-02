@@ -519,4 +519,25 @@
   <data name="WORKFLOW" xml:space="preserve">
     <value>Workflow</value>
   </data>
+  <data name="COMPLETED" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="FILTER_BY_TASK_COMPLETION_STATUS" xml:space="preserve">
+    <value>Filter By Task Status</value>
+  </data>
+  <data name="FILTER_BY_TEAM_MEMBER" xml:space="preserve">
+    <value>Filter By Team Member</value>
+  </data>
+  <data name="NOT_COMPLETED" xml:space="preserve">
+    <value>Not Completed</value>
+  </data>
+	<data name="FILTER_BY_TASK_OVERDUE_STATUS" xml:space="preserve">
+    <value>Filter By Overdue</value>
+  </data>
+  <data name="NOT_OVERDUE" xml:space="preserve">
+    <value>Not Overdue</value>
+  </data>
+  <data name="FILTER_BY_TASK_PRIORITY_STATUS" xml:space="preserve">
+    <value>Filter by Task Priority</value>
+  </data>
 </root>

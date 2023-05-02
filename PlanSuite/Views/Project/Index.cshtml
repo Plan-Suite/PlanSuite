@@ -13,6 +13,12 @@
     ApplicationUser user = await UserManager.GetUserAsync(User);
     ProjectIndexView indexView = (ProjectIndexView)UrlUtility.GetUrlRouteInt(Context.Request, "view");
     Model.MarkComplete.ProjectId = Model.Project.Id;
+
+    int view = UrlUtility.GetUrlRouteInt(Context.Request, "view");
+    Guid filterByTeamMember = UrlUtility.GetUrlRouteGuid(Context.Request, "filterByTeamMember");
+    TaskCompletionFilter taskCompletionFilter = (TaskCompletionFilter)UrlUtility.GetUrlRouteInt(Context.Request, "filterByTaskCompleted");
+    TaskOverdueFilter taskOverdueFilter = (TaskOverdueFilter)UrlUtility.GetUrlRouteInt(Context.Request, "filterByTaskOverdue");
+    Priority taskPriorityFilter = (Priority)UrlUtility.GetUrlRouteInt(Context.Request, "filterByTaskPriority");
 }
 
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
@@ -20,6 +26,21 @@
     public string GetAntiXsrfRequestToken()
     {
         return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+
+    async Task ProjectLink(string text, string linkClass, int projectView, Guid filterByTeamMember, TaskCompletionFilter filterByTaskCompleted, TaskOverdueFilter filterByTaskOverdue, Priority filterByTaskPriority)
+    {
+        <a class="@linkClass"
+            asp-controller="Project"
+            asp-action="Index"
+            asp-route-view="@projectView"
+            asp-route-id="@Model.Project.Id"
+            asp-route-filterByTeamMember="@filterByTeamMember"
+            asp-route-filterByTaskCompleted="@((int)filterByTaskCompleted)"
+            asp-route-filterByTaskOverdue="@((int)TaskOverdueFilter.None)"
+            asp-route-filterByTaskPriority="@((int)filterByTaskPriority)">
+            @text
+        </a>
     }
 }
 
@@ -123,6 +144,43 @@
         <partial name="SubViews/_PieChart" />
     }
 
+    <div class="modal" tabindex="-1" id="teamMemberModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Filter by Team Member</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="list-group">
+                        @if (filterByTeamMember == Guid.Empty)
+                        {
+                            await ProjectLink("Nobody", "list-group-item list-group-item-action active", view, Guid.Empty, taskCompletionFilter, taskOverdueFilter, taskPriorityFilter);
+                        }
+                        else
+                        {
+                            await ProjectLink("Nobody", "list-group-item list-group-item-action", view, Guid.Empty, taskCompletionFilter, taskOverdueFilter, taskPriorityFilter);
+                        }
+                        @foreach (var teamMember in Model.TeamMembers)
+                        {
+                            if (filterByTeamMember == teamMember.Key)
+                            {
+                                await ProjectLink(teamMember.Value, "list-group-item list-group-item-action active", view, teamMember.Key, taskCompletionFilter, taskOverdueFilter, taskPriorityFilter);
+                            }
+                            else
+                            {
+                                await ProjectLink(teamMember.Value, "list-group-item list-group-item-action", view, teamMember.Key, taskCompletionFilter, taskOverdueFilter, taskPriorityFilter);
+                            }
+                        }
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn ps-btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @* Project Navbar *@
     <div class="col col-sm-10">
         <button type="button" class="btn m-1 ps-btn-success float-start" data-bs-toggle="modal" data-bs-target="#addColumnModal" id="addColumnBtn"><i class="bi bi-layout-three-columns"></i> @Localisation.Get(user, "ADD_COLUMN")</button>
@@ -168,6 +226,163 @@
             </ul>
         </div>
     </div>
+    <div class="col col-sm-10">
+        @{
+            string filterIcon = "bi bi-filter-circle";
+            string filterByTeamMemberIcon = "bi bi-person";
+            if(filterByTeamMember != Guid.Empty)
+            {
+                filterByTeamMemberIcon = "bi bi-person-fill";
+                filterIcon = "bi bi-filter-circle-fill";
+            }
+
+            string filterByTaskCompletedIcon = "bi bi-check-circle";
+            if (taskCompletionFilter != TaskCompletionFilter.None)
+            {
+                filterByTaskCompletedIcon = "bi bi-check-circle-fill";
+                filterIcon = "bi bi-filter-circle-fill";
+            }
+
+            string filterByTaskOverdueIcon = "bi bi-alarm";
+            if (taskOverdueFilter != TaskOverdueFilter.None)
+            {
+                filterByTaskOverdueIcon = "bi bi-alarm-fill";
+                filterIcon = "bi bi-filter-circle-fill";
+            }
+
+            string filterByTaskPriorityIcon = "bi bi-arrow-up-circle";
+            if (taskPriorityFilter != Priority.None)
+            {
+                filterByTaskPriorityIcon = "bi bi-arrow-up-circle-fill";
+                filterIcon = "bi bi-filter-circle-fill";
+            }
+        }
+        <a class="btn btn-sm m-1 ps-btn-secondary" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+            <i class="@filterIcon"></i> Filters
+        </a>
+        <div class="collapse" id="collapseExample">
+          <div class="card card-body">
+                <div class="dropdown">
+                    <button type="button" class="btn btn-sm m-1 ps-btn-secondary" data-bs-toggle="modal" data-bs-target="#teamMemberModal"><i class="@filterByTeamMemberIcon"></i> @Localisation.Get(user, "FILTER_BY_TEAM_MEMBER")</button>
+                    <button type="button" class="btn btn-sm m-1 ps-btn-secondary dropdown-toggle" role="button" id="filterByTaskCompletedBtn" data-bs-toggle="dropdown" aria-expanded="false"><i class="@filterByTaskCompletedIcon"></i> @Localisation.Get(user, "FILTER_BY_TASK_COMPLETION_STATUS")</button>
+                    <ul class="dropdown-menu" aria-labelledby="filterByTaskCompletedBtn">
+                        <li>
+                            @if (taskCompletionFilter == TaskCompletionFilter.None)
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)TaskCompletionFilter.None)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)"><i class="bi bi-question-circle-fill"></i> @Localisation.Get(user, "NONE")</a>
+                            }
+                            else
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)TaskCompletionFilter.None)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)"><i class="bi bi-question-circle"></i> @Localisation.Get(user, "NONE")</a>
+                            }
+                        </li>
+                        <li>
+                            @if (taskCompletionFilter == TaskCompletionFilter.Completed)
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)TaskCompletionFilter.Completed)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)"><i class="bi bi-check-circle-fill"></i> @Localisation.Get(user, "COMPLETED")</a>
+                            }
+                            else
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)TaskCompletionFilter.Completed)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)"><i class="bi bi-check-circle"></i> @Localisation.Get(user, "COMPLETED")</a>
+                            }
+                        </li>
+                        <li>
+                            @if (taskCompletionFilter == TaskCompletionFilter.NotCompleted)
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)TaskCompletionFilter.NotCompleted)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)"><i class="bi bi-circle-fill"></i> @Localisation.Get(user, "NOT_COMPLETED")</a>
+                            }
+                            else
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)TaskCompletionFilter.NotCompleted)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)"><i class="bi bi-circle"></i> @Localisation.Get(user, "NOT_COMPLETED")</a>
+                            }
+
+                        </li>
+                    </ul>
+
+                    <button type="button" class="btn btn-sm m-1 ps-btn-secondary dropdown-toggle" role="button" id="filterByTaskOverdueBtn" data-bs-toggle="dropdown" aria-expanded="false"><i class="@filterByTaskOverdueIcon"></i> @Localisation.Get(user, "FILTER_BY_TASK_OVERDUE_STATUS")</button>
+                    <ul class="dropdown-menu" aria-labelledby="filterByTaskOverdueBtn">
+                        <li>
+                            @if (taskOverdueFilter == TaskOverdueFilter.None)
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)TaskOverdueFilter.None)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)"><i class="bi bi-question-circle-fill"></i> @Localisation.Get(user, "NONE")</a>
+                            }
+                            else
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)TaskOverdueFilter.None)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)"><i class="bi bi-question-circle"></i> @Localisation.Get(user, "NONE")</a>
+                            }
+                        </li>
+                        <li>
+                            @if (taskOverdueFilter == TaskOverdueFilter.Overdue)
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)TaskOverdueFilter.Overdue)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)"><i class="bi bi-check-circle-fill"></i> @Localisation.Get(user, "OVERDUE")</a>
+                            }
+                            else
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)TaskOverdueFilter.Overdue)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)"><i class="bi bi-check-circle"></i> @Localisation.Get(user, "OVERDUE")</a>
+                            }
+                        </li>
+                        <li>
+                            @if (taskOverdueFilter == TaskOverdueFilter.NotOverdue)
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)TaskOverdueFilter.NotOverdue)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)"><i class="bi bi-circle-fill"></i> @Localisation.Get(user, "NOT_OVERDUE")</a>
+                            }
+                            else
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)TaskOverdueFilter.NotOverdue)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)"><i class="bi bi-circle"></i> @Localisation.Get(user, "NOT_OVERDUE")</a>
+                            }
+
+                        </li>
+                    </ul>
+
+                    <button type="button" class="btn btn-sm m-1 ps-btn-secondary dropdown-toggle" role="button" id="filterByTaskPriorityBtn" data-bs-toggle="dropdown" aria-expanded="false"><i class="@filterByTaskPriorityIcon"></i> @Localisation.Get(user, "FILTER_BY_TASK_PRIORITY_STATUS")</button>
+                    <ul class="dropdown-menu" aria-labelledby="filterByTaskPriorityBtn">
+                        <li>
+                            @if (taskPriorityFilter == Priority.None)
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)Priority.None)"><i class="bi bi-question-circle-fill"></i> @Localisation.Get(user, "NONE")</a>
+                            }
+                            else
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)Priority.None)"><i class="bi bi-question-circle"></i> @Localisation.Get(user, "NONE")</a>
+                            }
+                        </li>
+                        <li>
+                            @if (taskPriorityFilter == Priority.Low)
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)Priority.Low)"><i class="bi bi-1-circle-fill"></i> @Localisation.Get(user, "LOW")</a>
+                            }
+                            else
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)Priority.Low)"><i class="bi bi-1-circle"></i> @Localisation.Get(user, "LOW")</a>
+                            }
+                        </li>
+                        <li>
+                            @if (taskPriorityFilter == Priority.Medium)
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)Priority.Medium)"><i class="bi bi-2-circle-fill"></i> @Localisation.Get(user, "MEDIUM")</a>
+                            }
+                            else
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)Priority.Medium)"><i class="bi bi-2-circle"></i> @Localisation.Get(user, "MEDIUM")</a>
+                            }
+
+                        </li>
+                        <li>
+                            @if (taskPriorityFilter == Priority.High)
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)Priority.High)"><i class="bi bi-3-circle-fill"></i> @Localisation.Get(user, "HIGH")</a>
+                            }
+                            else
+                            {
+                                <a class="dropdown-item" asp-controller="Project" asp-action="Index" asp-route-view="@view" asp-route-id="@Model.Project.Id" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)Priority.High)"><i class="bi bi-3-circle"></i> @Localisation.Get(user, "HIGH")</a>
+                            }
+
+                        </li>
+                    </ul>
+                </div>
+          </div>
+        </div>
+    </div>
     <ul class="nav nav-tabs">
         @{
             string listActive = string.Empty, cardActive = string.Empty, calendarActive = string.Empty, progressActive = string.Empty;
@@ -189,18 +404,18 @@
             }
         }
         <li class="nav-item">
-            <a class="nav-link ps-link-primary @listActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.List)">@Localisation.Get(user, "LIST")</a>
+            <a class="nav-link ps-link-primary @listActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.List)" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)">@Localisation.Get(user, "LIST")</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link ps-link-primary @cardActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Cards)">@Localisation.Get(user, "BOARDS")</a>
+            <a class="nav-link ps-link-primary @cardActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Cards)" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)">@Localisation.Get(user, "BOARDS")</a>
         </li>
         @if (Model.PaymentTier >= PaymentTier.Plus)
         {
             <li class="nav-item">
-                <a class="nav-link ps-link-primary @calendarActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Calendar)">@Localisation.Get(user, "CALENDAR_VIEW_NAME")</a>
+                <a class="nav-link ps-link-primary @calendarActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Calendar)" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)">@Localisation.Get(user, "CALENDAR_VIEW_NAME")</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link ps-link-primary @progressActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Gantt)">@Localisation.Get(user, "PROGRESS_VIEW_NAME")</a>
+                <a class="nav-link ps-link-primary @progressActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Gantt)" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)">@Localisation.Get(user, "PROGRESS_VIEW_NAME")</a>
             </li>
         }
     </ul>
