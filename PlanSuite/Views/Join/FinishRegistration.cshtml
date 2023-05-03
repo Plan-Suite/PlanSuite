@@ -3,7 +3,7 @@
 *@
 @model PlanSuite.Models.Temporary.FinishRegistrationModel
 @{
-    
+    ViewData["Title"] = "Welcome to Plan Suite";
 }
 
 <div class="container register-div">
@@ -50,30 +50,6 @@
     }
 </div>
 
-<script>
-    var part1 = $("#part_1");
-    var part2 = $("#part_2");
-    var error = $("#error");
-
-    var firstName = $("#Input_FirstName");
-    var lastName = $("#Input_LastName");
-    $("#continueBtn").click(function () {
-        if (firstName.val().length > 0 && lastName.val().length > 0) {
-            part1.addClass("d-none");
-            part2.removeClass("d-none");
-            error.addClass("d-none");
-        }
-        else {
-            error.removeClass("d-none");
-            error.text("You must input both your first name and last name.");
-        }
-    });
-
-    var password = $("#Input_Password");
-    var confirmPassword = $("#Input_ConfirmPassword");
-    $("#backBtn").click(function () {
-        part2.addClass("d-none");
-        part1.removeClass("d-none");
-        error.addClass("d-none");
-    });
-</script>
+@section Scripts {
+    <script type="module" src="~/js/login/finishRegistration.js" asp-append-version="true"></script>
+}
