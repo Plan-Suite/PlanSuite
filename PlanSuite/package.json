@@ -3,6 +3,10 @@
   "name": "asp.net",
   "private": true,
   "dependencies": {
+    "@fullcalendar/core": "^6.1.5",
+    "@fullcalendar/daygrid": "^6.1.5",
+    "@fullcalendar/list": "^6.1.5",
+    "@fullcalendar/timegrid": "^6.1.5",
     "@types/jquery": "3.5.14",
     "@types/jqueryui": "1.12.16",
     "@types/summernote": "^0.8.7",

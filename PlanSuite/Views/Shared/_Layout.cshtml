@@ -16,7 +16,7 @@
     <meta name="og:url" content="https://plan-suite.com/" />
     <meta name="twitter:url" content="https://plan-suite.com/" />
 
-    <meta name="twitter:url" content="https://plan-suite.com/" />
+    <meta name="og:site_name" content="plan-suite.com" />
 
     @if (!Context.Request.Path.StartsWithSegments("/blog", StringComparison.InvariantCultureIgnoreCase))
     {
@@ -43,6 +43,10 @@
         {
             <meta name="og:image" content="@image" />
         }
+        else
+        {
+            <meta name="og:image" content="/img/og_image.png" />
+        }
 
         string description = ViewData["Description"] as string;
         if (!string.IsNullOrEmpty(description))
@@ -53,9 +57,9 @@
         }
         else
         {
-            <meta name="description" content="Plan Suite is a ground-breaking project planning and management tool." />
-            <meta name="og:description" content="Plan Suite is a ground-breaking project planning and management tool." />
-            <meta name="twitter:description" content="Plan Suite is a ground-breaking project planning and management tool." />
+            <meta name="description" content="Plan Suite: The innovative project management tool that simplifies planning and execution. Streamline your workflow and improve productivity. Try it now!" />
+            <meta name="og:description" content="Plan Suite: The innovative project management tool that simplifies planning and execution. Streamline your workflow and improve productivity. Try it now!" />
+            <meta name="twitter:description" content="Plan Suite: The innovative project management tool that simplifies planning and execution. Streamline your workflow and improve productivity. Try it now!" />
         }
 
         string author = ViewData["author"] as string;
@@ -71,7 +75,7 @@
         }
         else
         {
-            <meta name="keywords" content="project" />
+            <meta name="keywords" content="project management software, task management, team collaboration, project tracking, productivity tools, Gantt charts, Kanban boards, milestone tracking, time tracking, budget tracking, project planning, project scheduling, team communication, resource management, project reporting">
         }
 
         string url = ViewData["Url"] as string;

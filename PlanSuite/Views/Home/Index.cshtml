@@ -401,7 +401,7 @@
                                         }
                                     </h6>
                                     <p class="card-text m-1">@item.Description</p>
-                                    <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">View</a>
+                                    <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" asp-route-view="@((int)ProjectIndexView.Cards)" asp-route-filterByTeamMember="@Guid.Empty" asp-route-filterByTaskCompleted="@((int)TaskCompletionFilter.None)" asp-route-filterByTaskOverdue="@((int)TaskOverdueFilter.None)" asp-route-filterByTaskPriority="@((int)Priority.None)" class="btn btn-sm ps-btn-primary m-1 mb-1">View</a>
                                     <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">Edit</button>
                                     <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" id="passDeleteButtonInfoBtn_@item.Id">Delete</button>
                                 </div>
@@ -482,7 +482,7 @@
                                         }
                                     </h6>
                                         <p class="card-text m-1">@item.Description</p>
-                                        <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">View</a>
+                                        <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" asp-route-view="@((int)ProjectIndexView.Cards)" asp-route-filterByTeamMember="@Guid.Empty" asp-route-filterByTaskCompleted="@((int)TaskCompletionFilter.None)" asp-route-filterByTaskOverdue="@((int)TaskOverdueFilter.None)" asp-route-filterByTaskPriority="@((int)Priority.None)" class="btn btn-sm ps-btn-primary m-1 mb-1">View</a>
                                         @if (Model.CurrentOrganisationMembership != null && Model.CurrentOrganisationMembership.Role >= PlanSuite.Enums.ProjectRole.Admin)
                                         {
                                             <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">Edit</button>
@@ -577,7 +577,7 @@
                                         }
                                     </h6>
                                     <p class="card-text m-1">@item.Description</p>
-                                    <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">View</a>
+                                    <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" asp-route-view="@((int)ProjectIndexView.Cards)" asp-route-filterByTeamMember="@Guid.Empty" asp-route-filterByTaskCompleted="@((int)TaskCompletionFilter.None)" asp-route-filterByTaskOverdue="@((int)TaskOverdueFilter.None)" asp-route-filterByTaskPriority="@((int)Priority.None)" class="btn btn-sm ps-btn-primary m-1 mb-1">View</a>
                                     <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">Edit</button>
                                     <button type="button" class="btn btn-sm ps-btn-danger m-1 mb-1" data-bs-toggle="modal" data-bs-target="#deleteProjectModal" id="passDeleteButtonInfoBtn_@item.Id">Delete</button>
                                 </div>
@@ -658,7 +658,7 @@
                                         }
                                     </h6>
                                         <p class="card-text m-1">@item.Description</p>
-                                        <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" class="btn btn-sm ps-btn-primary m-1 mb-1">View</a>
+                                        <a asp-controller="Project" asp-action="Index" asp-route-id="@item.Id" asp-route-view="@((int)ProjectIndexView.Cards)" asp-route-filterByTeamMember="@Guid.Empty" asp-route-filterByTaskCompleted="@((int)TaskCompletionFilter.None)" asp-route-filterByTaskOverdue="@((int)TaskOverdueFilter.None)" asp-route-filterByTaskPriority="@((int)Priority.None)" class="btn btn-sm ps-btn-primary m-1 mb-1">View</a>
                                         @if (Model.CurrentOrganisationMembership != null && Model.CurrentOrganisationMembership.Role >= PlanSuite.Enums.ProjectRole.Admin)
                                         {
                                             <button type="button" class="btn btn-sm ps-btn-secondary m-1 mb-1" data-bs-toggle="modal" data-bs-target="#editProjectModal" id="passButtonInfoBtn_@item.Id">Edit</button>

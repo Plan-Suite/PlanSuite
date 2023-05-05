@@ -37,6 +37,8 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\bundles\" />
+    <Folder Include="wwwroot\lib\chart\dist\" />
+    <Folder Include="wwwroot\lib\fullCalendar\dist\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -4,7 +4,7 @@ namespace PlanSuite.Models.Temporary
 {
     public class GetUsersModel
     {
-        public GetUserModel[] GetUserModels { get;set; }
+        public GetUserModel[] Users { get;set; }
     }
 
     public class GetUserModel

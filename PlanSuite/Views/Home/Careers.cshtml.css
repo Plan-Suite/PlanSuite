@@ -1,0 +1,12 @@
+﻿.careers-header {
+    background-image: linear-gradient(var(--blue-1),var(--blue-2));
+    min-height: 15rem;
+    color: var(--white);
+    padding: 10px;
+}
+
+.careers-section {
+    padding: 1rem;
+    min-height: 10rem;
+    -webkit-font-smoothing: antialiased;
+}

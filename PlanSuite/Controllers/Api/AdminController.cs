@@ -15,8 +15,14 @@ namespace PlanSuite.Controllers.Api
             m_AdminService = adminService;
         }
 
+        /// <summary>
+        /// Returns a JSON with an array of users using the specified username and/or email paramaters.
+        /// </summary>
+        /// <param name="username">Username to search</param>
+        /// <param name="email">Email to search</param>
+        /// <returns>A JSON array of users</returns>
         [HttpGet("GetUser")]
-        public async Task<ActionResult<GetUsersModel>> GetUser(string username, string email)
+        public async Task<GetUsersModel> GetUser(string username, string email)
         {
             Console.WriteLine($"GetUser: {username}, {email}");
 

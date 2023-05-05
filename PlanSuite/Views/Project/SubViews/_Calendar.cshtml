@@ -1,0 +1,220 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Enums;
+@using PlanSuite.Models.Persistent
+@using PlanSuite.Services;
+@using PlanSuite.Utility;
+@inject UserManager<ApplicationUser> UserManager
+@inject LocalisationService Localisation
+@model PlanSuite.Models.Temporary.ProjectViewModel
+@{
+    var user = await UserManager.GetUserAsync(User);
+    int view = UrlUtility.GetUrlRouteInt(Context.Request, "view");
+    Guid filterByTeamMember = UrlUtility.GetUrlRouteGuid(Context.Request, "filterByTeamMember");
+    TaskCompletionFilter taskCompletionFilter = (TaskCompletionFilter)UrlUtility.GetUrlRouteInt(Context.Request, "filterByTaskCompleted");
+}
+
+<script src="~/lib/fullCalendar/dist/fullCalendar.min.js" asp-append-version="true"></script>
+<link rel="stylesheet" href="~/css/Calendar.css" asp-append-version="true" />
+
+<div id="calendarHolder">
+    <div id="calendarViewError" class="ps-alert ps-alert-error d-none"><i class="bi bi-exclamation-circle"></i> @Localisation.Get(user, "CALENDAR_VIEW_ERROR_1")</div>
+    <div id="calendarViewLoading">
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+    <input type="hidden" id="CalendarViewProjectId" value="@Model.Project.Id" />
+    <div id="calendar" class="mt-2"></div>
+    <div id="mySidenav" class="sidenav">
+        @foreach(var card in Model.Cards)
+        {
+            if(card.CardDueDate == null)
+            {
+                <div class="ps-board-task ps-board-task-pending mb-1 draggable ui-draggable ui-draggable-handle" id="@card.Id" data-title="@card.CardName">
+                    <div class="d-grid gap-2" style="min-height:60px;">
+                        <a class="btn" style="text-align:left;" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal"><i class="bi bi-card-checklist"></i> @card.CardName</a>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+<script type="module">
+    import { ProjectCommon } from "/js/project/projectCommon.js";
+
+    var navOpened = false;
+    var pixels = 250;
+    var calendar;
+
+    function openNav() {
+        document.getElementById("mySidenav").style.width = `${pixels}px`;
+        if(window.innerWidth < 1800)
+        {
+            document.getElementById("calendarHolder").style.marginLeft = `${pixels}px`;
+        }
+        navOpened = true;
+        setTimeout(function() {
+            calendar.render();
+        }, 500);
+        /*$("#mySidenav").children().each(function() {
+            $(this).draggable({
+                appendTo: 'body',
+                helper: 'clone'
+            });
+        });*/
+    }
+
+    function closeNav() {
+        document.getElementById("mySidenav").style.width = "0";
+        document.getElementById("calendarHolder").style.marginLeft = "0";
+        navOpened = false;
+        setTimeout(function () {
+            calendar.render();
+        }, 500);
+    }
+
+    function getHeaderProps() {
+        return {
+            left: window.innerWidth >= 765 ? 'today,prev,next,unscheduledTasks' : 'prev,next',
+            center: window.innerWidth >= 765 ? 'title' : '',
+            right: window.innerWidth >= 765 ? 'multiMonthYear,dayGridMonth,dayGridWeek' : ''
+        }
+    }
+
+    function getCustomButtons() {
+        return {
+            unscheduledTasks: {
+                text: 'Unscheduled Task',
+                click: function () {
+                    if(navOpened) {
+                        closeNav();
+                    }
+                    else {
+                        openNav();
+                    }
+                }
+            }
+        }
+    }
+
+    function getEvents() {
+        return [
+            {
+                url: "/api/Project/GetCalendarTasks",
+                method: "POST",
+                extraParams: {
+                    id: "@Model.Project.Id",
+                    teamMember: "@filterByTeamMember",
+                    taskCompleted: "@taskCompletionFilter"
+                },
+                failure: function () {
+                    $("#calendarViewError").removeClass("d-none");
+                    $("#calendar").addClass("d-none");
+                    $("#calendarViewLoading").addClass("d-none");
+                },
+                success: function () {
+                    $("#calendarViewLoading").addClass("d-none");
+                }
+            }
+        ]
+    }
+
+    $("#unschedTaskClose").on("click", function() {
+        closeNav();
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            timeZone: 'UTC',
+            themeSystem: 'bootstrap5',
+            customButtons: getCustomButtons(),
+            initialView: window.innerWidth >= 765 ? 'dayGridMonth' : 'dayGridWeek',
+            headerToolbar: getHeaderProps(),
+            firstDay: 1,
+            eventSources: getEvents(),
+            selectable: true,
+            editable: true,
+            droppable: true,
+            dropAccept: '.event-button',
+            eventsSet: function (events) {
+                events.forEach(element => {
+                    if (element._def.extendedProps.completed == true)
+                    {
+                        console.log(element._def.sourceId +" is completed");
+                    }
+                });
+            },
+            eventClick: function (info) {
+                console.log(`view card ${info.event.id}`);
+                ProjectCommon.viewCardButton(info.event.id);
+
+                // Show card
+                $("#viewCardModal").modal('show');
+            },
+            select: function (info) {
+                console.log('selected ' + info.startStr + ' to ' + info.endStr);
+            },
+            eventResize: function (info) {
+                console.log(
+                    info.event.id + " start is now " + info.event.start.toISOString() + "\n" +
+                    info.event.id + " end is now " + info.event.end.toISOString() + "\n"
+                );
+                ProjectCommon.editTaskDates(info.event.id, info.event.start.toISOString(), info.event.end.toISOString());
+            },
+            drop: function (info) {
+                console.log(
+                    info.event.id + " was dropped on " + info.event.start.toISOString()
+                );
+                //ProjectCommon.editTaskDates(info.event.id, info.event.start.toISOString(), info.event.end.toISOString());
+            },
+            windowResize: function(info) {
+                calendar.changeView(window.innerWidth >= 765 ? 'dayGridMonth' : 'dayGridWeek')
+                calendar.setOption('header', getHeaderProps());
+            }
+        });
+
+        calendar.render();
+
+        $(".draggable").draggable({
+            revert: "invalid",
+            appendTo: "body",
+            helper: "clone"
+        });
+        $('.fc-daygrid-day-frame').droppable({
+            accept: '.draggable',
+            drop: function (event, ui) {
+                var dropped = ui.draggable;
+                var droppedOn = $(this);
+                var droppedOnParent = $(this).parent();
+
+                var taskId = dropped.attr("id");
+                var taskTitle = dropped.data("title");
+                var date = droppedOnParent.data("date");
+                var dateObj = new Date(date);
+                var dateTime = dateObj.toISOString();
+                console.log(
+                    taskId + " was dropped on " + dateTime
+                );
+
+                $(dropped).remove();
+                ProjectCommon.editTaskDates(taskId, dateTime, dateTime);
+
+                if (!isNaN(dateObj.valueOf()))
+                {
+                    calendar.addEvent({
+                        id: `${taskId}`,
+                        title: `${taskTitle}`,
+                        start: dateObj,
+                        end: dateObj
+                    });
+                }
+
+                calendar.render();
+            }
+        });
+    });
+</script>

@@ -86,7 +86,7 @@ namespace PlanSuite.Areas.Identity.Pages.Account
             }
             else
             {
-                var request = m_Database.PasswordResetRequests.Where(r => r.Code.Equals(code)).FirstOrDefault();
+                var request = m_Database.PasswordResetRequests.Where(r => r.Code == code).FirstOrDefault();
                 if(request == null || request.Expiry < DateTime.Now)
                 {
                     m_Logger.LogError("ResetPassword: Request was null, or request had expired.");
@@ -132,7 +132,7 @@ namespace PlanSuite.Areas.Identity.Pages.Account
             {
                 m_Logger.LogInformation($"ResetPasswordAsync success for {user.FullName}");
 
-                var request = m_Database.PasswordResetRequests.Where(r => r.Code.Equals(Input.Code, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
+                var request = m_Database.PasswordResetRequests.Where(r => r.Code == Input.Code).FirstOrDefault();
                 if (request != null)
                 {
                     m_Logger.LogInformation($"Removing password reset request {request.Id} on use");
