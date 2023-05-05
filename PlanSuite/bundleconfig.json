@@ -7,6 +7,7 @@
       "wwwroot/lib/summernote/dist/css/summernote-lite.css",
       "wwwroot/lib/hello-week/dist/hello.week.css",
       "wwwroot/css/site.css",
+      "wwwroot/css/Colours.css",
       "Views/Shared/_Layout.cshtml.css"
     ]
   },
