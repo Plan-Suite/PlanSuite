@@ -474,4 +474,70 @@
   <data name="START_DATE" xml:space="preserve">
     <value>Start Date</value>
   </data>
+  <data name="CALENDAR_VIEW_NAME" xml:space="preserve">
+    <value>Calendar View</value>
+  </data>
+  <data name="CALENDAR_VIEW_HELP_1" xml:space="preserve">
+    <value>The calendar only shows tasks that have both a start and an end date.</value>
+  </data>
+  <data name="CALENDAR_VIEW_ERROR_1" xml:space="preserve">
+    <value>There was an error whilst loading the calendar.</value>
+  </data>
+  <data name="ABOUT" xml:space="preserve">
+    <value>About</value>
+  </data>
+  <data name="BETA_DISCLAIMER" xml:space="preserve">
+    <value>We're still working on Plan Suite, so there might be some issues here and there.</value>
+  </data>
+  <data name="BLOG" xml:space="preserve">
+    <value>Blog</value>
+  </data>
+  <data name="CAREERS" xml:space="preserve">
+    <value>Careers</value>
+  </data>
+  <data name="COMPANY" xml:space="preserve">
+    <value>Company</value>
+  </data>
+  <data name="FEATURES" xml:space="preserve">
+    <value>Features</value>
+  </data>
+  <data name="OTHER" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="PRICING" xml:space="preserve">
+    <value>Pricing</value>
+  </data>
+  <data name="PRIVACY" xml:space="preserve">
+    <value>Privacy</value>
+  </data>
+  <data name="PRODUCT" xml:space="preserve">
+    <value>Product</value>
+  </data>
+  <data name="TERMS" xml:space="preserve">
+    <value>Terms</value>
+  </data>
+  <data name="WORKFLOW" xml:space="preserve">
+    <value>Workflow</value>
+  </data>
+  <data name="COMPLETED" xml:space="preserve">
+    <value>Completed</value>
+  </data>
+  <data name="FILTER_BY_TASK_COMPLETION_STATUS" xml:space="preserve">
+    <value>Filter By Task Status</value>
+  </data>
+  <data name="FILTER_BY_TEAM_MEMBER" xml:space="preserve">
+    <value>Filter By Team Member</value>
+  </data>
+  <data name="NOT_COMPLETED" xml:space="preserve">
+    <value>Not Completed</value>
+  </data>
+	<data name="FILTER_BY_TASK_OVERDUE_STATUS" xml:space="preserve">
+    <value>Filter By Overdue</value>
+  </data>
+  <data name="NOT_OVERDUE" xml:space="preserve">
+    <value>Not Overdue</value>
+  </data>
+  <data name="FILTER_BY_TASK_PRIORITY_STATUS" xml:space="preserve">
+    <value>Filter by Task Priority</value>
+  </data>
 </root>

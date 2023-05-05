@@ -2,11 +2,13 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PlanSuite.Data;
 using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Utility;
+using System.Globalization;
 using System.Security.Claims;
 
 namespace PlanSuite.Services
@@ -38,6 +40,11 @@ namespace PlanSuite.Services
                 return PaymentTier.Free;
             }
 
+            return GetProjectTier(project);
+        }
+
+        public PaymentTier GetProjectTier(Project project)
+        {
             var owner = GetProjectOwner(project);
             if (owner == null)
             {
@@ -974,6 +981,92 @@ namespace PlanSuite.Services
             await m_Database.Columns.AddAsync(column);
             await m_Database.SaveChangesAsync();
             return column.Id;
+        }
+
+        public async Task<List<GetCalendarTasksModel.CalendarTask>> GetCalendarTasksAsync(int id, Guid teamMember, TaskCompletionFilter taskCompleted, string? start = null, string? end = null)
+        {
+            m_Logger.LogInformation($"GetCalendarTasks: Checking if project {id} exists");
+            var project = await m_Database.Projects.Where(item => item.Id == id).FirstOrDefaultAsync();
+            if (project == null)    
+            {
+                return null;
+            }
+
+            m_Logger.LogInformation($"GetCalendarTasks: Getting columns for project {id}");
+            var cols = await m_Database.Columns.Where(col => col.ProjectId == project.Id).ToListAsync();
+            if(cols == null || cols.Count < 1)
+            {
+                return null;
+            }
+
+            GetCalendarTasksModel tasksModel = new GetCalendarTasksModel();
+            tasksModel.Events = new List<GetCalendarTasksModel.CalendarTask>();
+            foreach (var col in cols)
+            {
+                m_Logger.LogInformation($"GetCalendarTasks: Getting tasks for column {col.Id} that have both a start and end date, and have assignee of {teamMember}, and task completion of {taskCompleted}");
+                List<Card> cards = await m_Database.Cards.Where(card => card.ColumnId == col.Id).ToListAsync();
+
+                // Get cards if they have an assignee
+                if (teamMember != Guid.Empty)
+                {
+                    cards = cards.Where(card => card.CardAssignee == teamMember).ToList();
+                }
+
+                // Get cards if they have a assignee task completion filter assigned
+                if (taskCompleted == TaskCompletionFilter.Completed)
+                {
+                    cards = cards.Where(card => card.IsFinished == true).ToList();
+                }
+                else if (taskCompleted == TaskCompletionFilter.NotCompleted)
+                {
+                    cards = cards.Where(card => card.IsFinished == false).ToList();
+                }
+
+                if (cards == null || cards.Count < 1)
+                {
+                    continue;
+                }
+
+                foreach(var card in cards)
+                {
+                    if(card.CardStartDate == null || card.CardDueDate == null)
+                    {
+                        continue;
+                    }
+
+                    GetCalendarTasksModel.CalendarTask calendarTask = new GetCalendarTasksModel.CalendarTask();
+                    calendarTask.Id = card.Id.ToString();
+                    calendarTask.Title = card.CardName;
+                    calendarTask.Start = card.CardStartDate?.ToString("yyyy-MM-dd");
+                    calendarTask.End = card.CardDueDate?.ToString("yyyy-MM-dd");
+                    calendarTask.Completed = card.IsFinished;
+                    if(calendarTask.Completed)
+                    {
+                        // I dont like this one bit, would prefer if we could define this on the client-side
+                        calendarTask.BackgroundColor = "rgba(58,95,218, 0.5)";
+                    }
+                    tasksModel.Events.Add(calendarTask);
+                }
+            }
+            return tasksModel.Events;
+        }
+
+        public async Task EditTaskDates(int id, string newStartDate, string newDueDate)
+        {
+            m_Logger.LogInformation($"Editing task {id} dates: newStartDate: {newStartDate}, newDueDate: {newDueDate}");
+            DateTime startDate = DateTime.Parse(newStartDate);
+            DateTime dueDate = DateTime.Parse(newDueDate);
+            var task = await m_Database.Cards.Where(task => task.Id == id).FirstOrDefaultAsync();
+            if(task == null)
+            {
+                m_Logger.LogError($"Could not find task {id}");
+                return;
+            }
+
+            task.CardStartDate = startDate;
+            task.CardDueDate = dueDate;
+            await m_Database.SaveChangesAsync();
+            m_Logger.LogInformation($"Finished editing task {id} dates");
         }
     }
 }

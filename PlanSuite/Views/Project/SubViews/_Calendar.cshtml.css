@@ -1,0 +1,70 @@
+﻿.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: var(--white);
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 0px;
+    border-right: 2px solid var(--black);
+}
+
+    .sidenav button {
+        padding: 8px;
+        font-size: 30px;
+        transition: 0.3s;
+        text-align: center;
+        border: none;
+        background-color: var(--red-1);
+        color: var(--white);
+        float: right;
+    }
+
+    .sidenav .event-button:active {
+        /*position: fixed;*/
+    }
+
+    .sidenav a {
+        padding: 8px;
+        margin: 5px 5px 5px 5px;
+        text-decoration: none;
+        font-size: 25px;
+        display: block;
+        transition: 0.3s;
+        font-size: 1em;
+    }
+
+        .sidenav a:hover {
+            color: #f1f1f1;
+            cursor: grab;
+        }
+
+        .sidenav a:active {
+            color: #f1f1f1;
+            cursor: grabbing;
+        }
+
+    .sidenav .closebtn {
+        position: absolute;
+        top: 0;
+        right: 25px;
+        font-size: 36px;
+        margin-left: 50px;
+    }
+
+#calendarHolder {
+    transition: margin-left .5s;
+    padding: 16px;
+}
+
+@media screen and (max-height: 450px) {
+    .sidenav {
+        padding-top: 15px;
+    }
+
+        .sidenav a {
+            font-size: 18px;
+        }
+}

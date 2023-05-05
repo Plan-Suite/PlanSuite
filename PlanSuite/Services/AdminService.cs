@@ -63,7 +63,7 @@ namespace PlanSuite.Services
                 userModel.Roles = role.ToArray();
                 userModelList.Add(userModel);
             }
-            usersModel.GetUserModels = userModelList.ToArray();
+            usersModel.Users = userModelList.ToArray();
             return usersModel;
         }
 

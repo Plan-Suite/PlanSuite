@@ -1,9 +1,13 @@
 ﻿@using PlanSuite.Models.Persistent
 @using Microsoft.AspNetCore.Identity
 @using PlanSuite.Utility
+@using PlanSuite.Services
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
-
+@inject LocalisationService Localisation
+@{
+    ApplicationUser user = await UserManager.GetUserAsync(User);
+}
 
 <footer class="border-top py-3 footer navagation-bar">
     <div class="container">
@@ -11,32 +15,47 @@
         {
             <div class="row">
                 <div class="col text-center">
-                    <h5>Product</h5>
+                    <h5>@Localisation.Get(user, "PRODUCT")</h5>
                     <ul class="list-unstyled text-small">
-                    <li><a class="ps-footer-link" asp-controller="home" asp-action="Index">Features</a></li>
-                    @*<li><a class="ps-footer-link" href="#">Workflow</a></li>*@
-                    <li><a class="ps-footer-link" asp-controller="home" asp-action="Pricing">Pricing</a></li>
+                        <li><a class="ps-footer-link" asp-controller="home" asp-action="Index"><h5>@Localisation.Get(user, "FEATURES")</h5></a></li>
+                        @*<li><a class="ps-footer-link" href="#">Workflow</a></li>*@
+                        <li><a class="ps-footer-link" asp-controller="home" asp-action="Pricing">@Localisation.Get(user, "PRICING")</a></li>
                     </ul>
                 </div>
                 <div class="col text-center">
-                    <h5>Company</h5>
+                    <h5>@Localisation.Get(user, "COMPANY")</h5>
                     <ul class="list-unstyled text-small">
-                    <li><a class="ps-footer-link" asp-controller="home" asp-action="AboutUs">About</a></li>
-                    <li><a class="ps-footer-link" asp-controller="home" asp-action="Careers">Careers</a></li>
-                        <li><a class="ps-footer-link" asp-controller="Blog" asp-action="Index">Blog</a></li>
+                        <li><a class="ps-footer-link" asp-controller="home" asp-action="AboutUs">@Localisation.Get(user, "ABOUT")</a></li>
+                        <li><a class="ps-footer-link" asp-controller="home" asp-action="Careers">@Localisation.Get(user, "CAREERS")</a></li>
+                        <li><a class="ps-footer-link" asp-controller="Blog" asp-action="Index">@Localisation.Get(user, "BLOG")</a></li>
                     </ul>
                 </div>
                 <div class="col text-center">
-                    <h5>Other</h5>
+                    <h5>@Localisation.Get(user, "OTHER")</h5>
                     <ul class="list-unstyled text-small">
-                    <li><a class="ps-footer-link" asp-controller="Home" asp-action="License">Terms</a></li>
-                    <li><a class="ps-footer-link" asp-controller="Home" asp-action="Privacy">Privacy</a></li>
-                    @*<li><a class="ps-footer-link" href="#">Changelog</a></li>*@
+                        <li><a class="ps-footer-link" asp-controller="Home" asp-action="License">@Localisation.Get(user, "TERMS")</a></li>
+                        <li><a class="ps-footer-link" asp-controller="Home" asp-action="Privacy">@Localisation.Get(user, "PRIVACY")</a></li>
                     </ul>
                 </div>
             </div>
             <div class="text-center"><i class="bi bi-three-dots"></i></div>
         }
-        <div class="text-center">&copy; 2022 - Plan Suite - Version @WebsiteVersion.Version</div>
+        <div class="text-center footer-text">
+            @Localisation.Get(user, "BETA_DISCLAIMER")
+            <div class="row">
+                <div class="col">&copy; 2023 @ApplicationInfo.APP_DEVELOPER</div>
+                <div class="col">@WebsiteVersion.Version</div>
+                <div class="col">
+                    <a class="ps-footer-link" asp-controller="Home" asp-action="License">@Localisation.Get(user, "TERMS")</a> &amp; <a class="ps-footer-link" asp-controller="Home" asp-action="Privacy">@Localisation.Get(user, "PRIVACY")</a>
+                </div>
+                <div class="col">
+                    <a class="ps-footer-link footer-social" href="https://www.facebook.com/myplansuite" target="_blank" rel="noopener noreferrer"><i class="bi bi-facebook"></i></a>
+                    <a class="ps-footer-link footer-social" href="https://twitter.com/MyPlanSuite" target="_blank" rel="noopener noreferrer"><i class="bi bi-twitter"></i></a>
+                    <a class="ps-footer-link footer-social" href="https://instagram.com/myplansuite" target="_blank" rel="noopener noreferrer"><i class="bi bi-instagram"></i></a>
+                </div>
+            </div>
+
+            @*&copy; 2022 - Plan Suite - Version @WebsiteVersion.Version*@
+        </div>
     </div>
 </footer>

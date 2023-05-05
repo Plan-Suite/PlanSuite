@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
-using PlanSuite.Data;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -7,6 +6,30 @@ namespace PlanSuite.Utility
 {
     public static class UrlUtility
     {
+        public static Guid GetUrlRouteGuid(HttpRequest request, string routeKey)
+        {
+            Guid routeValue = Guid.Empty;
+            string routeVal = GetUrlRouteValue(UriHelper.GetDisplayUrl(request), routeKey);
+            if (!string.IsNullOrEmpty(routeVal))
+            {
+                if(Guid.TryParse(routeVal, out Guid canOut))
+                {
+                    routeValue = canOut;
+                }
+            }
+            return routeValue;
+        }
+
+        public static string GetUrlRouteString(HttpRequest request, string routeKey)
+        {
+            string routeVal = GetUrlRouteValue(UriHelper.GetDisplayUrl(request), routeKey);
+            if (!string.IsNullOrEmpty(routeVal))
+            {
+                return routeVal;
+            }
+            return routeVal;
+        }
+
         public static int GetUrlRouteInt(HttpRequest request, string routeKey)
         {
             int routeValue = 0;

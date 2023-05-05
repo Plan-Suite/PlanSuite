@@ -31,10 +31,13 @@ namespace PlanSuite.Controllers
             m_AuditService = auditService;
         }
 
-        // /Project/Index?id=X
+        // /projects/id?filterByTeamMember=X&filterByTaskCompleted=X&filterByTaskOverdue=X&filterByPriority=X
         [Route("projects/{id}")]
-        public async Task<IActionResult> Index(int id)
+        public async Task<IActionResult> Index(int id, Guid? filterByTeamMember = null, int filterByTaskCompleted = 0, int filterByTaskOverdue = 0, int filterByPriority = 0)
         {
+            TaskCompletionFilter taskCompleted = (TaskCompletionFilter)filterByTaskCompleted;
+            TaskOverdueFilter taskOverdue = (TaskOverdueFilter)filterByTaskOverdue;
+            Priority taskPriority = (Priority)filterByPriority;
             CommonCookies.ApplyCommonCookies(HttpContext);
             if (!_signInManager.IsSignedIn(User))
             {
@@ -68,6 +71,23 @@ namespace PlanSuite.Controllers
             viewModel.UserId = Guid.Parse(appUser.Id);
             viewModel.ProjectRole = role;
 
+            viewModel.TeamMembers.Add(appUser.UserId, appUser.FullName);
+            var users = dbContext.ProjectsAccess.Where(access => access.ProjectId == project.Id).ToList();
+            if (users != null)
+            {
+                foreach (var foundUser in users)
+                {
+                    var applicationUser = dbContext.Users.Where(user => user.Id == foundUser.UserId.ToString()).FirstOrDefault();
+                    if (applicationUser != null)
+                    {
+                        if (!viewModel.TeamMembers.ContainsKey(applicationUser.UserId))
+                        {
+                            viewModel.TeamMembers.Add(applicationUser.UserId, applicationUser.FullName);
+                        }
+                    }
+                }
+            }
+
             // Get project owner payment tier
             var user = m_ProjectService.GetProjectOwner(project);
             if(user != null)
@@ -90,7 +110,43 @@ namespace PlanSuite.Controllers
                 Console.WriteLine($"Grabbed {columns.Count} columns for project {project.Id}");
                 foreach (var column in columns)
                 {
-                    var cards = await dbContext.Cards.Where(c => c.ColumnId == column.Id).ToListAsync();
+                    List<Card> cards = await dbContext.Cards.Where(c => c.ColumnId == column.Id).ToListAsync();
+
+                    // Get cards if they have an assignee
+                    if (filterByTeamMember != Guid.Empty)
+                    {
+                        cards = cards.Where(card => card.CardAssignee == filterByTeamMember).ToList();
+                    }
+
+                    // Get cards if they have a assignee task completion filter assigned
+                    if (taskCompleted == TaskCompletionFilter.Completed)
+                    {
+                        cards = cards.Where(card => card.IsFinished == true).ToList();
+                    }
+                    else if (taskCompleted == TaskCompletionFilter.NotCompleted)
+                    {
+                        cards = cards.Where(card => card.IsFinished == false).ToList();
+                    }
+
+                    // Get cards if they have are overdue, also don't show cards that are finished (since they're not overdue)
+                    if (taskOverdue == TaskOverdueFilter.Overdue)
+                    {
+                        cards = cards.Where(card => card.CardDueDate != null && DateTime.Now > card.CardDueDate && card.IsFinished == false).ToList();
+                    }
+                    else if (taskOverdue == TaskOverdueFilter.NotOverdue)
+                    {
+                        cards = cards.Where(card => card.CardDueDate != null && DateTime.Now <= card.CardDueDate && card.IsFinished == false).ToList();
+                    }
+
+                    if (taskOverdue == TaskOverdueFilter.Overdue)
+                    {
+                        cards = cards.Where(card => card.CardDueDate != null && DateTime.Now > card.CardDueDate && card.IsFinished == false).ToList();
+                    }
+                    else if (taskOverdue == TaskOverdueFilter.NotOverdue)
+                    {
+                        cards = cards.Where(card => card.CardDueDate != null && DateTime.Now <= card.CardDueDate && card.IsFinished == false).ToList();
+                    }
+
                     if (cards != null && cards.Count > 0)
                     {
                         foreach(var card in cards)
@@ -159,6 +215,8 @@ namespace PlanSuite.Controllers
                     viewModel.ProjectMembers.Add(member.UserId, userName);
                 }
             }
+
+            // Get project members
 
             if(project.OrganisationId > 0)
             {

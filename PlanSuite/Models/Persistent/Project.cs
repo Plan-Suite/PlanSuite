@@ -47,6 +47,9 @@ namespace PlanSuite.Models.Persistent
         [Column("project_completed")]
         public bool ProjectCompleted { get; set; }
 
+        /*[Column("default_view")]
+        public ProjectIndexView DefaultView { get; set; }*/
+
         /*[Column("approved")]
         public ApprovalType Approved { get; set; }
 

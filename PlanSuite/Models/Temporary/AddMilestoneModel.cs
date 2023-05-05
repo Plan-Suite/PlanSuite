@@ -62,4 +62,27 @@ namespace PlanSuite.Models.Temporary
     {
         public int ProjectId { get; set; }
     }
+
+    public class GetCalendarTasksModel
+    {
+        public class CalendarTask
+        {
+            public string Id { get; set; }
+            public string Title { get; set; }
+            public string Start { get; set; }
+            public string End { get; set; }
+            public bool Completed { get; set; }
+            public string BackgroundColor { get; set; } = "#3A5FDA"; // I dont like this one bit, would prefer if we could define this on the client-side
+        }
+
+        public List<CalendarTask> Events { get; set; }
+    }
+
+    public class CalendarTasksModel
+    {
+        public int Id { get; set; }
+        public long Start { get; set; }
+        public long End { get; set; }
+        public string TimeZone { get; set; }
+    }
 }

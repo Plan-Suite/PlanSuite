@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Services;
@@ -216,6 +217,35 @@ namespace PlanSuite.Controllers.Api
         {
             Console.WriteLine($"GetChartData: {id}");
             return m_ProjectService.GetChartData(id);
+        }
+
+        /// <summary>
+        /// Get a list of calendar tasks by referencing the project id, and optionally filtering by a start date, end date and team member.
+        /// </summary>
+        /// <param name="id">Project Id</param>
+        /// <param name="start">Start Date</param>
+        /// <param name="end">End Date</param>
+        /// <param name="teamMember">Team Member to only show tasks from</param>
+        /// <returns></returns>
+        [HttpPost("GetCalendarTasks")]
+        public async Task<List<GetCalendarTasksModel.CalendarTask>> GetCalendarTasksAsync([FromForm] int id, [FromForm] Guid teamMember, [FromForm] TaskCompletionFilter taskCompleted, string? start = null, string? end = null)
+        {
+            Console.WriteLine($"GetCalendarTasks: {id} (teamMember: {teamMember} | taskCompleted: {taskCompleted})");
+            return await m_ProjectService.GetCalendarTasksAsync(id, teamMember, taskCompleted, start, end);
+        }
+
+        /// <summary>
+        /// Edit task start and due dates
+        /// </summary>
+        /// <param name="id">Task to edit</param>
+        /// <param name="newStartDate">New task start date</param>
+        /// <param name="newDueDate">New task due date</param>
+        /// <returns>Void</returns>
+        [HttpPost("EditTaskDates")]
+        public async Task EditTaskDatesAsync([FromBody] EditTaskDatesModel editTaskDates)
+        {
+            Console.WriteLine($"EditTaskDates: {editTaskDates.Id}, {editTaskDates.NewStartDate}, {editTaskDates.NewDueDate}");
+            await m_ProjectService.EditTaskDates(editTaskDates.Id, editTaskDates.NewStartDate, editTaskDates.NewDueDate);
         }
     }
 }

@@ -149,7 +149,8 @@ function addColumnBtn(dbId) {
 }
 
 function viewProjectMembers() {
-    $("#memberList").empty();
+    let divId: string = "#memberList";
+    $(divId).empty();
     $.ajax({
         type: "GET",
         dataType: "json",
@@ -161,7 +162,7 @@ function viewProjectMembers() {
         success: function (response) {
             console.log(response);
 
-            $("#memberList").append(`<li class=\"list-group-item d-flex justify-content-between align-items-start\">\
+            $(divId).append(`<li class=\"list-group-item d-flex justify-content-between align-items-start\">\
                         <div class=\"ms-2 me-auto\">\
                             <div class=\"fw-auto\">${response.cardOwner} <span class=\"badge ps-div-projects rounded-pill\">Owner</span></div>\
                             Project Owner\
@@ -172,7 +173,7 @@ function viewProjectMembers() {
             if (response.cardAdmins.length > 0) {
                 response.cardAdmins.forEach(admin => {
                     console.log(admin);
-                    $("#memberList").append(`<li class=\"list-group-item d-flex justify-content-between align-items-start\">\
+                    $(divId).append(`<li class=\"list-group-item d-flex justify-content-between align-items-start\">\
                             <div class=\"ms-2 me-auto\">\
                                 <div class=\"fw-auto\">${admin} <span class=\"badge ps-div-users rounded-pill\">Admin</span></div>\
                                 Project Admin\
@@ -185,7 +186,7 @@ function viewProjectMembers() {
             if (response.cardMembers.length > 0) {
                 response.cardMembers.forEach(member => {
                     console.log(member);
-                    $("#memberList").append(`<li class=\"list-group-item d-flex justify-content-between align-items-start\">\
+                    $(divId).append(`<li class=\"list-group-item d-flex justify-content-between align-items-start\">\
                             <div class=\"ms-2 me-auto\">\
                                 <div class=\"fw-auto\">${member}</div>\
                                 Project Member\

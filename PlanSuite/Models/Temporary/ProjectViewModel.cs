@@ -2,7 +2,6 @@
 using PlanSuite.Models.Persistent;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Security.Cryptography.X509Certificates;
 
 namespace PlanSuite.Models.Temporary
 {
@@ -29,6 +28,7 @@ namespace PlanSuite.Models.Temporary
         public decimal UsedBudget { get; set; }
         public MarkCompleteModel MarkComplete = new MarkCompleteModel();
         public List<ChecklistItemModel> ChecklistItems = new List<ChecklistItemModel>();
+        public Dictionary<Guid, string> TeamMembers = new Dictionary<Guid, string>();
 
         public class ChecklistItemModel
         {
