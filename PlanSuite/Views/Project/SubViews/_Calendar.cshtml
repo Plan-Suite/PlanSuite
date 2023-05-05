@@ -30,11 +30,14 @@
     <div id="mySidenav" class="sidenav">
         @foreach(var card in Model.Cards)
         {
-            <div class="ps-board-task ps-board-task-pending mb-1 draggable ui-draggable ui-draggable-handle" id="@card.Id">
-                <div class="d-grid gap-2" style="min-height:60px;">
-                    <a class="btn" style="text-align:left;" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal"><i class="bi bi-card-checklist"></i> @card.CardName</a>
+            if(card.CardDueDate == null)
+            {
+                <div class="ps-board-task ps-board-task-pending mb-1 draggable ui-draggable ui-draggable-handle" id="@card.Id" data-title="@card.CardName">
+                    <div class="d-grid gap-2" style="min-height:60px;">
+                        <a class="btn" style="text-align:left;" href="#" id="viewCardName_@card.Id" data-bs-toggle="modal" data-bs-target="#viewCardModal"><i class="bi bi-card-checklist"></i> @card.CardName</a>
+                    </div>
                 </div>
-            </div>
+            }
         }
     </div>
 </div>
@@ -189,14 +192,28 @@
                 var droppedOnParent = $(this).parent();
 
                 var taskId = dropped.attr("id");
+                var taskTitle = dropped.data("title");
                 var date = droppedOnParent.data("date");
-                var dateTime = new Date(date).toISOString();
+                var dateObj = new Date(date);
+                var dateTime = dateObj.toISOString();
                 console.log(
                     taskId + " was dropped on " + dateTime
                 );
 
                 $(dropped).remove();
                 ProjectCommon.editTaskDates(taskId, dateTime, dateTime);
+
+                if (!isNaN(dateObj.valueOf()))
+                {
+                    calendar.addEvent({
+                        id: `${taskId}`,
+                        title: `${taskTitle}`,
+                        start: dateObj,
+                        end: dateObj
+                    });
+                }
+
+                calendar.render();
             }
         });
     });

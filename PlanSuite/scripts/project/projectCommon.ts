@@ -64,7 +64,7 @@ export class ProjectCommon {
             data: JSON.stringify({ cardId: dbId, timestamp: dateEntered, priority: radioValue, assigneeId: assigneeId, milestoneId: milestoneId, budget: budget }),
             success: function (response) {
                 ProjectCommon.viewCardButton(dbId);
-            },
+            }
         });
     }
 
@@ -392,7 +392,7 @@ export class ProjectCommon {
             data: JSON.stringify({ id: dbId, newStartDate: newStartDate, newDueDate: newDueDate }),
         });
     }
-
+    //Request finished HTTP/2 GET
     static addChecklist(id, name, checklistItems) {
         var checklistHolder = $("#checklistHolder");
         checklistHolder.removeClass("d-none");

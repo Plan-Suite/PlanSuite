@@ -242,10 +242,10 @@ namespace PlanSuite.Controllers.Api
         /// <param name="newDueDate">New task due date</param>
         /// <returns>Void</returns>
         [HttpPost("EditTaskDates")]
-        public async Task EditTaskDatesAsync([FromBody] int id, string newStartDate, string newDueDate)
+        public async Task EditTaskDatesAsync([FromBody] EditTaskDatesModel editTaskDates)
         {
-            Console.WriteLine($"EditTaskDates: {id}, {newStartDate}, {newDueDate}");
-            await m_ProjectService.EditTaskDates(id, newStartDate, newDueDate);
+            Console.WriteLine($"EditTaskDates: {editTaskDates.Id}, {editTaskDates.NewStartDate}, {editTaskDates.NewDueDate}");
+            await m_ProjectService.EditTaskDates(editTaskDates.Id, editTaskDates.NewStartDate, editTaskDates.NewDueDate);
         }
     }
 }
