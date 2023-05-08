@@ -83,6 +83,7 @@ namespace PlanSuite.Models.Temporary
     public class EditCardModel
     {
         public int CardId { get; set; }
+        public uint StartTimestamp { get; set; }
         public uint Timestamp { get; set; }
         public int Priority { get; set; }
         public string AssigneeId { get; set; }

@@ -60,7 +60,7 @@ namespace PlanSuite.Controllers.Api
         [HttpPost("EditCard")]
         public async Task<IActionResult> EditCardAsync([FromBody] EditCardModel model)
         {
-            Console.WriteLine($"EditCardModel: {model.CardId} {model.Timestamp} {model.Priority} {model.AssigneeId} {model.Budget}");
+            Console.WriteLine($"EditCardModel: {model.CardId} {model.StartTimestamp} {model.Timestamp} {model.Priority} {model.AssigneeId} {model.Budget}");
             await m_ProjectService.EditCardAsync(model, User);
 
             return Ok(new

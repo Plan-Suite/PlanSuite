@@ -1,5 +1,4 @@
-﻿using crypto;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +7,6 @@ using PlanSuite.Enums;
 using PlanSuite.Models.Persistent;
 using PlanSuite.Models.Temporary;
 using PlanSuite.Utility;
-using System.Globalization;
 using System.Security.Claims;
 
 namespace PlanSuite.Services
@@ -731,10 +729,17 @@ namespace PlanSuite.Services
                 dueDate = DateTimeOffset.FromUnixTimeSeconds(model.Timestamp).UtcDateTime;
             }
 
+            DateTime? startDate = null;
+            if (model.StartTimestamp > 0)
+            {
+                startDate = DateTimeOffset.FromUnixTimeSeconds(model.StartTimestamp).UtcDateTime;
+            }
+
             var card = m_Database.Cards.Where(card => card.Id == model.CardId).FirstOrDefault();
             if (card != null)
             {
                 Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(model));
+                card.CardStartDate = startDate;
                 card.CardDueDate = dueDate;
                 card.CardPriority = (Priority)model.Priority;
                 if(Guid.TryParse(model.AssigneeId, out Guid result))
