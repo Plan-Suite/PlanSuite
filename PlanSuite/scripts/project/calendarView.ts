@@ -1,4 +1,4 @@
-﻿import { Calendar } from '@fullcalendar/core';
+﻿/*import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import { ProjectCommon } from "./projectCommon.js";
 
@@ -26,4 +26,4 @@ $(function () {
     });
 
     calendar.render();
-});
+});*/

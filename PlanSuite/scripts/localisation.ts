@@ -1,4 +1,4 @@
-﻿import { getCookie } from './cookie.js'
+﻿import { getCookie } from './cookie'
 
 interface LocalisationResponse {
     data: Record<string, string>;

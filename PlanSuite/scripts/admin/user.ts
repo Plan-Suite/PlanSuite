@@ -1,4 +1,4 @@
-﻿import { isBlank, intToTier, arrayToString } from "../site.js";
+﻿import { isBlank, intToTier, arrayToString } from '../site';
 
 let editIdInput: JQuery<HTMLElement>;
 

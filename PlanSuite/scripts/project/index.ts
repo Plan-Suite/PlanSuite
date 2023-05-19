@@ -1,8 +1,8 @@
 ﻿import { ajax } from "jquery";
-import { Localisation } from "../localisation.js";
-import { isBlank } from '../site.js'
-import { TimeSpan } from "../timespan.js";
-import { ProjectCommon } from "./projectCommon.js"
+import { Localisation } from "../localisation";
+import { isBlank } from '../site'
+import { TimeSpan } from "../timespan";
+import { ProjectCommon } from "./projectCommon"
 
 const localisation = new Localisation();
 var projectId: number;

@@ -1,5 +1,5 @@
-﻿import { ProjectCommon } from "../project/projectCommon.js";
-import { onDeleteInput } from "../site.js";
+﻿import { ProjectCommon } from "../project/projectCommon";
+import { onDeleteInput } from "../site";
 
 const verificationToken: string = $("#RequestVerificationToken").val() as string;
 

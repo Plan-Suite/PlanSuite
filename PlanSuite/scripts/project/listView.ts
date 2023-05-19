@@ -1,4 +1,4 @@
-﻿import { ProjectCommon } from "./projectCommon.js"
+﻿import { ProjectCommon } from "./projectCommon"
 
 $(function () {
     $(".task-list-col").each(function () {

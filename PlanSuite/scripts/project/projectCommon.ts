@@ -1,5 +1,5 @@
-﻿import { Localisation } from "../localisation.js";
-import { isBlank } from '../site.js'
+﻿import { Localisation } from "../localisation";
+import { isBlank } from '../site'
 const localisation = new Localisation();
 const verificationToken: string = $("#RequestVerificationToken").val() as string;
 

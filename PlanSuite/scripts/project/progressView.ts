@@ -1,4 +1,4 @@
-import { ProjectCommon } from "./projectCommon.js"
+import { ProjectCommon } from "./projectCommon"
 
 $(function () {
     $(".progress-list-col").each(function () {

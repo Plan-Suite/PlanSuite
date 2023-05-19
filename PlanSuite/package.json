@@ -2,6 +2,18 @@
   "version": "1.0.0",
   "name": "asp.net",
   "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "webpack --mode=development",
+    "build:prod": "webpack --mode=production"
+  },
+  "devDependencies": {
+    "ts-loader": "^9.2.5",
+    "typescript": "^4.4.3",
+    "webpack": "^5.83.1",
+    "webpack-cli": "^4.10.0",
+    "webpack-merge": "^5.8.0"
+  },
   "dependencies": {
     "@fullcalendar/core": "^6.1.5",
     "@fullcalendar/daygrid": "^6.1.5",
@@ -10,8 +22,11 @@
     "@types/jquery": "3.5.14",
     "@types/jqueryui": "1.12.16",
     "@types/summernote": "^0.8.7",
+    "chart.js": "^4.0.0",
     "frappe-gantt": "^0.6.1",
     "hello-week": "^2.13.0",
+    "jquery": "^3.7.0",
+    "jquery-ui": "^1.13.2",
     "url-slug": "^3.0.4"
   }
 }
