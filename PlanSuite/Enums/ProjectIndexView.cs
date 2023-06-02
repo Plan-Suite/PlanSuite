@@ -5,6 +5,7 @@
         Cards,
         List,
         Calendar,
-        Gantt
+        Gantt,
+        Dashboard
     }
 }

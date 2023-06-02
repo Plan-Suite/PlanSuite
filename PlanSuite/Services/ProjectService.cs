@@ -1073,5 +1073,43 @@ namespace PlanSuite.Services
             await m_Database.SaveChangesAsync();
             m_Logger.LogInformation($"Finished editing task {id} dates");
         }
+
+        public async Task<IncompleteTasksDataset> GetIncompleteTasksDataset(GetIncompleteTasksModel model)
+        {
+            IncompleteTasksDataset incompleteTasksDatasets = new IncompleteTasksDataset();
+            incompleteTasksDatasets.IncompleteTasks = new List<IncompleteTasksDataset.IncompleTask>();
+
+            m_Logger.LogInformation($"GetIncompleteTasksDataset: Checking if project {model.Id} exists");
+            var project = await m_Database.Projects.Where(item => item.Id == model.Id).FirstOrDefaultAsync();
+            if (project == null)
+            {
+                return incompleteTasksDatasets;
+            }
+
+            m_Logger.LogInformation($"GetIncompleteTasksDataset: Getting columns for project {model.Id}");
+            var cols = await m_Database.Columns.Where(col => col.ProjectId == project.Id).ToListAsync();
+            if (cols == null || cols.Count < 1)
+            {
+                return incompleteTasksDatasets;
+            }
+
+            foreach(var col in cols)
+            {
+                var tasks = await m_Database.Cards.Where(task => task.ColumnId == col.Id && task.IsFinished == false).ToListAsync();
+                if(model.TeamMember != Guid.Empty)
+                {
+                    tasks = tasks.Where(task => task.CardAssignee == model.TeamMember).ToList();
+                }
+
+                incompleteTasksDatasets.IncompleteTasks.Add(new IncompleteTasksDataset.IncompleTask(col.Title, tasks.Count));
+            }
+
+            return incompleteTasksDatasets;
+        }
+
+        public async Task<IncompleteTasksDataset> GetTotalTasksByCompletionStatus(GetTotalTasksByCompletionStatusModel getTotalTasksByCompletionStatus)
+        {
+            
+        }
     }
 }

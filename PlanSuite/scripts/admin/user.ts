@@ -1,9 +1,9 @@
-﻿import { isBlank, intToTier, arrayToString } from '../site';
+﻿import $ from 'jquery';
+import { isBlank, intToTier, arrayToString } from '../site';
 
 let editIdInput: JQuery<HTMLElement>;
 
-$(function () {
-
+$(document).ready(function () {
     editIdInput = $("#EditUserId");
     editIdInput.val(0);
 

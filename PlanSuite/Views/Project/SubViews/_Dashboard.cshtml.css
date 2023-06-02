@@ -1,0 +1,19 @@
+﻿.ps-card {
+    border: 1px solid #D7D7D7;
+    border-radius: 10px;
+    transition: 0.3s;
+    padding: 10px;
+    background-color: var(--white-2);
+    text-align: center;
+}
+
+.ps-card-header {
+    text-align: center;
+    font-weight: 700;
+    font-size: calc(1.275rem + 0.3vw);
+}
+
+.ps-card-body {
+    font-weight: 600;
+    font-size: calc(1rem + 0.3vw);
+}

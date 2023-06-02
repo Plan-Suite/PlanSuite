@@ -540,4 +540,7 @@
   <data name="FILTER_BY_TASK_PRIORITY_STATUS" xml:space="preserve">
     <value>Filter by Task Priority</value>
   </data>
+<data name="DASHBOARD" xml:space="preserve">
+    <value>Dashboard</value>
+  </data>
 </root>

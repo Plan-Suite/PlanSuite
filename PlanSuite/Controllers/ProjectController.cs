@@ -151,18 +151,23 @@ namespace PlanSuite.Controllers
                     {
                         foreach(var card in cards)
                         {
-                            if(card.CardStartDate == null)
+                            viewModel.Dashboard.TotalTasks++;
+
+                            if(card.IsFinished == true)
                             {
-                                if(card.CardDueDate != null)
+                                viewModel.Dashboard.CompletedTasks++;
+                            }
+                            else
+                            {
+                                viewModel.Dashboard.IncompleteTasks++;
+                            }
+
+                            if (card.CardDueDate != null)
+                            {
+                                if (DateTime.Now > card.CardDueDate && card.IsFinished == false)
                                 {
-                                    DateTime pastTime = (DateTime)card.CardDueDate;
-                                    card.CardStartDate = pastTime.AddDays(-7);
+                                    viewModel.Dashboard.OverdueTasks++;
                                 }
-                                else
-                                {
-                                    card.CardStartDate = DateTime.Now;
-                                }
-                                await dbContext.SaveChangesAsync();
                             }
                             var checklists = await dbContext.CardChecklists.Where(chk => chk.ChecklistCard == card.Id).ToListAsync();
                             foreach(var checklist in checklists)

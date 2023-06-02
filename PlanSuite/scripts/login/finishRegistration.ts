@@ -1,4 +1,4 @@
-import * as $ from "jquery";
+import $ from "jquery";
 
 var firstName: JQuery<HTMLElement> = $("#Input_FirstName");
 var lastName: JQuery<HTMLElement> = $("#Input_LastName");

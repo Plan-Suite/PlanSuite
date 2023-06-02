@@ -29,6 +29,22 @@ namespace PlanSuite.Models.Temporary
         public MarkCompleteModel MarkComplete = new MarkCompleteModel();
         public List<ChecklistItemModel> ChecklistItems = new List<ChecklistItemModel>();
         public Dictionary<Guid, string> TeamMembers = new Dictionary<Guid, string>();
+        public DashboardModel Dashboard = new DashboardModel();
+        public List<IncompleteTaskData> IncompleteTaskDatas = new List<IncompleteTaskData>();
+
+        public class DashboardModel
+        {
+            public int CompletedTasks { get; set; }
+            public int IncompleteTasks { get; set; }
+            public int OverdueTasks { get; set; }
+            public int TotalTasks { get; set; }
+        }
+
+        public class IncompleteTaskData
+        {
+            public string Column { get; set; }
+            public int Count { get; set; }
+        }
 
         public class ChecklistItemModel
         {

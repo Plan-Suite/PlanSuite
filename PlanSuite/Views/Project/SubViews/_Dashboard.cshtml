@@ -1,0 +1,57 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using PlanSuite.Enums;
+@using PlanSuite.Models.Persistent
+@using PlanSuite.Services;
+@using PlanSuite.Utility;
+@inject UserManager<ApplicationUser> UserManager
+@inject LocalisationService Localisation
+@model PlanSuite.Models.Temporary.ProjectViewModel
+@{
+    var user = await UserManager.GetUserAsync(User);
+}
+
+<input type="hidden" id="project_subpage" value="dashboard" />
+
+<div class="clearfix">
+    <div class="row mt-2">
+        <div class="col-sm-6 col-lg-3 mb-2">
+            <div class="ps-card">
+                <p class="ps-card-header">Completed Tasks</p>
+                <p class="ps-card-body">@Model.Dashboard.CompletedTasks</p>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 mb-2">
+            <div class="ps-card">
+                <p class="ps-card-header">Incomplete Tasks</p>
+                <p class="ps-card-body">@Model.Dashboard.IncompleteTasks</p>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 mb-2">
+            <div class="ps-card">
+                <p class="ps-card-header">Overdue Tasks</p>
+                <p class="ps-card-body">@Model.Dashboard.OverdueTasks</p>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3 mb-2">
+            <div class="ps-card">
+                <p class="ps-card-header">Total Tasks</p>
+                <p class="ps-card-body">@Model.Dashboard.TotalTasks</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6 mb-2">
+            <div class="ps-card">
+                <p class="ps-card-header">Incomplete Tasks by Column</p>
+                <canvas id="incompleteTasks"></canvas>
+            </div>
+        </div>
+        <div class="col-sm-6 mb-2">
+            <div class="ps-card">
+                <p class="ps-card-header">Total Tasks by Completion Status</p>
+                <canvas id="totalTasksByCompletion"></canvas>
+            </div>
+        </div>
+    </div>
+</div>

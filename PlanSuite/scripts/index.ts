@@ -3,6 +3,7 @@ export * from './cookie';
 export * from './localisation';
 export * from './site';
 export * from './timespan';
+export * from './UrlUtil';
 
 export * from './admin/user';
 export * from './home/index';
@@ -17,3 +18,4 @@ export * from './project/index';
 export * from './project/listView';
 export * from './project/progressView';
 export * from './project/projectCommon';
+export * from './project/view';

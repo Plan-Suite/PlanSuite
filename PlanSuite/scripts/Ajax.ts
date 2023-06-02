@@ -1,14 +1,14 @@
 import { data } from "jquery";
 
 export class AjaxUtility {
-    private static m_VerificationTokenElement: JQuery<HTMLElement>;
+    private static m_VerificationTokenElement: HTMLInputElement;
     private static m_VerificationTokenString: string;
 
     static {
-        this.m_VerificationTokenElement = $("#RequestVerificationToken");
+        this.m_VerificationTokenElement = document.getElementById("RequestVerificationToken") as HTMLInputElement //$("#RequestVerificationToken");
 
         if (this.m_VerificationTokenElement != null) {
-            this.m_VerificationTokenString = this.m_VerificationTokenElement.val() as string;
+            this.m_VerificationTokenString = this.m_VerificationTokenElement.value;
         }
     }
 

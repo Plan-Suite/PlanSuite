@@ -247,5 +247,34 @@ namespace PlanSuite.Controllers.Api
             Console.WriteLine($"EditTaskDates: {editTaskDates.Id}, {editTaskDates.NewStartDate}, {editTaskDates.NewDueDate}");
             await m_ProjectService.EditTaskDates(editTaskDates.Id, editTaskDates.NewStartDate, editTaskDates.NewDueDate);
         }
+
+        /// <summary>
+        /// Get incomplete task count per column
+        /// </summary>
+        /// <param name="getIncompleteTasks"></param>
+        /// <returns></returns>
+        [HttpPost("GetIncompleteTasksDataset")]
+        public async Task<IncompleteTasksDataset> GetIncompleteTasksDataset([FromBody] GetIncompleteTasksModel getIncompleteTasks)
+        {
+            Console.WriteLine($"GetIncompleteTasksDataset: {getIncompleteTasks.Id} teamMember: {getIncompleteTasks.TeamMember}");
+            if(getIncompleteTasks.Id < 1)
+            {
+                return null;
+            }
+
+            return await m_ProjectService.GetIncompleteTasksDataset(getIncompleteTasks);
+        }
+
+        [HttpPost("GetTotalTasksByCompletionStatus")]
+        public async Task<IncompleteTasksDataset> GetTotalTasksByCompletionStatus([FromBody] GetTotalTasksByCompletionStatusModel getTotalTasksByCompletionStatus)
+        {
+            Console.WriteLine($"GetTotalTasksByCompletionStatus: {getTotalTasksByCompletionStatus.Id} teamMember: {getTotalTasksByCompletionStatus.TeamMember}");
+            if (getTotalTasksByCompletionStatus.Id < 1)
+            {
+                return null;
+            }
+
+            return await m_ProjectService.GetTotalTasksByCompletionStatus(getTotalTasksByCompletionStatus);
+        }
     }
 }

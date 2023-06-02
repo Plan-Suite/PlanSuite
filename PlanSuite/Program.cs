@@ -19,6 +19,10 @@ var logger = NLog.LogManager.Setup().LoadConfigurationFromAppSettings().GetCurre
 try
 {
     var builder = WebApplication.CreateBuilder(args);
+    builder.WebHost.ConfigureKestrel(option =>
+    {
+        option.AddServerHeader = false;
+    });
 
     WebsiteVersion.Init(builder.Environment.EnvironmentName);
 

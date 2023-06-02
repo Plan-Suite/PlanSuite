@@ -6,4 +6,16 @@
         public string NewStartDate { get; set; }
         public string NewDueDate { get; set; }
     }
+
+    public class GetIncompleteTasksModel
+    {
+        public int Id { get; set; }
+        public Guid TeamMember { get; set; }
+    }
+
+    public class GetTotalTasksByCompletionStatusModel
+    {
+        public int Id { get; set; }
+        public Guid TeamMember { get; set; }
+    }
 }

@@ -45,7 +45,7 @@
 }
 
 <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.css" rel="stylesheet" />
-<script type="module" src="~/js/project/index.js" asp-append-version="true"></script>
+@*<script type="module" src="~/js/project/index.js" asp-append-version="true"></script>*@
 
 <div class="container">
 
@@ -118,6 +118,7 @@
 
     <input type="hidden" id="projectId" value="@Model.Project.Id"/>
     <input type="hidden" id="userId" value="@Model.UserId"/>
+    <input type="hidden" id="filterByTeamMember" value="@filterByTeamMember" />
 
     @* View Card *@
     <partial name="SubViews/_ViewCard" />
@@ -385,7 +386,7 @@
     </div>
     <ul class="nav nav-tabs">
         @{
-            string listActive = string.Empty, cardActive = string.Empty, calendarActive = string.Empty, progressActive = string.Empty;
+            string listActive = string.Empty, cardActive = string.Empty, calendarActive = string.Empty, progressActive = string.Empty, dashboardActive = string.Empty;
             switch(indexView)
             {
                 default:
@@ -400,6 +401,9 @@
                     break;
                 case ProjectIndexView.Gantt:
                     progressActive = "active";
+                    break;
+                case ProjectIndexView.Dashboard:
+                    dashboardActive = "active";
                     break;
             }
         }
@@ -418,6 +422,9 @@
                 <a class="nav-link ps-link-primary @progressActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Gantt)" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)">@Localisation.Get(user, "PROGRESS_VIEW_NAME")</a>
             </li>
         }
+        <li class="nav-item">
+            <a class="nav-link ps-link-primary @dashboardActive" asp-controller="Project" asp-action="Index" asp-route-id="@Model.Project.Id" asp-route-view="@((int)ProjectIndexView.Dashboard)" asp-route-filterByTeamMember="@filterByTeamMember" asp-route-filterByTaskCompleted="@((int)taskCompletionFilter)" asp-route-filterByTaskOverdue="@((int)taskOverdueFilter)" asp-route-filterByTaskPriority="@((int)taskPriorityFilter)">@Localisation.Get(user, "DASHBOARD")</a>
+        </li>
     </ul>
     @if(indexView == ProjectIndexView.List)
     {
@@ -430,6 +437,10 @@
     else if (indexView == ProjectIndexView.Gantt && Model.PaymentTier >= PaymentTier.Plus)
     {
         <partial name="SubViews/_Gantt" />
+    }
+    else if (indexView == ProjectIndexView.Dashboard)
+    {
+        <partial name="SubViews/_Dashboard" />
     }
     else
     {
