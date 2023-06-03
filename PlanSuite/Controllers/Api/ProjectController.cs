@@ -266,7 +266,7 @@ namespace PlanSuite.Controllers.Api
         }
 
         [HttpPost("GetTotalTasksByCompletionStatus")]
-        public async Task<IncompleteTasksDataset> GetTotalTasksByCompletionStatus([FromBody] GetTotalTasksByCompletionStatusModel getTotalTasksByCompletionStatus)
+        public async Task<TotalTasksByCompletionStatus> GetTotalTasksByCompletionStatus([FromBody] GetTotalTasksByCompletionStatusModel getTotalTasksByCompletionStatus)
         {
             Console.WriteLine($"GetTotalTasksByCompletionStatus: {getTotalTasksByCompletionStatus.Id} teamMember: {getTotalTasksByCompletionStatus.TeamMember}");
             if (getTotalTasksByCompletionStatus.Id < 1)

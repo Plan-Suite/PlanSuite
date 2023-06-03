@@ -4,13 +4,15 @@ import { ProjectCommon } from './projectCommon';
 import { UrlUtil } from '../UrlUtil';
 import { View } from './view';
 import { IncompleteTasksDataset, IncompleteTask } from 'models/IncompleteTasksDataset';
+import { TotalTasksByCompletionStatus } from 'models/TotalTasksByCompletionStatus';
 
 (async function () {
     if (!UrlUtil.IsCorrectPage("projects", View.Dashboard)) {
         return;
     }
 
-    var context: HTMLCanvasElement = document.getElementById('incompleteTasks') as HTMLCanvasElement;
+    var incompleteTasksContext: HTMLCanvasElement = document.getElementById('incompleteTasks') as HTMLCanvasElement;
+    var completeTasksContext: HTMLCanvasElement = document.getElementById('totalTasksByCompletion') as HTMLCanvasElement;
     var projectId: number = $("#projectId").val() as number;
     var teamMember: string = $("#filterByTeamMember").val() as string;
 
@@ -26,9 +28,7 @@ import { IncompleteTasksDataset, IncompleteTask } from 'models/IncompleteTasksDa
         },
         data: jsonData,
         success: function (success: IncompleteTasksDataset) {
-            console.log(`success: ${JSON.stringify(success)}`);
-
-            new Chart(context,
+            new Chart(incompleteTasksContext,
                 {
                     type: 'bar',
                     data: {
@@ -45,29 +45,29 @@ import { IncompleteTasksDataset, IncompleteTask } from 'models/IncompleteTasksDa
         }
     });
 
-    var jsonData = JSON.stringify({ id: projectId, teamMember: teamMember, isCompleted: true });
+    jsonData = JSON.stringify({ id: projectId, teamMember: teamMember, isCompleted: true });
 
     $.ajax({
         type: "POST",
         dataType: "json",
         contentType: "application/json",
-        url: "/api/Project/GetIncompleteTasksDataset",
+        url: "/api/Project/GetTotalTasksByCompletionStatus",
         beforeSend: function (request) {
             request.setRequestHeader("RequestVerificationToken", ProjectCommon.GetVerificationToken());
         },
         data: jsonData,
-        success: function (success: IncompleteTasksDataset) {
+        success: function (success: TotalTasksByCompletionStatus) {
             console.log(`success: ${JSON.stringify(success)}`);
 
-            new Chart(context,
+            new Chart(completeTasksContext,
                 {
                     type: 'doughnut',
                     data: {
-                        labels: success.incompleteTasks.map(row => row.column),
+                        labels: success.tasksByCompletionStatus.map(row => row.status),
                         datasets: [
                             {
                                 label: 'Completed Tasks',
-                                data: success.incompleteTasks.map(row => row.count)
+                                data: success.tasksByCompletionStatus.map(row => row.count)
                             }
                         ]
                     }

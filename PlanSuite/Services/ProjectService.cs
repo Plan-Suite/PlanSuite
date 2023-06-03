@@ -1107,9 +1107,53 @@ namespace PlanSuite.Services
             return incompleteTasksDatasets;
         }
 
-        public async Task<IncompleteTasksDataset> GetTotalTasksByCompletionStatus(GetTotalTasksByCompletionStatusModel getTotalTasksByCompletionStatus)
+        public async Task<TotalTasksByCompletionStatus> GetTotalTasksByCompletionStatus(GetTotalTasksByCompletionStatusModel model)
         {
-            
+            TotalTasksByCompletionStatus totalTasksByCompletionStatus = new TotalTasksByCompletionStatus();
+            totalTasksByCompletionStatus.TasksByCompletionStatus = new List<TotalTasksByCompletionStatus.TaskByCompletionStatus>();
+
+            m_Logger.LogInformation($"GetTotalTasksByCompletionStatus: Checking if project {model.Id} exists");
+            var project = await m_Database.Projects.Where(item => item.Id == model.Id).FirstOrDefaultAsync();
+            if (project == null)
+            {
+                return totalTasksByCompletionStatus;
+            }
+
+            m_Logger.LogInformation($"GetTotalTasksByCompletionStatus: Getting columns for project {model.Id}");
+            var cols = await m_Database.Columns.Where(col => col.ProjectId == project.Id).ToListAsync();
+            if (cols == null || cols.Count < 1)
+            {
+                return totalTasksByCompletionStatus;
+            }
+
+            totalTasksByCompletionStatus.TasksByCompletionStatus.Add(new TotalTasksByCompletionStatus.TaskByCompletionStatus("Complete"));
+            totalTasksByCompletionStatus.TasksByCompletionStatus.Add(new TotalTasksByCompletionStatus.TaskByCompletionStatus("Incomplete"));
+
+            foreach (var col in cols)
+            {
+                var tasks = await m_Database.Cards.Where(task => task.ColumnId == col.Id).ToListAsync();
+                if (model.TeamMember != Guid.Empty)
+                {
+                    tasks = tasks.Where(task => task.CardAssignee == model.TeamMember).ToList();
+                }
+
+                foreach(var task in tasks)
+                {
+                    //string status = "Incomplete";
+                    if(task.IsFinished == true)
+                    {
+                        //status = "Complete";
+                        totalTasksByCompletionStatus.TasksByCompletionStatus[0].Count++;
+                    }
+                    else
+                    {
+                        totalTasksByCompletionStatus.TasksByCompletionStatus[1].Count++;
+                    }
+
+                }
+            }
+
+            return totalTasksByCompletionStatus;
         }
     }
 }

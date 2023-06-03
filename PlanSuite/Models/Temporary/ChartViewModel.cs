@@ -3,6 +3,22 @@ using System.Drawing;
 
 namespace PlanSuite.Models.Temporary
 {
+    public class TotalTasksByCompletionStatus
+    {
+        public class TaskByCompletionStatus
+        {
+            public TaskByCompletionStatus(string status)
+            {
+                Status = status;
+            }
+
+            public string Status { get; set; }
+            public int Count { get; set; }
+        }
+
+        public List<TaskByCompletionStatus> TasksByCompletionStatus { get; set; }
+    }
+
     public class ChartViewModel
     {
         public static Color[] ValidColours =
